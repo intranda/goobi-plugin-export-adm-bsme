@@ -1,6 +1,6 @@
 <config_plugin>
  
-    <!-- sample parameter -->
-    <value>test</value>
+    <!-- directory where to export to -->
+    <targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
 
 </config_plugin>
