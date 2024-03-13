@@ -3,4 +3,89 @@
     <!-- directory where to export to -->
     <targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
 
+
+<config>
+        <!-- individual export setting per project -->
+        <project>*</project>
+        <export>
+            <images>true</images>
+            <fulltext>true</fulltext>
+            <subfolderPerIssue>true</subfolderPerIssue>
+            <exportFolder>/tmp/export/</exportFolder>
+            <exportImageFolder>/tmp/export/$(meta.CatalogIDDigital)_tif/</exportImageFolder>
+            <exportAltoFolder>/tmp/export/$(meta.CatalogIDDigital)_alto/</exportAltoFolder>
+        </export>
+        <metsUrl addFileExtension="true">https://viewer.example.org/sourcefile?id=</metsUrl>
+        <resolverUrl>https://viewer.example.org/piresolver?id=</resolverUrl>
+        
+        <!-- file groups -->
+        <!-- if no file group is set, the file groups from the project configuration are used -->
+        <filegroups>
+            <filegroup
+                name="DEFAULT"
+                path="https://viewer.example.org/content/$(meta.CatalogIDDigital)/1000/0/"
+                mimetype=""
+                suffix=""
+                foldername=""
+                filesToIgnore=""
+                mimetypeFromFilename="true" />
+            <filegroup
+                name="FULLTEXT"
+                path="https://viewer.example.org/api/v1/records/$(meta.CatalogIDDigital)/files/alto/"
+                mimetype="xml/alto"
+                suffix="xml"
+                foldername="getOcrDirectory"
+                filesToIgnore=""
+                mimetypeFromFilename="false" />
+        </filegroups>
+        <!-- mets parameter -->
+        <!-- if a field is empty or missing, project configuration is used -->
+        <metsPointerPath>https://viewer.example.org/sourcefile?id=$(meta.topstruct.CatalogIDDigital).xml</metsPointerPath>
+        <metsPointerPathAnchor>https://viewer.example.org/sourcefile?id=$(meta.CatalogIDDigital).xml</metsPointerPathAnchor>
+        <metsPointerAddFileExtension>true</metsPointerAddFileExtension>        
+        <rightsOwner>Example institution</rightsOwner>
+        <rightsOwnerLogo>https://viewer.example.org/resources/themes/reference/images/dfg_viewer_logo.png</rightsOwnerLogo>
+        <rightsOwnerSiteURL />
+        <rightsOwnerContact />
+        <digiprovPresentation>https://viewer.example.org/piresolver?id=$(meta.CatalogIDDigital)</digiprovPresentation>
+        <digiprovReference />
+        <digiprovPresentationAnchor>https://viewer.example.org/piresolver?id=$(meta.topstruct.CatalogIDDigital)</digiprovPresentationAnchor>
+        <digiprovReferenceAnchor />
+        <rightsLicense />
+        <rightsSponsor />
+        <rightsSponsorLogo />
+        <rightsSponsorSiteURL />
+        <purl/>
+        <contentIds/>
+    </config>
+    
+    <!-- global metadata settings -->
+    <metadata>
+        <purl>_purl</purl>
+        <zdbiddigital>CatalogIDPeriodicalDBDigital</zdbiddigital>
+        <zdbidanalog>CatalogIDPeriodicalDB</zdbidanalog>
+        <identifier>CatalogIDDigital</identifier>
+        <issueDate>DateIssued</issueDate>
+        <yearDate>CurrentNoSorting</yearDate>
+        <titleLabel>TitleDocMain</titleLabel>
+        <modsTitle>MainTitle</modsTitle>
+        <volumeNumber>VolumeNo</volumeNumber>
+        <issueNumber>CurrentNo</issueNumber>
+        <sortNumber>CurrentNoSorting</sortNumber>
+        <language>DocLanguage</language>
+        <location>PhysicalLocation</location>
+        <licence>UseAndReproductionLicense</licence>
+        <resourceType>TypeOfResource</resourceType>
+        <anchorId>AnchorID</anchorId>
+        <anchorTitle>AnchorTitle</anchorTitle>
+        <anchorZDBIdDigital>AnchorCatalogIDPeriodicalDBDigital</anchorZDBIdDigital>
+    </metadata>
+    <docstruct>
+        <newspaper>Newspaper</newspaper>
+        <year>Year</year>
+        <month>Month</month>
+        <day>Day</day>
+        <issue>NewspaperIssue</issue>
+        <newspaperStub>NewspaperStub</newspaperStub>
+    </docstruct>
 </config_plugin>
