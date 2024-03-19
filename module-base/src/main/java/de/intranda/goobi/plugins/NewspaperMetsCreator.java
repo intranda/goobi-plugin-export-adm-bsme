@@ -93,7 +93,8 @@ public class NewspaperMetsCreator {
 	 * @param prefs
 	 * @param dd
 	 */
-	public NewspaperMetsCreator(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd, Map<String, String> fileMap) {
+	public NewspaperMetsCreator(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd,
+			Map<String, String> fileMap) {
 		this.config = config;
 		this.process = process;
 		this.prefs = prefs;
@@ -102,7 +103,6 @@ public class NewspaperMetsCreator {
 		targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
 		vr = new VariableReplacer(dd, prefs, process, null);
 	}
-	
 
 	/**
 	 * generate the METS files
@@ -114,9 +114,10 @@ public class NewspaperMetsCreator {
 	 * @throws MetadataTypeNotAllowedException
 	 * @throws TypeNotAllowedForParentException
 	 * @throws SwapException
+	 * @throws DAOException 
 	 */
 	public boolean exportMetsFile() throws IOException, WriteException, PreferencesException,
-			MetadataTypeNotAllowedException, TypeNotAllowedForParentException, SwapException {
+			MetadataTypeNotAllowedException, TypeNotAllowedForParentException, SwapException, DAOException {
 
 		String goobiId = String.valueOf(process.getId());
 		config.setExpressionEngine(new XPathExpressionEngine());
@@ -209,11 +210,6 @@ public class NewspaperMetsCreator {
 			md.setValue(titleLabel);
 			logical.addMetadata(md);
 		}
-
-//		if (StringUtils.isBlank(zdbIdAnalog) || StringUtils.isBlank(zdbIdDigital) || StringUtils.isBlank(identifier)) {
-//			problems.add("Export aborted, ZDB id or record id are missing");
-//			return false;
-//		}
 
 		DocStruct volume = logical.getAllChildren().get(0);
 		String volumeLabel = null;
@@ -317,8 +313,7 @@ public class NewspaperMetsCreator {
 			log.error(e);
 			return false;
 		}
-		
-		
+
 		for (DocStruct issue : issues) {
 			// create issues, link issues to day
 			// https://wiki.deutsche-digitale-bibliothek.de/display/DFD/Ausgabe+Zeitung+1.0
@@ -547,19 +542,16 @@ public class NewspaperMetsCreator {
 				if (addFileExtension) {
 					dummyIssue
 							.setLink(metsResolverUrl + yearIdentifier + "-" + dateValue.replace("-", "") + "-mets.xml");
-					// dummyIssue.setLink(metsResolverUrl + issueIdentifier + ".xml");
 				} else {
 					dummyIssue.setLink(metsResolverUrl + issueIdentifier);
 				}
-				ExportFileformat issueExport = new MetsModsImportExport(prefs);
 
+				ExportFileformat issueExport = new MetsModsImportExport(prefs);
 				DigitalDocument issueDigDoc = new DigitalDocument();
 				issueExport.setDigitalDocument(issueDigDoc);
-
 				setMetsParameter(goobiId, pointer, anchor, issueExport);
 
 				// create hierarchy for individual issue file
-
 				// newspaper
 				DocStruct dummyNewspaper = issueDigDoc.createDocStruct(newspaperStubType);
 				if (addFileExtension) {
@@ -620,7 +612,6 @@ public class NewspaperMetsCreator {
 				DocStruct physicalDocstruct = issueDigDoc.createDocStruct(oldPhysical.getType());
 				issueDigDoc.setPhysicalDocStruct(physicalDocstruct);
 
-				
 				// add images
 				if (issue.getAllToReferences() != null) {
 					for (Reference ref : issue.getAllToReferences()) {
@@ -637,76 +628,30 @@ public class NewspaperMetsCreator {
 					}
 				}
 				issueDay.addChild(newIssue);
+							
 
-//			boolean useOriginalFiles = false;
+				// add a file group for the tif images
+				VirtualFileGroup v = new VirtualFileGroup();
+				v.setName("PRESENTATION");
+				v.setPathToFiles(vr.replace("file:///opt/digiverso/viewer/media/" + identifier + "/"));
+				v.setMimetype("image/tif");
+				v.setFileSuffix("tif");
+				v.setMainGroup(true);
+				issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
 
-				if (myFilegroups != null && !myFilegroups.isEmpty()) {
-					for (ProjectFileGroup pfg : myFilegroups) {
-//					if (pfg.isUseOriginalFiles()) {
-//						useOriginalFiles = true;
-//					}
-						// check if source files exists
-						if (pfg.getFolder() != null && pfg.getFolder().length() > 0) {
-							String foldername = process.getMethodFromName(pfg.getFolder());
-							if (foldername != null) {
-								Path folder = Paths.get(process.getMethodFromName(pfg.getFolder()));
-								if (folder != null && StorageProvider.getInstance().isFileExists(folder)
-										&& !StorageProvider.getInstance().list(folder.toString()).isEmpty()) {
-									VirtualFileGroup v = createFilegroup(vr, pfg,
-											subfolderPerIssue ? issueIdentifier : yearIdentifier);
-									issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
-								}
-							}
-						} else {
-							VirtualFileGroup v = createFilegroup(vr, pfg,
-									subfolderPerIssue ? issueIdentifier : yearIdentifier);
-							issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
-						}
-					}
-				}
-
-//			if (useOriginalFiles) {
-//				// check if media folder contains images
-//				List<Path> filesInFolder = StorageProvider.getInstance()
-//						.listFiles(process.getImagesTifDirectory(false));
-//				if (!filesInFolder.isEmpty()) {
-//					// compare image names with files in mets file
-//					List<DocStruct> pages = issueDigDoc.getPhysicalDocStruct().getAllChildren();
-//					if (pages != null && !pages.isEmpty()) {
-//						for (DocStruct page : pages) {
-//							Path completeNameInMets = Paths.get(page.getImageName());
-//							String filenameInMets = completeNameInMets.getFileName().toString();
-//							int dotIndex = filenameInMets.lastIndexOf('.');
-//							if (dotIndex != -1) {
-//								filenameInMets = filenameInMets.substring(0, dotIndex);
-//							}
-//							for (Path imageNameInFolder : filesInFolder) {
-//								String imageName = imageNameInFolder.getFileName().toString();
-//								dotIndex = imageName.lastIndexOf('.');
-//								if (dotIndex != -1) {
-//									imageName = imageName.substring(0, dotIndex);
-//								}
-//
-//								if (filenameInMets.equalsIgnoreCase(imageName)) {
-//									// found matching filename
-//									page.setImageName(imageNameInFolder.toString());
-//									break;
-//								}
-//							}
-//						}
-//					}
-//				}
-//			}
-
-//			DocStruct ds = issueExport.getDigitalDocument().getLogicalDocStruct();
-//			for (DocStruct dsc : ds.getAllChildrenAsFlatList()) {
-//				log.debug("------------------ " + dsc.getType().getName() + " ------------------");
-//				if (dsc.getAllMetadata() != null) {
-//					for (Metadata md : dsc.getAllMetadata()) {
-//						log.debug(md.getType().getName() + ": " + md.getValue());
-//					}
-//				}
-//			}
+				VirtualFileGroup vAlto = new VirtualFileGroup();
+				vAlto.setName("ALTO");
+				vAlto.setPathToFiles(vr.replace("file:///opt/digiverso/viewer/media/" + identifier + "/"));
+				vAlto.setMimetype("application/xml+alto");
+				vAlto.setFileSuffix("xml");
+				issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(vAlto);
+				
+				VirtualFileGroup vTxt = new VirtualFileGroup();
+				vTxt.setName("TXT");
+				vTxt.setPathToFiles(vr.replace("file:///opt/digiverso/viewer/media/" + identifier + "/"));
+				vTxt.setMimetype("text/plain");
+				vTxt.setFileSuffix("txt");
+				issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(vTxt);
 
 				// fix all file names to use the new ones
 				for (ContentFile cf : issueDigDoc.getFileSet().getAllFiles()) {
@@ -715,21 +660,15 @@ public class NewspaperMetsCreator {
 					String newFileName = fileMap.get(realFileNameWithoutExtension);
 					cf.setLocation(newFileName + ".tif");
 				}
-				
+
 				// export to configured folder
 				String issueName = Paths
 						.get(tmpExportFolder.toString(), yearIdentifier + "-" + simpleDate + "-mets.xml").toString();
 				issueExport.write(issueName);
-				//log.debug("======= write METS file for " + issueName + " ========");
-
 			} catch (TypeNotAllowedAsChildException e) {
 				log.error(e);
 			}
 		}
-
-		// update/save generated data in goobi process
-//		Fileformat fileformat = process.readMetadataFile();
-//		process.writeMetadataFile(fileformat);
 
 		String newspaperName = Paths.get(tmpExportFolder.toString(), yearIdentifier + ".xml").toString();
 		newspaperExport.write(newspaperName);
@@ -779,6 +718,13 @@ public class NewspaperMetsCreator {
 		ds.addMetadata(md);
 	}
 
+	
+	/**
+	 * get filegroups for project 
+	 * 
+	 * @param defaultFilegroups
+	 * @return
+	 */
 	private List<ProjectFileGroup> getProjectFileGroups(List<ProjectFileGroup> defaultFilegroups) {
 		List<ProjectFileGroup> answer = new ArrayList<>();
 		for (HierarchicalConfiguration hc : config.configurationsAt("/filegroups/filegroup")) {
@@ -794,6 +740,14 @@ public class NewspaperMetsCreator {
 		return answer.isEmpty() ? defaultFilegroups : answer;
 	}
 
+	/**
+	 * set some general mets parameters
+	 * 
+	 * @param goobiId
+	 * @param pointer
+	 * @param anchorPointer
+	 * @param fileFormat
+	 */
 	private void setMetsParameter(String goobiId, String pointer, String anchorPointer, ExportFileformat fileFormat) {
 		fileFormat.setGoobiID(goobiId);
 
@@ -830,8 +784,14 @@ public class NewspaperMetsCreator {
 		fileFormat.setWriteLocal(false);
 	}
 
+	/**
+	 * copy all docstruct details into another one 
+	 * @param docstructType
+	 * @param oldDocstruct
+	 * @param dd
+	 * @return
+	 */
 	private DocStruct copyDocstruct(DocStructType docstructType, DocStruct oldDocstruct, DigitalDocument dd) {
-
 		// create new docstruct
 		DocStruct newDocstruct = null;
 		try {
@@ -854,122 +814,17 @@ public class NewspaperMetsCreator {
 				}
 			}
 		}
-
-		// copy persons
-//		if (oldDocstruct.getAllPersons() != null) {
-//			for (Person p : oldDocstruct.getAllPersons()) {
-//				try {
-//					Person clone = new Person(p.getType());
-//					clone.setFirstname(p.getFirstname());
-//					clone.setLastname(p.getLastname());
-//					clone.setAutorityFile(p.getAuthorityID(), p.getAuthorityURI(), p.getAuthorityValue());
-//					newDocstruct.addPerson(clone);
-//				} catch (UGHException e) {
-//					log.info(e);
-//				}
-//			}
-//		}
-
-//		// copy corporates
-//		if (oldDocstruct.getAllCorporates() != null) {
-//			for (Corporate c : oldDocstruct.getAllCorporates()) {
-//				try {
-//					Corporate clone = new Corporate(c.getType());
-//					clone.setMainName(c.getMainName());
-//
-//					clone.setPartName(c.getPartName());
-//					clone.setSubNames(c.getSubNames());
-//					clone.setAutorityFile(c.getAuthorityID(), c.getAuthorityURI(), c.getAuthorityValue());
-//					newDocstruct.addCorporate(clone);
-//				} catch (UGHException e) {
-//					log.info(e);
-//				}
-//			}
-//		}
-//
-//		// copy groups
-//		if (oldDocstruct.getAllMetadataGroups() != null) {
-//			for (MetadataGroup mg : oldDocstruct.getAllMetadataGroups()) {
-//				try {
-//					MetadataGroup newMetadataGroup = cloneMetadataGroup(mg);
-//					newDocstruct.addMetadataGroup(newMetadataGroup);
-//				} catch (UGHException e) {
-//					log.info(e);
-//				}
-//			}
-//		}
-
 		return newDocstruct;
 	}
 
-//	private MetadataGroup cloneMetadataGroup(MetadataGroup inGroup) throws MetadataTypeNotAllowedException {
-//		MetadataGroup mg = new MetadataGroup(inGroup.getType());
-//		// copy metadata
-//		for (Metadata md : inGroup.getMetadataList()) {
-//			Metadata metadata = new Metadata(md.getType());
-//			metadata.setValue(md.getValue());
-//			if (StringUtils.isNotBlank(md.getAuthorityValue())) {
-//				metadata.setAutorityFile(md.getAuthorityID(), md.getAuthorityURI(), md.getAuthorityValue());
-//			}
-//			mg.addMetadata(metadata);
-//		}
-//
-//		// copy persons
-//		for (Person p : inGroup.getPersonList()) {
-//			Person person = new Person(p.getType());
-//			person.setFirstname(p.getFirstname());
-//			person.setLastname(p.getLastname());
-//			person.setAutorityFile(p.getAuthorityID(), p.getAuthorityURI(), p.getAuthorityValue());
-//			if (p.getAdditionalNameParts() != null && !p.getAdditionalNameParts().isEmpty()) {
-//				for (NamePart np : p.getAdditionalNameParts()) {
-//					NamePart newNamePart = new NamePart(np.getType(), np.getValue());
-//					person.addNamePart(newNamePart);
-//				}
-//			}
-//			mg.addPerson(person);
-//		}
-//
-//		// copy corporations
-//		for (Corporate c : inGroup.getCorporateList()) {
-//			Corporate corporate = new Corporate(c.getType());
-//			corporate.setMainName(c.getMainName());
-//			if (c.getSubNames() != null) {
-//				for (NamePart subName : c.getSubNames()) {
-//					corporate.addSubName(subName);
-//				}
-//			}
-//			corporate.setPartName(c.getPartName());
-//			if (c.getAuthorityID() != null && c.getAuthorityURI() != null && c.getAuthorityValue() != null) {
-//				corporate.setAutorityFile(c.getAuthorityID(), c.getAuthorityURI(), c.getAuthorityValue());
-//			}
-//			mg.addCorporate(corporate);
-//		}
-//
-//		// copy sub groups
-//		for (MetadataGroup subGroup : inGroup.getAllMetadataGroups()) {
-//			MetadataGroup copyOfSubGroup = cloneMetadataGroup(subGroup);
-//			mg.addMetadataGroup(copyOfSubGroup);
-//		}
-//
-//		return mg;
-//	}
-
-	private VirtualFileGroup createFilegroup(VariableReplacer variableRplacer, ProjectFileGroup projectFileGroup,
-			String identifier) {
-		VirtualFileGroup v = new VirtualFileGroup();
-		v.setName(projectFileGroup.getName());
-		v.setPathToFiles(
-				variableRplacer.replace(projectFileGroup.getPath().replace("$(meta.CatalogIDDigital)", identifier)));
-		v.setMimetype(projectFileGroup.getMimetype());
-		v.setFileSuffix(projectFileGroup.getSuffix().trim());
-		v.setFileExtensionsToIgnore(projectFileGroup.getIgnoreMimetypes());
-		v.setIgnoreConfiguredMimetypeAndSuffix(projectFileGroup.isUseOriginalFiles());
-		if ("PRESENTATION".equals(projectFileGroup.getName())) {
-			v.setMainGroup(true);
-		}
-		return v;
-	}
-
+	
+	/**
+	 * some merging of metadata between anchor and volume
+	 * @param oldAnchor
+	 * @param newAnchor
+	 * @throws JDOMException
+	 * @throws IOException
+	 */
 	private void mergeAnchorWithVolumes(Path oldAnchor, Path newAnchor) throws JDOMException, IOException {
 
 		List<Volume> volumes = new ArrayList<>();
@@ -1011,6 +866,12 @@ public class NewspaperMetsCreator {
 
 	}
 
+	/**
+	 * read files from anchor
+	 * 
+	 * @param volumes
+	 * @param structMap1
+	 */
 	private void readFilesFromAnchor(List<Volume> volumes, Element structMap1) {
 		Element anchorDiv = structMap1.getChild("div", metsNamespace);
 		List<Element> volumeDivList = anchorDiv.getChildren("div", metsNamespace);
@@ -1149,6 +1010,11 @@ public class NewspaperMetsCreator {
 		return strId;
 	}
 
+	/**
+	 * extremely simple translation method to convert German issue labes into pseudo english labels
+	 * @param value
+	 * @return
+	 */
 	private static String getTranslatedIssueLabels(String value) {
 		String copy = value;
 		copy = copy.replace("Ausgabe vom Montag, den", "Monday,");
@@ -1171,6 +1037,10 @@ public class NewspaperMetsCreator {
 		return copy;
 	}
 
+	
+	/**
+	 * simple comparator for volumes
+	 */
 	private static Comparator<Volume> volumeComperator = new Comparator<Volume>() { // NOSONAR
 
 		@Override

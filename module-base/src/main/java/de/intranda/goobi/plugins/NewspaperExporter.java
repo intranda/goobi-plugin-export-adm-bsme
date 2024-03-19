@@ -218,7 +218,7 @@ public class NewspaperExporter {
 			NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd, fileMap);
 			nmc.exportMetsFile();
 		} catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
-				| TypeNotAllowedForParentException | IOException | SwapException e) {
+				| TypeNotAllowedForParentException | IOException | SwapException | DAOException e) {
 			log.error("Error writing the mets file", e);
 			Helper.setFehlerMeldung("Error writing the mets file", e);
 			return false;
