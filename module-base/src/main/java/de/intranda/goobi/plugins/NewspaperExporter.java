@@ -20,29 +20,24 @@ import org.jdom2.output.XMLOutputter;
 
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
-import de.sub.goobi.helper.exceptions.ExportFileException;
 import de.sub.goobi.helper.exceptions.SwapException;
-import de.sub.goobi.helper.exceptions.UghHelperException;
+import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
-import jnr.ffi.Struct.fsblkcnt_t;
+import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
+import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import ugh.dl.ContentFile;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
-import ugh.dl.FileSet;
 import ugh.dl.Metadata;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
-import ugh.exceptions.DocStructHasNoTypeException;
 import ugh.exceptions.MetadataTypeNotAllowedException;
 import ugh.exceptions.PreferencesException;
-import ugh.exceptions.ReadException;
 import ugh.exceptions.TypeNotAllowedForParentException;
 import ugh.exceptions.WriteException;
 
@@ -56,10 +51,10 @@ public class NewspaperExporter {
 	private DigitalDocument dd;
 	private String viewerUrl;
 	private String targetFolder;
-	private VariableReplacer replacer;
-	
+
 	// keep a list of all image files as they need to be renamed
 	private Map<String, String> fileMap;
+	private List<PdfIssue> pdfIssues;
 	private int fileCounter;
 
 	@Getter
@@ -67,6 +62,7 @@ public class NewspaperExporter {
 
 	/**
 	 * Constructor
+	 * 
 	 * @param config
 	 * @param process
 	 * @param prefs
@@ -80,7 +76,7 @@ public class NewspaperExporter {
 		this.dd = dd;
 		viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
 		targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
-		replacer = new VariableReplacer(dd, prefs, process, null);
+		pdfIssues = new ArrayList<>();
 	}
 
 	/**
@@ -99,8 +95,7 @@ public class NewspaperExporter {
 		// in case it is an anchor file get the first childe
 		DocStruct anchor = dd.getLogicalDocStruct();
 		DocStruct topStruct;
-		if (anchor.getType().isAnchor() && anchor.getAllChildren() != null
-				&& !anchor.getAllChildren().isEmpty()) {
+		if (anchor.getType().isAnchor() && anchor.getAllChildren() != null && !anchor.getAllChildren().isEmpty()) {
 			topStruct = anchor.getAllChildren().get(0);
 		} else {
 			return false;
@@ -122,25 +117,34 @@ public class NewspaperExporter {
 				volume.addContent(new Element("right_details").setText(config.getString("/constants/rightsDetails")));
 				volume.addContent(new Element("source").setText(config.getString("/constants/source")));
 				volume.addContent(new Element("media_type").setText(config.getString("/constants/mediaType")));
-				volume.addContent(new Element("publication_name").setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
-				volume.addContent(new Element("language").setText(getLanguageFullname(topStruct, config.getString("/metadata/issueNumber"))));
-				volume.addContent(new Element("source_organization").setText(config.getString("/constants/sourceOrganisation")));
+				volume.addContent(new Element("publication_name")
+						.setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
+				volume.addContent(new Element("language")
+						.setText(getLanguageFullname(topStruct, config.getString("/metadata/issueNumber"))));
+				volume.addContent(
+						new Element("source_organization").setText(config.getString("/constants/sourceOrganisation")));
 				volume.addContent(new Element("source_id").setText(volumeId));
-				volume.addContent(new Element("technical_notes").setText(getMetdata(topStruct, config.getString("/metadata/technicalNotes"))));
+				volume.addContent(new Element("technical_notes")
+						.setText(getMetdata(topStruct, config.getString("/metadata/technicalNotes"))));
 
 				// add issue information
 				Element issue = new Element("issue");
 				doc.getRootElement().addContent(issue);
 				String simpleDate = getMetdata(ds, config.getString("/metadata/issueDate")).replace("-", "");
 				issue.addContent(new Element("issue_date").setText(simpleDate));
-				issue.addContent(new Element("issue_number").setText(getMetdata(ds, config.getString("/metadata/issueNumber"))));
+				issue.addContent(
+						new Element("issue_number").setText(getMetdata(ds, config.getString("/metadata/issueNumber"))));
 				issue.addContent(new Element("issue_frequency").setText(config.getString("/constants/frequency")));
-				issue.addContent(new Element("open_in_viewer")
-						.setText(viewerUrl + volumeId + "_" + simpleDate));
+				issue.addContent(new Element("open_in_viewer").setText(viewerUrl + volumeId + "_" + simpleDate));
 
 				// add file information
 				Element files = new Element("files");
 				doc.getRootElement().addContent(files);
+
+				PdfIssue pdfi = new PdfIssue();
+				pdfi.setFolder(targetFolder);
+				pdfi.setName(targetFolder + volumeId + "-" + simpleDate + ".pdf");
+
 				List<Reference> refs = ds.getAllToReferences("logical_physical");
 				if (refs != null) {
 					for (Reference ref : refs) {
@@ -155,6 +159,7 @@ public class NewspaperExporter {
 							exportFileName = volumeId + "-" + counter;
 							fileMap.put(realFileNameWithoutExtension, exportFileName);
 						}
+						pdfi.getFiles().add(exportFileName);
 
 						// add file element
 						Element file = new Element("file");
@@ -168,11 +173,13 @@ public class NewspaperExporter {
 							ImageManager sourcemanager = new ImageManager(realFile.toURI());
 							ImageInterpreter si = sourcemanager.getMyInterpreter();
 							// MimeType
-							file.addContent(new Element("file_format").setText(si.getFormatType().getFormat().getMimeType()));
+							file.addContent(
+									new Element("file_format").setText(si.getFormatType().getFormat().getMimeType()));
 							// Unit for the resolution, always ppi
 							file.addContent(new Element("resolution_unit").setText("PPI"));
 							// Resolution
-							file.addContent(new Element("resolution").setText(String.valueOf(si.getOriginalImageXResolution())));
+							file.addContent(new Element("resolution")
+									.setText(String.valueOf(si.getOriginalImageXResolution())));
 							// ColorDepth
 							file.addContent(new Element("bit_depth").setText(String.valueOf(si.getColordepth())));
 							// Scanning device
@@ -184,13 +191,17 @@ public class NewspaperExporter {
 							// Height
 							file.addContent(new Element("height").setText(String.valueOf(si.getOriginalImageHeight())));
 							// bitonal, grey, "color"
-							file.addContent(new Element("color_space").setText(si.getFormatType().getColortype().getLabel()));		
+							file.addContent(
+									new Element("color_space").setText(si.getFormatType().getColortype().getLabel()));
 							// Color channels (1 für grey, 3 für RGB,...)
-							// file.addContent(new Element("SamplesPerPixel").setText(String.valueOf(si.getSamplesperpixel())));
+							// file.addContent(new
+							// Element("SamplesPerPixel").setText(String.valueOf(si.getSamplesperpixel())));
 							// jpeg- oder andere Kompression
-							// file.addContent(new Element("Compression").setText(si.getFormatType().getCompression().name()));
+							// file.addContent(new
+							// Element("Compression").setText(si.getFormatType().getCompression().name()));
 							// ColorProfile available
-							// file.addContent(new Element("ColorProfile").setText(String.valueOf(si.getFormatType().isEmbeddedColorProfile())));
+							// file.addContent(new
+							// Element("ColorProfile").setText(String.valueOf(si.getFormatType().isEmbeddedColorProfile())));
 						} catch (IOException | SwapException | DAOException | ImageManagerException e) {
 							log.error("Error while reading image metadata", e);
 							return false;
@@ -210,7 +221,9 @@ public class NewspaperExporter {
 					log.error("Error writing the simple xml file", e);
 					return false;
 				}
-			}	
+
+				pdfIssues.add(pdfi);
+			}
 		}
 
 		// write the newspaper METS files
@@ -233,7 +246,21 @@ public class NewspaperExporter {
 			log.error("Error while copying the image files to export folder", e);
 			return false;
 		}
-		
+
+		// generate PDF files per issue
+		for (PdfIssue pi : pdfIssues) {
+			try {
+				Map<String, String> map = pi.getAsMap();
+				FileOutputStream fout;
+				fout = new FileOutputStream(pi.getName());
+				new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
+				fout.close();
+			} catch (IOException | ContentLibException e) {
+				log.error("Error while generating PDF files", e);
+				return false;
+			}
+		}
+
 		return true;
 	}
 

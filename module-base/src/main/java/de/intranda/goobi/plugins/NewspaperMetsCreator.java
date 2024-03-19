@@ -11,13 +11,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.Process;
-import org.goobi.beans.ProjectFileGroup;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -26,39 +23,28 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.XmlTools;
 import de.sub.goobi.helper.exceptions.DAOException;
-import de.sub.goobi.helper.exceptions.ExportFileException;
 import de.sub.goobi.helper.exceptions.SwapException;
-import de.sub.goobi.helper.exceptions.UghHelperException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.ContentFile;
-import ugh.dl.Corporate;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.DocStructType;
 import ugh.dl.ExportFileformat;
-import ugh.dl.FileSet;
-import ugh.dl.Fileformat;
 import ugh.dl.Metadata;
-import ugh.dl.MetadataGroup;
 import ugh.dl.MetadataType;
-import ugh.dl.NamePart;
-import ugh.dl.Person;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
 import ugh.dl.VirtualFileGroup;
-import ugh.exceptions.DocStructHasNoTypeException;
 import ugh.exceptions.MetadataTypeNotAllowedException;
 import ugh.exceptions.PreferencesException;
-import ugh.exceptions.ReadException;
 import ugh.exceptions.TypeNotAllowedAsChildException;
 import ugh.exceptions.TypeNotAllowedForParentException;
 import ugh.exceptions.UGHException;
@@ -79,7 +65,6 @@ public class NewspaperMetsCreator {
 	private DigitalDocument dd;
 	private String targetFolder;
 	private VariableReplacer vr;
-	private String volumeId;
 	private Map<String, String> fileMap;
 
 	@Getter
@@ -156,7 +141,6 @@ public class NewspaperMetsCreator {
 
 		DocStructType newspaperStubType = prefs.getDocStrctTypeByName(config.getString("/docstruct/newspaperStub"));
 
-		boolean subfolderPerIssue = config.getBoolean("/export/subfolderPerIssue", false);
 		String metsResolverUrl = config.getString("/metsUrl");
 		addFileExtension = config.getBoolean("/metsUrl/@addFileExtension", false);
 		String piResolverUrl = config.getString("/resolverUrl");
@@ -165,8 +149,6 @@ public class NewspaperMetsCreator {
 
 		DocStruct logical = dd.getLogicalDocStruct();
 		DocStruct oldPhysical = dd.getPhysicalDocStruct();
-
-		List<ProjectFileGroup> myFilegroups = getProjectFileGroups(process.getProjekt().getFilegroups());
 
 		// check if it is a newspaper
 		if (!logical.getType().isAnchor()) {
@@ -719,27 +701,6 @@ public class NewspaperMetsCreator {
 	}
 
 	
-	/**
-	 * get filegroups for project 
-	 * 
-	 * @param defaultFilegroups
-	 * @return
-	 */
-	private List<ProjectFileGroup> getProjectFileGroups(List<ProjectFileGroup> defaultFilegroups) {
-		List<ProjectFileGroup> answer = new ArrayList<>();
-		for (HierarchicalConfiguration hc : config.configurationsAt("/filegroups/filegroup")) {
-			ProjectFileGroup pfg = new ProjectFileGroup();
-			pfg.setName(hc.getString("@name"));
-			pfg.setPath(hc.getString("@path"));
-			pfg.setMimetype(hc.getString("@mimetype"));
-			pfg.setSuffix(hc.getString("@suffix"));
-			pfg.setFolder(hc.getString("@foldername"));
-			pfg.setIgnoreMimetypes(hc.getString("@filesToIgnore"));
-			pfg.setUseOriginalFiles(hc.getBoolean("@mimetypeFromFilename"));
-		}
-		return answer.isEmpty() ? defaultFilegroups : answer;
-	}
-
 	/**
 	 * set some general mets parameters
 	 * 
