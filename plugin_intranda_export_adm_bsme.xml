@@ -2,9 +2,18 @@
 
 	<!-- directory where to export to -->
 	<targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
+	<!-- main viewer url -->
 	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>>
-
-
+	
+	<constants>
+		<rightsToUse>Yes</rightsToUse>
+		<rightsDetails>ADMN</rightsDetails>
+		<source>Goobi</source>
+		<mediaType>Publication</mediaType>
+		<sourceOrganisation>Abu Dhabi Media Company</sourceOrganisation>
+		<frequency>Daily</frequency>
+	</constants>
+	
 	<export>
 		<images>true</images>
 		<fulltext>true</fulltext>
@@ -78,7 +87,12 @@
 		<anchorId>AnchorID</anchorId>
 		<anchorTitle>AnchorTitle</anchorTitle>
 		<anchorZDBIdDigital>AnchorCatalogIDPeriodicalDBDigital
+		<technicalNotes>TechnicalNotes</technicalNotes>
 		</anchorZDBIdDigital>
+		<accessConditionUse>AccessConditionUse</accessConditionUse>
+		<accessConditionDetails>AccessConditionDetails</accessConditionDetails>
+		<frequency>Frequency</frequency>
+		<technicalNotes>TechnicalNote</technicalNotes>
 	</metadata>
 	<docstruct>
 		<newspaper>Newspaper</newspaper>

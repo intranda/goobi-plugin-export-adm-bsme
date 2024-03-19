@@ -357,9 +357,11 @@ public class NewspaperMetsCreator {
 				issueIdentifier = md.getValue();
 			}
 			if (md.getType().equals(labelType)) {
+				md.setValue(getTranslatedIssueLabels(md.getValue()));
 				issueLabel = md.getValue();
 			}
 			if (md.getType().equals(mainTitleType)) {
+				md.setValue(getTranslatedIssueLabels(md.getValue()));
 				issueTitle = md.getValue();
 			}
 			if (md.getType().equals(issueNumberType)) {
@@ -393,7 +395,7 @@ public class NewspaperMetsCreator {
 		// copy metadata from anchor into the issue
 		if (StringUtils.isBlank(issueTitle) && StringUtils.isNotBlank(issueLabel)) {
 			try {
-				Metadata md = new Metadata(mainTitleType);
+				Metadata md = new Metadata(mainTitleType);				
 				md.setValue(issueLabel);
 				issue.addMetadata(md);
 			} catch (UGHException e) {
@@ -436,21 +438,21 @@ public class NewspaperMetsCreator {
 		}
 
 		if (StringUtils.isBlank(issueIdentifier)) {
-			issueIdentifier = identifier + "_" + dateValue + "_" + issueSortingNumber;
 			simpleDate = dateValue.replace("-", "");
+			issueIdentifier = yearIdentifier + "-" + simpleDate;
 			Metadata md = new Metadata(identifierType);
 			md.setValue(issueIdentifier);
 			issue.addMetadata(md);
 		}
 		if (StringUtils.isBlank(resource)) {
 			Metadata md = new Metadata(resourceType);
-			md.setValue("text");
+			md.setValue(config.getString("/constants/mediaType"));
 			issue.addMetadata(md);
 		}
 
 		if (StringUtils.isBlank(purl)) {
 			Metadata md = new Metadata(purlType);
-			md.setValue(piResolverUrl + issueIdentifier);
+			md.setValue(piResolverUrl + yearIdentifier + "-" + dateValue.replace("-", ""));
 			issue.addMetadata(md);
 		}
 
@@ -595,8 +597,13 @@ public class NewspaperMetsCreator {
 
 			// issue
 			DocStruct newIssue = copyDocstruct(issueType, issue, issueDigDoc);
-			issueDay.addChild(newIssue);
 
+			// additional manual values
+			addMetdata(newIssue, config.getString("/metadata/location"), config.getString("/constants/sourceOrganisation"));
+			addMetdata(newIssue, config.getString("/metadata/accessConditionUse"), config.getString("/constants/rightsToUse"));
+			addMetdata(newIssue, config.getString("/metadata/accessConditionDetails"), config.getString("/constants/rightsDetails"));
+			addMetdata(newIssue, config.getString("/metadata/frequency"), config.getString("/constants/frequency"));
+			
 			issueDigDoc.setLogicalDocStruct(dummyNewspaper);
 
 			// create physSequence
@@ -618,6 +625,7 @@ public class NewspaperMetsCreator {
 					}
 				}
 			}
+			issueDay.addChild(newIssue);
 
 			boolean useOriginalFiles = false;
 
@@ -679,9 +687,22 @@ public class NewspaperMetsCreator {
 				}
 			}
 
+			DocStruct ds = issueExport.getDigitalDocument().getLogicalDocStruct();
+			for (DocStruct dsc : ds.getAllChildrenAsFlatList()) {
+				log.debug("------------------ " + dsc.getType().getName() + " ------------------");
+				if (dsc.getAllMetadata() != null) {
+					for (Metadata md : dsc.getAllMetadata()) {
+						log.debug(md.getType().getName() + ": " + md.getValue());
+					}
+				}
+			}
+			
+			
 			// export to configured folder
 			String issueName = Paths.get(tmpExportFolder.toString(), yearIdentifier + "-" + simpleDate + "-mets.xml").toString();
+			log.debug("========================== write METS file for " + issueName + " ==========================");
 			issueExport.write(issueName);
+			
 		} catch (TypeNotAllowedAsChildException e) {
 			log.error(e);
 		}
@@ -723,6 +744,20 @@ public class NewspaperMetsCreator {
 		// delete targetDir
 		StorageProvider.getInstance().deleteDir(tmpExportFolder);
 		return true;
+	}
+
+	/**
+	 * add a specific metadata to the given docstruct element
+	 * 
+	 * @param newIssue
+	 * @param string
+	 * @param string2
+	 * @throws MetadataTypeNotAllowedException 
+	 */
+	private void addMetdata(DocStruct ds, String type, String value) throws MetadataTypeNotAllowedException {
+		Metadata md = new Metadata(prefs.getMetadataTypeByName(type));
+		md.setValue(value);
+		ds.addMetadata(md);
 	}
 
 	private List<ProjectFileGroup> getProjectFileGroups(List<ProjectFileGroup> defaultFilegroups) {
@@ -1096,6 +1131,28 @@ public class NewspaperMetsCreator {
 		return strId;
 	}
 
+	private static String getTranslatedIssueLabels(String value) {
+		String copy = value;
+		copy = copy.replace("Ausgabe vom Montag, den", "Monday,");
+		copy = copy.replace("Ausgabe vom Dienstag, den", "Tuesday,");
+		copy = copy.replace("Ausgabe vom Mittwoch, den", "Wednesday,");
+		copy = copy.replace("Ausgabe vom Donnerstag, den", "Thursday,");
+		copy = copy.replace("Ausgabe vom Freitag, den", "Friday,");
+		copy = copy.replace("Ausgabe vom Samstag, den", "Saturday,");
+		copy = copy.replace("Ausgabe vom Sonntag, den", "Sunday,");
+		
+		copy = copy.replace("Januar ", "January ");
+		copy = copy.replace("Februar ", "February ");
+		copy = copy.replace("März ", "March ");
+		copy = copy.replace("Mai ", "May ");
+		copy = copy.replace("Juni ", "June ");
+		copy = copy.replace("Juli ", "July ");
+		copy = copy.replace("Oktober ", "October ");
+		copy = copy.replace("Dezember ", "December ");
+		log.debug(value + " ----> " + copy);
+		return copy;
+	}
+	
 	private static Comparator<Volume> volumeComperator = new Comparator<Volume>() { // NOSONAR
 
 		@Override
@@ -1117,4 +1174,6 @@ public class NewspaperMetsCreator {
 		private String contentids = null;
 		private String order = null;
 	}
+	
+	
 }

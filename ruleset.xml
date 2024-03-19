@@ -27,6 +27,18 @@
         <language name="de">Zeitungstitel</language>
         <language name="en">Newspaper title</language>
     </MetadataType>
+    <MetadataType>
+        <Name>Frequency</Name>
+        <language name="de">Frequenz</language>
+        <language name="en">Frequency</language>
+    </MetadataType>
+        <MetadataType>
+        <Name>TechnicalNote</Name>
+        <language name="de">Technische Notizen</language>
+        <language name="en">Technical Notes</language>
+    </MetadataType>
+    
+    
     <!-- // NEWSPAPER-EXPORT -->
     
     <MetadataType>
@@ -294,10 +306,16 @@
         <language name="es">Proporciones/Dimensiones (fuente)</language>
     </MetadataType>
     <MetadataType>
-        <Name>AccessLicense</Name>
-        <language name="de">Zugriffslizenz</language>
-        <language name="en">Access license</language>
+        <Name>AccessConditionUse</Name>
+        <language name="de">Nutzungsbedingungen</language>
+        <language name="en">Access condition use</language>
         <language name="es">Licencia de acceso</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>AccessConditionDetails</Name>
+        <language name="de">Nutzungsbedingungen Details</language>
+        <language name="en">Access condition details</language>
+        <language name="es">Licencia de acceso - detailes</language>
     </MetadataType>
     <MetadataType>
         <Name>SizeSourcePrint</Name>
@@ -682,7 +700,7 @@
         <allowedchildtype>Year</allowedchildtype>
         <allowedchildtype>NewspaperVolume</allowedchildtype>
         <metadata DefaultDisplay="true" num="1m">TitleDocMain</metadata>
-        <metadata DefaultDisplay="true" num="1o">MainTitle</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
         <metadata DefaultDisplay="true" num="1o">TitleDocMainShort</metadata>
         <metadata DefaultDisplay="true" num="1o">TitleDocSub1</metadata>
         <metadata DefaultDisplay="true" num="1o">TitleDocParallel</metadata>
@@ -712,7 +730,7 @@
         <metadata DefaultDisplay="true" num="1o">PartNumber</metadata>
         <metadata DefaultDisplay="true" num="1o">PartName</metadata>
         <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
-        <metadata DefaultDisplay="true" num="1o">MainTitle</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
         <metadata num="*">_ucc_id</metadata>
     </DocStrctType>
     <DocStrctType>
@@ -730,11 +748,16 @@
         <metadata num="1o">_purl</metadata>
         <metadata num="*">CurrentNo</metadata>
         <metadata num="1o">TitleDocMain</metadata>
-        <metadata DefaultDisplay="true" num="1o">MainTitle</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
         <metadata num="*">singleDigCollection</metadata>
         <metadata num="*">_ucc_id</metadata>
         <metadata num="1o">AnchorID</metadata>
         <metadata num="1o">AnchorTitle</metadata>
+        <metadata num="1o">PhysicalLocation</metadata>
+        <metadata num="1o">AccessConditionUse</metadata>
+        <metadata num="1o">AccessConditionDetails</metadata>
+        <metadata num="1o">Frequency</metadata>
+        <metadata num="1o">TechnicalNote</metadata>
     </DocStrctType>
     <DocStrctType>
         <Name>NewspaperSupplement</Name>
@@ -772,7 +795,7 @@
         <metadata num="1o">SizeSourcePrint</metadata>
         <metadata DefaultDisplay="true" num="*">DocLanguage</metadata>
         <metadata num="*">PhysicalLocation</metadata>
-        <metadata DefaultDisplay="true" num="1o">MainTitle</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
     </DocStrctType>
 
 
@@ -1132,13 +1155,18 @@
                 <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@point='end'][@encoding='w3cdtf']</WriteXPath>
             </Metadata>
             <Metadata>
-                <InternalName>AccessLicense</InternalName>
-                <WriteXPath>./mods:mods/#mods:accessCondition</WriteXPath>
+                <InternalName>AccessConditionUse</InternalName>
+                <WriteXPath>./mods:mods/#mods:accessCondition[@type='usage']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>AccessConditionDetails</InternalName>
+                <WriteXPath>./mods:mods/#mods:accessCondition[@type='details']</WriteXPath>
             </Metadata>
             <Metadata>
                 <InternalName>SizeSourcePrint</InternalName>
                 <WriteXPath>./mods:mods/mods:physicalDescription/#mods:extent</WriteXPath>
             </Metadata>
+            
             <!-- ########################################################################## ## Metadata mapping definition ## ########################################################################## -->
             <Metadata>
                 <InternalName>shelfmarksource</InternalName>
@@ -1393,6 +1421,10 @@
                 <InternalName>DateIssued</InternalName>
                 <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
             </Metadata>
+            <Metadata>
+                <InternalName>Frequency</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:frequency</WriteXPath>
+            </Metadata>
             <DocStruct>
                 <InternalName>page</InternalName>
                 <MetsType>page</MetsType>
@@ -1449,6 +1481,10 @@
                 <InternalName>Day</InternalName>
                 <MetsType>day</MetsType>
             </DocStruct>
+             <Metadata>
+                <InternalName>TechnicalNote</InternalName>
+                <WriteXPath>/mods:mods/mods:note[@type="reproduction"]</WriteXPath>
+            </Metadata>
             <!-- // NEWSPAPER-EXPORT -->
 
         </METS>

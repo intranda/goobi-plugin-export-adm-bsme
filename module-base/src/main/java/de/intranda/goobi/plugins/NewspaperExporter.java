@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.goobi.beans.Process;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
@@ -26,11 +28,14 @@ import de.sub.goobi.helper.exceptions.UghHelperException;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
+import jnr.ffi.Struct.fsblkcnt_t;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import ugh.dl.ContentFile;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
+import ugh.dl.FileSet;
 import ugh.dl.Metadata;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
@@ -69,6 +74,7 @@ public class NewspaperExporter {
 	 */
 	public NewspaperExporter(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd) {
 		this.config = config;
+		config.setExpressionEngine(new XPathExpressionEngine());
 		this.process = process;
 		this.prefs = prefs;
 		this.dd = dd;
@@ -102,7 +108,7 @@ public class NewspaperExporter {
 
 		// run through all NewspaperIssues
 		for (DocStruct ds : topStruct.getAllChildrenAsFlatList()) {
-			if (ds.getType().getName().equals("NewspaperIssue")) {
+			if (ds.getType().getName().equals(config.getString("/docstruct/issue"))) {
 
 				// prepare xml document
 				Document doc = new Document();
@@ -111,24 +117,24 @@ public class NewspaperExporter {
 				// add volume information
 				Element volume = new Element("volume");
 				doc.getRootElement().addContent(volume);
-				String volumeId = getMetdata(topStruct, "CatalogIDDigital");
-				volume.addContent(new Element("rights_to_use").setText("Yes"));
-				volume.addContent(new Element("right_details").setText("ADMN"));
-				volume.addContent(new Element("source").setText("Goobi"));
-				volume.addContent(new Element("media_type").setText("Publication"));
-				volume.addContent(new Element("publication_name").setText(getMetdata(anchor, "TitleDocMain")));
-				volume.addContent(new Element("language").setText(getLanguageFullname(topStruct, "DocLanguage")));
-				volume.addContent(new Element("source_organization").setText("Abu Dhabi Media Company"));
+				String volumeId = getMetdata(topStruct, config.getString("/metadata/identifier"));
+				volume.addContent(new Element("rights_to_use").setText(config.getString("/constants/rightsToUse")));
+				volume.addContent(new Element("right_details").setText(config.getString("/constants/rightsDetails")));
+				volume.addContent(new Element("source").setText(config.getString("/constants/source")));
+				volume.addContent(new Element("media_type").setText(config.getString("/constants/mediaType")));
+				volume.addContent(new Element("publication_name").setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
+				volume.addContent(new Element("language").setText(getLanguageFullname(topStruct, config.getString("/metadata/issueNumber"))));
+				volume.addContent(new Element("source_organization").setText(config.getString("/constants/sourceOrganisation")));
 				volume.addContent(new Element("source_id").setText(volumeId));
-				volume.addContent(new Element("technical_notes").setText(getMetdata(topStruct, "TechnicalNotes")));
+				volume.addContent(new Element("technical_notes").setText(getMetdata(topStruct, config.getString("/metadata/technicalNotes"))));
 
 				// add issue information
 				Element issue = new Element("issue");
 				doc.getRootElement().addContent(issue);
-				String simpleDate = getMetdata(ds, "DateIssued").replace("-", "");
+				String simpleDate = getMetdata(ds, config.getString("/metadata/issueDate")).replace("-", "");
 				issue.addContent(new Element("issue_date").setText(simpleDate));
-				issue.addContent(new Element("issue_number").setText(getMetdata(ds, "CurrentNo")));
-				issue.addContent(new Element("issue_frequency").setText("Daily"));
+				issue.addContent(new Element("issue_number").setText(getMetdata(ds, config.getString("/metadata/issueNumber"))));
+				issue.addContent(new Element("issue_frequency").setText(config.getString("/constants/frequency")));
 				issue.addContent(new Element("open_in_viewer")
 						.setText(viewerUrl + volumeId + "_" + simpleDate));
 
@@ -205,12 +211,32 @@ public class NewspaperExporter {
 					return false;
 				}
 				
+				
+				// adapt file names for references
+//				DocStruct phys = dd.getPhysicalDocStruct();
+//				for (DocStruct page : phys.getAllChildren()) {
+//					page.setImageName(page.getImageName() + "_steffen_war_hier");
+//					
+//					for(ContentFile cf : page.getAllContentFiles()) {
+//						cf.setLocation(cf.getLocation() + "_robert_war_hier");
+//					}
+//					
+//					
+//					log.debug(page.getImageName());
+//				}
+				
+				FileSet fs = dd.getFileSet();
+				for (ContentFile cf : fs.getAllFiles()) {
+					cf.setLocation(cf.getLocation() + "_robert_war_hier");
+				}
+				
 				NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd);
 				try {
 					nmc.exportMetsFile(ds);
 				} catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
 						| TypeNotAllowedForParentException | IOException | SwapException e) {
 					log.error("Error writing the mets file", e);
+					Helper.setFehlerMeldung("Error writing the mets file", e);
 					return false;
 				}
 
