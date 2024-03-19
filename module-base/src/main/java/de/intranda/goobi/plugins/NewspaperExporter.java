@@ -49,6 +49,7 @@ public class NewspaperExporter {
 	private Process process;
 	private Prefs prefs;
 	private DigitalDocument dd;
+	private String viewerUrl;
 	private String targetFolder;
 	private VariableReplacer replacer;
 	
@@ -71,6 +72,7 @@ public class NewspaperExporter {
 		this.process = process;
 		this.prefs = prefs;
 		this.dd = dd;
+		viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
 		targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
 		replacer = new VariableReplacer(dd, prefs, process, null);
 	}
@@ -128,7 +130,7 @@ public class NewspaperExporter {
 				issue.addContent(new Element("issue_number").setText(getMetdata(ds, "CurrentNo")));
 				issue.addContent(new Element("issue_frequency").setText("Daily"));
 				issue.addContent(new Element("open_in_viewer")
-						.setText("https://adm.goobi.cloud/viewer/" + volumeId + "_" + simpleDate));
+						.setText(viewerUrl + volumeId + "_" + simpleDate));
 
 				// add file information
 				Element files = new Element("files");
@@ -151,7 +153,7 @@ public class NewspaperExporter {
 						// add file element
 						Element file = new Element("file");
 						file.setAttribute("id", String.format("%04d", fileCounter));
-						file.addContent(new Element("filename").setText(exportFileName + ".tif"));
+						file.addContent(new Element("name").setText(exportFileName + ".tif"));
 
 						// add image information
 						try {
@@ -200,6 +202,15 @@ public class NewspaperExporter {
 					xmlOutputter.output(doc, fileOutputStream);
 				} catch (IOException e) {
 					log.error("Error writing the simple xml file", e);
+					return false;
+				}
+				
+				NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd);
+				try {
+					nmc.exportMetsFile(ds);
+				} catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
+						| TypeNotAllowedForParentException | IOException | SwapException e) {
+					log.error("Error writing the mets file", e);
 					return false;
 				}
 
