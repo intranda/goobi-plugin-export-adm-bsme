@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -38,11 +39,13 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import ugh.dl.ContentFile;
 import ugh.dl.Corporate;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.DocStructType;
 import ugh.dl.ExportFileformat;
+import ugh.dl.FileSet;
 import ugh.dl.Fileformat;
 import ugh.dl.Metadata;
 import ugh.dl.MetadataGroup;
@@ -77,30 +80,33 @@ public class NewspaperMetsCreator {
 	private String targetFolder;
 	private VariableReplacer vr;
 	private String volumeId;
-	
+	private Map<String, String> fileMap;
+
 	@Getter
 	private List<String> problems;
 
 	/**
 	 * Constructor
+	 * 
 	 * @param config
 	 * @param process
 	 * @param prefs
 	 * @param dd
 	 */
-	public NewspaperMetsCreator(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd) {
+	public NewspaperMetsCreator(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd, Map<String, String> fileMap) {
 		this.config = config;
 		this.process = process;
 		this.prefs = prefs;
 		this.dd = dd;
+		this.fileMap = fileMap;
 		targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
 		vr = new VariableReplacer(dd, prefs, process, null);
 	}
 	
+
 	/**
-	 * generate a METS file per issue
+	 * generate the METS files
 	 * 
-	 * @param myissue
 	 * @return
 	 * @throws IOException
 	 * @throws WriteException
@@ -109,11 +115,12 @@ public class NewspaperMetsCreator {
 	 * @throws TypeNotAllowedForParentException
 	 * @throws SwapException
 	 */
-	public boolean exportMetsFile(DocStruct myissue) throws IOException, WriteException, PreferencesException, MetadataTypeNotAllowedException, TypeNotAllowedForParentException, SwapException {
+	public boolean exportMetsFile() throws IOException, WriteException, PreferencesException,
+			MetadataTypeNotAllowedException, TypeNotAllowedForParentException, SwapException {
 
 		String goobiId = String.valueOf(process.getId());
 		config.setExpressionEngine(new XPathExpressionEngine());
-		
+
 		// read configuration parameters from config file
 		MetadataType zdbIdAnalogType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbidanalog"));
 		MetadataType zdbIdDigitalType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbiddigital"));
@@ -146,8 +153,7 @@ public class NewspaperMetsCreator {
 		DocStructType dayType = prefs.getDocStrctTypeByName(config.getString("/docstruct/day"));
 		DocStructType issueType = prefs.getDocStrctTypeByName(config.getString("/docstruct/issue"));
 
-		DocStructType newspaperStubType = prefs
-				.getDocStrctTypeByName(config.getString("/docstruct/newspaperStub"));
+		DocStructType newspaperStubType = prefs.getDocStrctTypeByName(config.getString("/docstruct/newspaperStub"));
 
 		boolean subfolderPerIssue = config.getBoolean("/export/subfolderPerIssue", false);
 		String metsResolverUrl = config.getString("/metsUrl");
@@ -275,8 +281,7 @@ public class NewspaperMetsCreator {
 
 		DigitalDocument anchorDigitalDocument = new DigitalDocument();
 		newspaperExport.setDigitalDocument(anchorDigitalDocument);
-		String anchor = config.getString("/metsPointerPathAnchor",
-				process.getProjekt().getMetsPointerPathAnchor());
+		String anchor = config.getString("/metsPointerPathAnchor", process.getProjekt().getMetsPointerPathAnchor());
 		anchor = vr.replace(anchor);
 		newspaperExport.setMptrAnchorUrl(anchor);
 		String pointer = config.getString("/metsPointerPath", process.getProjekt().getMetsPointerPath());
@@ -312,401 +317,415 @@ public class NewspaperMetsCreator {
 			log.error(e);
 			return false;
 		}
+		
+		
+		for (DocStruct issue : issues) {
+			// create issues, link issues to day
+			// https://wiki.deutsche-digitale-bibliothek.de/display/DFD/Ausgabe+Zeitung+1.0
+			// export each issue
 
-	for (DocStruct issue : issues) {
-		// create issues, link issues to day
-		// https://wiki.deutsche-digitale-bibliothek.de/display/DFD/Ausgabe+Zeitung+1.0
-		// export each issue
+			// check if required metadata is available, otherwise add it
 
-		// check if required metadata is available, otherwise add it
+			String issueLabel = null;
+			String issueTitle = null;
+			String issueNo = null;
+			String issueSortingNumber = null;
+			String issueLanguage = null;
+			String issueLocation = null;
+			String issueLicence = null;
 
-		String issueLabel = null;
-		String issueTitle = null;
-		String issueNo = null;
-		String issueSortingNumber = null;
-		String issueLanguage = null;
-		String issueLocation = null;
-		String issueLicence = null;
+			String issueIdentifier = null;
+			String simpleDate = null;
+			String dateValue = null;
+			String resource = null;
+			String purl = null;
+			String analogIssueZdbId = null;
+			String digitalIssueZdbId = null;
+			String anchorId = null;
+			String anchorTitle = null;
 
-		String issueIdentifier = null;
-		String simpleDate = null;
-		String dateValue = null;
-		String resource = null;
-		String purl = null;
-		String analogIssueZdbId = null;
-		String digitalIssueZdbId = null;
-		String anchorId = null;
-		String anchorTitle = null;
+			for (Metadata md : issue.getAllMetadata()) {
+				if (md.getType().equals(anchorZDBIdDigitalType)) {
+					digitalIssueZdbId = md.getValue();
+				}
+				if (md.getType().equals(zdbIdAnalogType)) {
+					analogIssueZdbId = md.getValue();
+				}
 
-		for (Metadata md : issue.getAllMetadata()) {
-			if (md.getType().equals(anchorZDBIdDigitalType)) {
-				digitalIssueZdbId = md.getValue();
-			}
-			if (md.getType().equals(zdbIdAnalogType)) {
-				analogIssueZdbId = md.getValue();
-			}
+				if (md.getType().equals(anchorIdType)) {
+					anchorId = md.getValue();
+				}
+				if (md.getType().equals(anchorTitleType)) {
+					anchorTitle = md.getValue();
+				}
 
-			if (md.getType().equals(anchorIdType)) {
-				anchorId = md.getValue();
-			}
-			if (md.getType().equals(anchorTitleType)) {
-				anchorTitle = md.getValue();
-			}
+				if (md.getType().equals(identifierType)) {
+					issueIdentifier = md.getValue();
+				}
+				if (md.getType().equals(labelType)) {
+					md.setValue(getTranslatedIssueLabels(md.getValue()));
+					issueLabel = md.getValue();
+				}
+				if (md.getType().equals(mainTitleType)) {
+					md.setValue(getTranslatedIssueLabels(md.getValue()));
+					issueTitle = md.getValue();
+				}
+				if (md.getType().equals(issueNumberType)) {
+					issueNo = md.getValue();
+				}
+				if (md.getType().equals(sortNumberType)) {
+					issueSortingNumber = md.getValue();
+				}
+				if (md.getType().equals(issueDateType)) {
+					dateValue = md.getValue();
+				}
 
-			if (md.getType().equals(identifierType)) {
-				issueIdentifier = md.getValue();
-			}
-			if (md.getType().equals(labelType)) {
-				md.setValue(getTranslatedIssueLabels(md.getValue()));
-				issueLabel = md.getValue();
-			}
-			if (md.getType().equals(mainTitleType)) {
-				md.setValue(getTranslatedIssueLabels(md.getValue()));
-				issueTitle = md.getValue();
-			}
-			if (md.getType().equals(issueNumberType)) {
-				issueNo = md.getValue();
-			}
-			if (md.getType().equals(sortNumberType)) {
-				issueSortingNumber = md.getValue();
-			}
-			if (md.getType().equals(issueDateType)) {
-				dateValue = md.getValue();
-			}
+				if (md.getType().equals(resourceType)) {
+					resource = md.getValue();
+				}
+				if (md.getType().equals(purlType)) {
+					purl = md.getValue();
+				}
 
-			if (md.getType().equals(resourceType)) {
-				resource = md.getValue();
-			}
-			if (md.getType().equals(purlType)) {
-				purl = md.getValue();
-			}
+				if (md.getType().equals(languageType)) {
+					issueLanguage = md.getValue();
+				}
+				if (md.getType().equals(locationType)) {
+					issueLocation = md.getValue();
+				}
+				if (md.getType().equals(accessConditionType)) {
+					issueLicence = md.getValue();
+				}
 
-			if (md.getType().equals(languageType)) {
-				issueLanguage = md.getValue();
 			}
-			if (md.getType().equals(locationType)) {
-				issueLocation = md.getValue();
+			// copy metadata from anchor into the issue
+			if (StringUtils.isBlank(issueTitle) && StringUtils.isNotBlank(issueLabel)) {
+				try {
+					Metadata md = new Metadata(mainTitleType);
+					md.setValue(issueLabel);
+					issue.addMetadata(md);
+				} catch (UGHException e) {
+					log.info(e);
+				}
 			}
-			if (md.getType().equals(accessConditionType)) {
-				issueLicence = md.getValue();
-			}
-
-		}
-		// copy metadata from anchor into the issue
-		if (StringUtils.isBlank(issueTitle) && StringUtils.isNotBlank(issueLabel)) {
-			try {
-				Metadata md = new Metadata(mainTitleType);				
-				md.setValue(issueLabel);
+			if (StringUtils.isBlank(issueSortingNumber) && StringUtils.isNotBlank(issueNo)
+					&& StringUtils.isNumeric(issueNo)) {
+				Metadata md = new Metadata(sortNumberType);
+				md.setValue(issueNo);
 				issue.addMetadata(md);
-			} catch (UGHException e) {
-				log.info(e);
+				issueSortingNumber = issueNo;
 			}
-		}
-		if (StringUtils.isBlank(issueSortingNumber) && StringUtils.isNotBlank(issueNo)
-				&& StringUtils.isNumeric(issueNo)) {
-			Metadata md = new Metadata(sortNumberType);
-			md.setValue(issueNo);
-			issue.addMetadata(md);
-			issueSortingNumber = issueNo;
-		}
-		if (StringUtils.isBlank(issueLanguage) && StringUtils.isNotBlank(language)) {
-			Metadata md = new Metadata(languageType);
-			md.setValue(language);
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(issueLocation) && StringUtils.isNotBlank(location)) {
-			Metadata md = new Metadata(locationType);
-			md.setValue(location);
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(issueLicence) && StringUtils.isNotBlank(accessCondition)) {
-			Metadata md = new Metadata(accessConditionType);
-			md.setValue(accessCondition);
-			issue.addMetadata(md);
-		}
-		if (StringUtils.isBlank(analogIssueZdbId) && StringUtils.isNotBlank(zdbIdAnalog)) {
-			Metadata md = new Metadata(zdbIdAnalogType);
-			md.setValue(zdbIdAnalog);
-			issue.addMetadata(md);
-		}
-		if (StringUtils.isBlank(digitalIssueZdbId) && StringUtils.isNotBlank(zdbIdDigital)) {
-			Metadata md = new Metadata(anchorZDBIdDigitalType);
-			md.setValue(zdbIdDigital);
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(issueIdentifier)) {
-			simpleDate = dateValue.replace("-", "");
-			issueIdentifier = yearIdentifier + "-" + simpleDate;
-			Metadata md = new Metadata(identifierType);
-			md.setValue(issueIdentifier);
-			issue.addMetadata(md);
-		}
-		if (StringUtils.isBlank(resource)) {
-			Metadata md = new Metadata(resourceType);
-			md.setValue(config.getString("/constants/mediaType"));
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(purl)) {
-			Metadata md = new Metadata(purlType);
-			md.setValue(piResolverUrl + yearIdentifier + "-" + dateValue.replace("-", ""));
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(anchorId)) {
-			Metadata md = new Metadata(anchorIdType);
-			md.setValue(identifier);
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(anchorTitle)) {
-			Metadata md = new Metadata(anchorTitleType);
-			md.setValue(titleLabel);
-			issue.addMetadata(md);
-		}
-
-		if (StringUtils.isBlank(dateValue)) {
-			problems.add("Abort export, issue has no publication date");
-			return false;
-		}
-
-		if (!dateValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
-			problems.add("Issue date " + dateValue + " has the wrong format. Expected is YYYY-MM-DD");
-			return false;
-		}
-
-		if (StringUtils.isBlank(yearVolume.getOrderLabel())) {
-			yearVolume.setOrderLabel(dateValue.substring(0, 4));
-		}
-
-		String monthValue = dateValue.substring(0, 7);
-
-		DocStruct currentMonth = null;
-		DocStruct currentDay = null;
-		if (yearVolume.getAllChildren() != null) {
-			for (DocStruct monthDocStruct : yearVolume.getAllChildren()) {
-				String currentDate = monthDocStruct.getOrderLabel();
-				if (monthValue.equals(currentDate)) {
-					currentMonth = monthDocStruct;
-					break;
-				}
+			if (StringUtils.isBlank(issueLanguage) && StringUtils.isNotBlank(language)) {
+				Metadata md = new Metadata(languageType);
+				md.setValue(language);
+				issue.addMetadata(md);
 			}
-		}
-		if (currentMonth == null) {
-			try {
-				currentMonth = anchorDigitalDocument.createDocStruct(monthType);
-				currentMonth.setOrderLabel(monthValue);
 
-				yearVolume.addChild(currentMonth);
-			} catch (TypeNotAllowedAsChildException e) {
-				log.error(e);
+			if (StringUtils.isBlank(issueLocation) && StringUtils.isNotBlank(location)) {
+				Metadata md = new Metadata(locationType);
+				md.setValue(location);
+				issue.addMetadata(md);
 			}
-		}
-		if (currentMonth.getAllChildren() != null) {
-			for (DocStruct dayDocStruct : currentMonth.getAllChildren()) {
-				String currentDate = dayDocStruct.getOrderLabel();
-				if (dateValue.equals(currentDate)) {
-					currentDay = dayDocStruct;
-					break;
-				}
-			}
-		}
-		if (currentDay == null) {
-			try {
-				currentDay = anchorDigitalDocument.createDocStruct(dayType);
-				currentDay.setOrderLabel(dateValue);
-				currentMonth.addChild(currentDay);
-			} catch (TypeNotAllowedAsChildException e) {
-				log.error(e);
-			}
-		}
-		try {
-			DocStruct dummyIssue = anchorDigitalDocument.createDocStruct(issueType);
-			dummyIssue.setOrderLabel(dateValue);
-			currentDay.addChild(dummyIssue);
-			if (issue.getAllMetadata() != null) {
-				for (Metadata md : issue.getAllMetadata()) {
-					if (md.getType().equals(labelType)) {
-						Metadata label = new Metadata(labelType);
-						label.setValue(md.getValue());
-						dummyIssue.addMetadata(label);
 
+			if (StringUtils.isBlank(issueLicence) && StringUtils.isNotBlank(accessCondition)) {
+				Metadata md = new Metadata(accessConditionType);
+				md.setValue(accessCondition);
+				issue.addMetadata(md);
+			}
+			if (StringUtils.isBlank(analogIssueZdbId) && StringUtils.isNotBlank(zdbIdAnalog)) {
+				Metadata md = new Metadata(zdbIdAnalogType);
+				md.setValue(zdbIdAnalog);
+				issue.addMetadata(md);
+			}
+			if (StringUtils.isBlank(digitalIssueZdbId) && StringUtils.isNotBlank(zdbIdDigital)) {
+				Metadata md = new Metadata(anchorZDBIdDigitalType);
+				md.setValue(zdbIdDigital);
+				issue.addMetadata(md);
+			}
+
+			if (StringUtils.isBlank(issueIdentifier)) {
+				simpleDate = dateValue.replace("-", "");
+				issueIdentifier = yearIdentifier + "-" + simpleDate;
+				Metadata md = new Metadata(identifierType);
+				md.setValue(issueIdentifier);
+				issue.addMetadata(md);
+			}
+			if (StringUtils.isBlank(resource)) {
+				Metadata md = new Metadata(resourceType);
+				md.setValue(config.getString("/constants/mediaType"));
+				issue.addMetadata(md);
+			}
+
+			if (StringUtils.isBlank(purl)) {
+				Metadata md = new Metadata(purlType);
+				md.setValue(piResolverUrl + yearIdentifier + "-" + dateValue.replace("-", ""));
+				issue.addMetadata(md);
+			}
+
+			if (StringUtils.isBlank(anchorId)) {
+				Metadata md = new Metadata(anchorIdType);
+				md.setValue(identifier);
+				issue.addMetadata(md);
+			}
+
+			if (StringUtils.isBlank(anchorTitle)) {
+				Metadata md = new Metadata(anchorTitleType);
+				md.setValue(titleLabel);
+				issue.addMetadata(md);
+			}
+
+			if (StringUtils.isBlank(dateValue)) {
+				problems.add("Abort export, issue has no publication date");
+				return false;
+			}
+
+			if (!dateValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
+				problems.add("Issue date " + dateValue + " has the wrong format. Expected is YYYY-MM-DD");
+				return false;
+			}
+
+			if (StringUtils.isBlank(yearVolume.getOrderLabel())) {
+				yearVolume.setOrderLabel(dateValue.substring(0, 4));
+			}
+
+			String monthValue = dateValue.substring(0, 7);
+
+			DocStruct currentMonth = null;
+			DocStruct currentDay = null;
+			if (yearVolume.getAllChildren() != null) {
+				for (DocStruct monthDocStruct : yearVolume.getAllChildren()) {
+					String currentDate = monthDocStruct.getOrderLabel();
+					if (monthValue.equals(currentDate)) {
+						currentMonth = monthDocStruct;
+						break;
 					}
 				}
 			}
-			// create identifier if missing, add zdb id if missing
-			if (addFileExtension) {				
-				dummyIssue.setLink(metsResolverUrl + yearIdentifier + "-" + dateValue.replace("-", "") + "-mets.xml");
-				//dummyIssue.setLink(metsResolverUrl + issueIdentifier + ".xml");
-			} else {
-				dummyIssue.setLink(metsResolverUrl + issueIdentifier);
+			if (currentMonth == null) {
+				try {
+					currentMonth = anchorDigitalDocument.createDocStruct(monthType);
+					currentMonth.setOrderLabel(monthValue);
+
+					yearVolume.addChild(currentMonth);
+				} catch (TypeNotAllowedAsChildException e) {
+					log.error(e);
+				}
 			}
-			ExportFileformat issueExport = new MetsModsImportExport(prefs);
-
-			DigitalDocument issueDigDoc = new DigitalDocument();
-			issueExport.setDigitalDocument(issueDigDoc);
-
-			setMetsParameter(goobiId, pointer, anchor, issueExport);
-
-			// create hierarchy for individual issue file
-
-			// newspaper
-			DocStruct dummyNewspaper = issueDigDoc.createDocStruct(newspaperStubType);
-			if (addFileExtension) {
-				dummyNewspaper.setLink(metsResolverUrl + identifier + ".xml");
-			} else {
-				dummyNewspaper.setLink(metsResolverUrl + identifier);
+			if (currentMonth.getAllChildren() != null) {
+				for (DocStruct dayDocStruct : currentMonth.getAllChildren()) {
+					String currentDate = dayDocStruct.getOrderLabel();
+					if (dateValue.equals(currentDate)) {
+						currentDay = dayDocStruct;
+						break;
+					}
+				}
 			}
-			Metadata titleMd = null;
+			if (currentDay == null) {
+				try {
+					currentDay = anchorDigitalDocument.createDocStruct(dayType);
+					currentDay.setOrderLabel(dateValue);
+					currentMonth.addChild(currentDay);
+				} catch (TypeNotAllowedAsChildException e) {
+					log.error(e);
+				}
+			}
 			try {
+				DocStruct dummyIssue = anchorDigitalDocument.createDocStruct(issueType);
+				dummyIssue.setOrderLabel(dateValue);
+				currentDay.addChild(dummyIssue);
+				if (issue.getAllMetadata() != null) {
+					for (Metadata md : issue.getAllMetadata()) {
+						if (md.getType().equals(labelType)) {
+							Metadata label = new Metadata(labelType);
+							label.setValue(md.getValue());
+							dummyIssue.addMetadata(label);
+
+						}
+					}
+				}
+				// create identifier if missing, add zdb id if missing
+				if (addFileExtension) {
+					dummyIssue
+							.setLink(metsResolverUrl + yearIdentifier + "-" + dateValue.replace("-", "") + "-mets.xml");
+					// dummyIssue.setLink(metsResolverUrl + issueIdentifier + ".xml");
+				} else {
+					dummyIssue.setLink(metsResolverUrl + issueIdentifier);
+				}
+				ExportFileformat issueExport = new MetsModsImportExport(prefs);
+
+				DigitalDocument issueDigDoc = new DigitalDocument();
+				issueExport.setDigitalDocument(issueDigDoc);
+
+				setMetsParameter(goobiId, pointer, anchor, issueExport);
+
+				// create hierarchy for individual issue file
+
+				// newspaper
+				DocStruct dummyNewspaper = issueDigDoc.createDocStruct(newspaperStubType);
+				if (addFileExtension) {
+					dummyNewspaper.setLink(metsResolverUrl + identifier + ".xml");
+				} else {
+					dummyNewspaper.setLink(metsResolverUrl + identifier);
+				}
+				Metadata titleMd = null;
+				try {
+					titleMd = new Metadata(labelType);
+					titleMd.setValue(titleLabel);
+					dummyNewspaper.addMetadata(titleMd);
+				} catch (UGHException e) {
+					log.info(e);
+				}
+				// year
+				DocStruct issueYear = issueDigDoc.createDocStruct(yearType);
+				issueYear.setOrderLabel(dateValue.substring(0, 4));
+
+				if (addFileExtension) {
+					issueYear.setLink(metsResolverUrl + yearIdentifier + ".xml");
+				} else {
+					issueYear.setLink(metsResolverUrl + yearIdentifier);
+				}
 				titleMd = new Metadata(labelType);
-				titleMd.setValue(titleLabel);
-				dummyNewspaper.addMetadata(titleMd);
-			} catch (UGHException e) {
-				log.info(e);
-			}
-			// year
-			DocStruct issueYear = issueDigDoc.createDocStruct(yearType);
-			issueYear.setOrderLabel(dateValue.substring(0, 4));
-
-			if (addFileExtension) {
-				issueYear.setLink(metsResolverUrl + yearIdentifier + ".xml");
-			} else {
-				issueYear.setLink(metsResolverUrl + yearIdentifier);
-			}
-			titleMd = new Metadata(labelType);
-			titleMd.setValue(yearTitle);
-			try {
-				issueYear.addMetadata(titleMd);
-			} catch (UGHException e) {
-				log.info(e);
-			}
-			dummyNewspaper.addChild(issueYear);
-
-			// month
-			DocStruct issueMonth = issueDigDoc.createDocStruct(monthType);
-			issueMonth.setOrderLabel(monthValue);
-			issueYear.addChild(issueMonth);
-			// day
-			DocStruct issueDay = issueDigDoc.createDocStruct(dayType);
-			issueDay.setOrderLabel(dateValue);
-			issueMonth.addChild(issueDay);
-
-			// issue
-			DocStruct newIssue = copyDocstruct(issueType, issue, issueDigDoc);
-
-			// additional manual values
-			addMetdata(newIssue, config.getString("/metadata/location"), config.getString("/constants/sourceOrganisation"));
-			addMetdata(newIssue, config.getString("/metadata/accessConditionUse"), config.getString("/constants/rightsToUse"));
-			addMetdata(newIssue, config.getString("/metadata/accessConditionDetails"), config.getString("/constants/rightsDetails"));
-			addMetdata(newIssue, config.getString("/metadata/frequency"), config.getString("/constants/frequency"));
-			
-			issueDigDoc.setLogicalDocStruct(dummyNewspaper);
-
-			// create physSequence
-			DocStruct physicalDocstruct = issueDigDoc.createDocStruct(oldPhysical.getType());
-			issueDigDoc.setPhysicalDocStruct(physicalDocstruct);
-
-			// add images
-			if (issue.getAllToReferences() != null) {
-				for (Reference ref : issue.getAllToReferences()) {
-					DocStruct oldPage = ref.getTarget();
-					String filename = Paths.get(oldPage.getImageName()).getFileName().toString();
-
-					DocStruct newPage = copyDocstruct(oldPage.getType(), oldPage, issueDigDoc);
-					if (newPage != null) {
-						newPage.setImageName(filename);
-						physicalDocstruct.addChild(newPage);
-
-						newIssue.addReferenceTo(newPage, "logical_physical");
-					}
+				titleMd.setValue(yearTitle);
+				try {
+					issueYear.addMetadata(titleMd);
+				} catch (UGHException e) {
+					log.info(e);
 				}
-			}
-			issueDay.addChild(newIssue);
+				dummyNewspaper.addChild(issueYear);
 
-			boolean useOriginalFiles = false;
+				// month
+				DocStruct issueMonth = issueDigDoc.createDocStruct(monthType);
+				issueMonth.setOrderLabel(monthValue);
+				issueYear.addChild(issueMonth);
+				// day
+				DocStruct issueDay = issueDigDoc.createDocStruct(dayType);
+				issueDay.setOrderLabel(dateValue);
+				issueMonth.addChild(issueDay);
 
-			if (myFilegroups != null && !myFilegroups.isEmpty()) {
-				for (ProjectFileGroup pfg : myFilegroups) {
-					if (pfg.isUseOriginalFiles()) {
-						useOriginalFiles = true;
-					}
-					// check if source files exists
-					if (pfg.getFolder() != null && pfg.getFolder().length() > 0) {
-						String foldername = process.getMethodFromName(pfg.getFolder());
-						if (foldername != null) {
-							Path folder = Paths.get(process.getMethodFromName(pfg.getFolder()));
-							if (folder != null && StorageProvider.getInstance().isFileExists(folder)
-									&& !StorageProvider.getInstance().list(folder.toString()).isEmpty()) {
-								VirtualFileGroup v = createFilegroup(vr, pfg,
-										subfolderPerIssue ? issueIdentifier : yearIdentifier);
-								issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
-							}
-						}
-					} else {
-						VirtualFileGroup v = createFilegroup(vr, pfg,
-								subfolderPerIssue ? issueIdentifier : yearIdentifier);
-						issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
-					}
-				}
-			}
+				// issue
+				DocStruct newIssue = copyDocstruct(issueType, issue, issueDigDoc);
 
-			if (useOriginalFiles) {
-				// check if media folder contains images
-				List<Path> filesInFolder = StorageProvider.getInstance()
-						.listFiles(process.getImagesTifDirectory(false));
-				if (!filesInFolder.isEmpty()) {
-					// compare image names with files in mets file
-					List<DocStruct> pages = issueDigDoc.getPhysicalDocStruct().getAllChildren();
-					if (pages != null && !pages.isEmpty()) {
-						for (DocStruct page : pages) {
-							Path completeNameInMets = Paths.get(page.getImageName());
-							String filenameInMets = completeNameInMets.getFileName().toString();
-							int dotIndex = filenameInMets.lastIndexOf('.');
-							if (dotIndex != -1) {
-								filenameInMets = filenameInMets.substring(0, dotIndex);
-							}
-							for (Path imageNameInFolder : filesInFolder) {
-								String imageName = imageNameInFolder.getFileName().toString();
-								dotIndex = imageName.lastIndexOf('.');
-								if (dotIndex != -1) {
-									imageName = imageName.substring(0, dotIndex);
-								}
+				// additional manual values
+				addMetdata(newIssue, config.getString("/metadata/location"),
+						config.getString("/constants/sourceOrganisation"));
+				addMetdata(newIssue, config.getString("/metadata/accessConditionUse"),
+						config.getString("/constants/rightsToUse"));
+				addMetdata(newIssue, config.getString("/metadata/accessConditionDetails"),
+						config.getString("/constants/rightsDetails"));
+				addMetdata(newIssue, config.getString("/metadata/frequency"), config.getString("/constants/frequency"));
 
-								if (filenameInMets.equalsIgnoreCase(imageName)) {
-									// found matching filename
-									page.setImageName(imageNameInFolder.toString());
-									break;
-								}
-							}
+				issueDigDoc.setLogicalDocStruct(dummyNewspaper);
+
+				// create physSequence
+				DocStruct physicalDocstruct = issueDigDoc.createDocStruct(oldPhysical.getType());
+				issueDigDoc.setPhysicalDocStruct(physicalDocstruct);
+
+				
+				// add images
+				if (issue.getAllToReferences() != null) {
+					for (Reference ref : issue.getAllToReferences()) {
+						DocStruct oldPage = ref.getTarget();
+						String filename = Paths.get(oldPage.getImageName()).getFileName().toString();
+
+						DocStruct newPage = copyDocstruct(oldPage.getType(), oldPage, issueDigDoc);
+						if (newPage != null) {
+							newPage.setImageName(filename);
+							physicalDocstruct.addChild(newPage);
+
+							newIssue.addReferenceTo(newPage, "logical_physical");
 						}
 					}
 				}
-			}
+				issueDay.addChild(newIssue);
 
-			DocStruct ds = issueExport.getDigitalDocument().getLogicalDocStruct();
-			for (DocStruct dsc : ds.getAllChildrenAsFlatList()) {
-				log.debug("------------------ " + dsc.getType().getName() + " ------------------");
-				if (dsc.getAllMetadata() != null) {
-					for (Metadata md : dsc.getAllMetadata()) {
-						log.debug(md.getType().getName() + ": " + md.getValue());
+//			boolean useOriginalFiles = false;
+
+				if (myFilegroups != null && !myFilegroups.isEmpty()) {
+					for (ProjectFileGroup pfg : myFilegroups) {
+//					if (pfg.isUseOriginalFiles()) {
+//						useOriginalFiles = true;
+//					}
+						// check if source files exists
+						if (pfg.getFolder() != null && pfg.getFolder().length() > 0) {
+							String foldername = process.getMethodFromName(pfg.getFolder());
+							if (foldername != null) {
+								Path folder = Paths.get(process.getMethodFromName(pfg.getFolder()));
+								if (folder != null && StorageProvider.getInstance().isFileExists(folder)
+										&& !StorageProvider.getInstance().list(folder.toString()).isEmpty()) {
+									VirtualFileGroup v = createFilegroup(vr, pfg,
+											subfolderPerIssue ? issueIdentifier : yearIdentifier);
+									issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
+								}
+							}
+						} else {
+							VirtualFileGroup v = createFilegroup(vr, pfg,
+									subfolderPerIssue ? issueIdentifier : yearIdentifier);
+							issueExport.getDigitalDocument().getFileSet().addVirtualFileGroup(v);
+						}
 					}
 				}
+
+//			if (useOriginalFiles) {
+//				// check if media folder contains images
+//				List<Path> filesInFolder = StorageProvider.getInstance()
+//						.listFiles(process.getImagesTifDirectory(false));
+//				if (!filesInFolder.isEmpty()) {
+//					// compare image names with files in mets file
+//					List<DocStruct> pages = issueDigDoc.getPhysicalDocStruct().getAllChildren();
+//					if (pages != null && !pages.isEmpty()) {
+//						for (DocStruct page : pages) {
+//							Path completeNameInMets = Paths.get(page.getImageName());
+//							String filenameInMets = completeNameInMets.getFileName().toString();
+//							int dotIndex = filenameInMets.lastIndexOf('.');
+//							if (dotIndex != -1) {
+//								filenameInMets = filenameInMets.substring(0, dotIndex);
+//							}
+//							for (Path imageNameInFolder : filesInFolder) {
+//								String imageName = imageNameInFolder.getFileName().toString();
+//								dotIndex = imageName.lastIndexOf('.');
+//								if (dotIndex != -1) {
+//									imageName = imageName.substring(0, dotIndex);
+//								}
+//
+//								if (filenameInMets.equalsIgnoreCase(imageName)) {
+//									// found matching filename
+//									page.setImageName(imageNameInFolder.toString());
+//									break;
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+
+//			DocStruct ds = issueExport.getDigitalDocument().getLogicalDocStruct();
+//			for (DocStruct dsc : ds.getAllChildrenAsFlatList()) {
+//				log.debug("------------------ " + dsc.getType().getName() + " ------------------");
+//				if (dsc.getAllMetadata() != null) {
+//					for (Metadata md : dsc.getAllMetadata()) {
+//						log.debug(md.getType().getName() + ": " + md.getValue());
+//					}
+//				}
+//			}
+
+				// fix all file names to use the new ones
+				for (ContentFile cf : issueDigDoc.getFileSet().getAllFiles()) {
+					String fileName = cf.getLocation();
+					String realFileNameWithoutExtension = fileName.substring(0, fileName.indexOf("."));
+					String newFileName = fileMap.get(realFileNameWithoutExtension);
+					cf.setLocation(newFileName + ".tif");
+				}
+				
+				// export to configured folder
+				String issueName = Paths
+						.get(tmpExportFolder.toString(), yearIdentifier + "-" + simpleDate + "-mets.xml").toString();
+				issueExport.write(issueName);
+				//log.debug("======= write METS file for " + issueName + " ========");
+
+			} catch (TypeNotAllowedAsChildException e) {
+				log.error(e);
 			}
-			
-			
-			// export to configured folder
-			String issueName = Paths.get(tmpExportFolder.toString(), yearIdentifier + "-" + simpleDate + "-mets.xml").toString();
-			log.debug("========================== write METS file for " + issueName + " ==========================");
-			issueExport.write(issueName);
-			
-		} catch (TypeNotAllowedAsChildException e) {
-			log.error(e);
 		}
-	}
 
 		// update/save generated data in goobi process
 //		Fileformat fileformat = process.readMetadataFile();
@@ -752,7 +771,7 @@ public class NewspaperMetsCreator {
 	 * @param newIssue
 	 * @param string
 	 * @param string2
-	 * @throws MetadataTypeNotAllowedException 
+	 * @throws MetadataTypeNotAllowedException
 	 */
 	private void addMetdata(DocStruct ds, String type, String value) throws MetadataTypeNotAllowedException {
 		Metadata md = new Metadata(prefs.getMetadataTypeByName(type));
@@ -780,33 +799,32 @@ public class NewspaperMetsCreator {
 
 		fileFormat.setRightsOwner(
 				vr.replace(config.getString("/rightsOwner", process.getProjekt().getMetsRightsOwner())));
-		fileFormat.setRightsOwnerLogo(vr
-				.replace(config.getString("/rightsOwnerLogo", process.getProjekt().getMetsRightsOwnerLogo())));
-		fileFormat.setRightsOwnerSiteURL(vr.replace(
-				config.getString("/rightsOwnerSiteURL", process.getProjekt().getMetsRightsOwnerSite())));
-		fileFormat.setRightsOwnerContact(vr.replace(
-				config.getString("/rightsOwnerContact", process.getProjekt().getMetsRightsOwnerMail())));
-		fileFormat.setDigiprovPresentation(vr.replace(config.getString("/digiprovPresentation",
-				process.getProjekt().getMetsDigiprovPresentation())));
-		fileFormat.setDigiprovReference(vr.replace(
-				config.getString("/digiprovReference", process.getProjekt().getMetsDigiprovReference())));
+		fileFormat.setRightsOwnerLogo(
+				vr.replace(config.getString("/rightsOwnerLogo", process.getProjekt().getMetsRightsOwnerLogo())));
+		fileFormat.setRightsOwnerSiteURL(
+				vr.replace(config.getString("/rightsOwnerSiteURL", process.getProjekt().getMetsRightsOwnerSite())));
+		fileFormat.setRightsOwnerContact(
+				vr.replace(config.getString("/rightsOwnerContact", process.getProjekt().getMetsRightsOwnerMail())));
+		fileFormat.setDigiprovPresentation(vr.replace(
+				config.getString("/digiprovPresentation", process.getProjekt().getMetsDigiprovPresentation())));
+		fileFormat.setDigiprovReference(
+				vr.replace(config.getString("/digiprovReference", process.getProjekt().getMetsDigiprovReference())));
 		fileFormat.setDigiprovPresentationAnchor(vr.replace(config.getString("/digiprovPresentationAnchor",
 				process.getProjekt().getMetsDigiprovPresentationAnchor())));
-		fileFormat.setDigiprovReferenceAnchor(vr.replace(config.getString("/digiprovReferenceAnchor",
-				process.getProjekt().getMetsDigiprovReferenceAnchor())));
+		fileFormat.setDigiprovReferenceAnchor(vr.replace(
+				config.getString("/digiprovReferenceAnchor", process.getProjekt().getMetsDigiprovReferenceAnchor())));
 
 		fileFormat.setMetsRightsLicense(
 				vr.replace(config.getString("/rightsLicense", process.getProjekt().getMetsRightsLicense())));
 		fileFormat.setMetsRightsSponsor(
 				vr.replace(config.getString("/rightsSponsor", process.getProjekt().getMetsRightsSponsor())));
-		fileFormat.setMetsRightsSponsorLogo(vr.replace(
-				config.getString("/rightsSponsorLogo", process.getProjekt().getMetsRightsSponsorLogo())));
-		fileFormat.setMetsRightsSponsorSiteURL(vr.replace(config.getString("/rightsSponsorSiteURL",
-				process.getProjekt().getMetsRightsSponsorSiteURL())));
+		fileFormat.setMetsRightsSponsorLogo(
+				vr.replace(config.getString("/rightsSponsorLogo", process.getProjekt().getMetsRightsSponsorLogo())));
+		fileFormat.setMetsRightsSponsorSiteURL(vr.replace(
+				config.getString("/rightsSponsorSiteURL", process.getProjekt().getMetsRightsSponsorSiteURL())));
 
 		fileFormat.setPurlUrl(vr.replace(config.getString("/purl", process.getProjekt().getMetsPurl())));
-		fileFormat.setContentIDs(
-				vr.replace(config.getString("/contentIds", process.getProjekt().getMetsContentIDs())));
+		fileFormat.setContentIDs(vr.replace(config.getString("/contentIds", process.getProjekt().getMetsContentIDs())));
 		fileFormat.setMptrUrl(pointer);
 		fileFormat.setMptrAnchorUrl(anchorPointer);
 		fileFormat.setWriteLocal(false);
@@ -1140,7 +1158,7 @@ public class NewspaperMetsCreator {
 		copy = copy.replace("Ausgabe vom Freitag, den", "Friday,");
 		copy = copy.replace("Ausgabe vom Samstag, den", "Saturday,");
 		copy = copy.replace("Ausgabe vom Sonntag, den", "Sunday,");
-		
+
 		copy = copy.replace("Januar ", "January ");
 		copy = copy.replace("Februar ", "February ");
 		copy = copy.replace("März ", "March ");
@@ -1149,10 +1167,10 @@ public class NewspaperMetsCreator {
 		copy = copy.replace("Juli ", "July ");
 		copy = copy.replace("Oktober ", "October ");
 		copy = copy.replace("Dezember ", "December ");
-		log.debug(value + " ----> " + copy);
+		// log.debug(value + " ----> " + copy);
 		return copy;
 	}
-	
+
 	private static Comparator<Volume> volumeComperator = new Comparator<Volume>() { // NOSONAR
 
 		@Override
@@ -1174,6 +1192,5 @@ public class NewspaperMetsCreator {
 		private String contentids = null;
 		private String order = null;
 	}
-	
-	
+
 }

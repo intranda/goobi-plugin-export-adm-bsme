@@ -210,37 +210,18 @@ public class NewspaperExporter {
 					log.error("Error writing the simple xml file", e);
 					return false;
 				}
-				
-				
-				// adapt file names for references
-//				DocStruct phys = dd.getPhysicalDocStruct();
-//				for (DocStruct page : phys.getAllChildren()) {
-//					page.setImageName(page.getImageName() + "_steffen_war_hier");
-//					
-//					for(ContentFile cf : page.getAllContentFiles()) {
-//						cf.setLocation(cf.getLocation() + "_robert_war_hier");
-//					}
-//					
-//					
-//					log.debug(page.getImageName());
-//				}
-				
-				FileSet fs = dd.getFileSet();
-				for (ContentFile cf : fs.getAllFiles()) {
-					cf.setLocation(cf.getLocation() + "_robert_war_hier");
-				}
-				
-				NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd);
-				try {
-					nmc.exportMetsFile(ds);
-				} catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
-						| TypeNotAllowedForParentException | IOException | SwapException e) {
-					log.error("Error writing the mets file", e);
-					Helper.setFehlerMeldung("Error writing the mets file", e);
-					return false;
-				}
+			}	
+		}
 
-			}
+		// write the newspaper METS files
+		try {
+			NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd, fileMap);
+			nmc.exportMetsFile();
+		} catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
+				| TypeNotAllowedForParentException | IOException | SwapException e) {
+			log.error("Error writing the mets file", e);
+			Helper.setFehlerMeldung("Error writing the mets file", e);
+			return false;
 		}
 
 		// copy all important files to target folder
