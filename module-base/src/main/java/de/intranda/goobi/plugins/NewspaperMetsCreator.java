@@ -108,8 +108,8 @@ public class NewspaperMetsCreator {
 		config.setExpressionEngine(new XPathExpressionEngine());
 
 		// read configuration parameters from config file
-		MetadataType zdbIdAnalogType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbidanalog"));
-		MetadataType zdbIdDigitalType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbiddigital"));
+//		MetadataType zdbIdAnalogType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbidanalog"));
+//		MetadataType zdbIdDigitalType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbiddigital"));
 		MetadataType purlType = prefs.getMetadataTypeByName(config.getString("/metadata/purl"));
 
 		MetadataType identifierType = prefs.getMetadataTypeByName(config.getString("/metadata/identifier"));
@@ -124,14 +124,13 @@ public class NewspaperMetsCreator {
 
 		MetadataType languageType = prefs.getMetadataTypeByName(config.getString("/metadata/language"));
 		MetadataType locationType = prefs.getMetadataTypeByName(config.getString("/metadata/location"));
-		MetadataType accessConditionType = prefs.getMetadataTypeByName(config.getString("/metadata/licence"));
 
 		MetadataType resourceType = prefs.getMetadataTypeByName(config.getString("/metadata/resourceType"));
 
 		MetadataType anchorIdType = prefs.getMetadataTypeByName(config.getString("/metadata/anchorId"));
 		MetadataType anchorTitleType = prefs.getMetadataTypeByName(config.getString("/metadata/anchorTitle"));
-		MetadataType anchorZDBIdDigitalType = prefs
-				.getMetadataTypeByName(config.getString("/metadata/anchorZDBIdDigital"));
+//		MetadataType anchorZDBIdDigitalType = prefs
+//				.getMetadataTypeByName(config.getString("/metadata/anchorZDBIdDigital"));
 
 		DocStructType newspaperType = prefs.getDocStrctTypeByName(config.getString("/docstruct/newspaper"));
 		DocStructType yearType = prefs.getDocStrctTypeByName(config.getString("/docstruct/year"));
@@ -155,37 +154,34 @@ public class NewspaperMetsCreator {
 			problems.add(logical.getType().getName() + " has the wrong type. It is not an anchor.");
 			return false;
 		}
-		String zdbIdAnalog = null;
-		String zdbIdDigital = null;
+//		String zdbIdAnalog = null;
+//		String zdbIdDigital = null;
 		String identifier = null;
 		String titleLabel = null;
 		String mainTitle = null;
 		String language = null;
 		String location = null;
-		String accessCondition = null;
 
 		for (Metadata md : logical.getAllMetadata()) {
-			// get zdb id
-			if (md.getType().equals(zdbIdAnalogType)) {
-				zdbIdAnalog = md.getValue();
-			}
-			if (md.getType().equals(zdbIdDigitalType)) {
-				zdbIdDigital = md.getValue();
-			}
+//			// get zdb id
+//			if (md.getType().getName().equals(zdbIdAnalogType.getName())) {
+//				zdbIdAnalog = md.getValue();
+//			}
+//			if (md.getType().getName().equals(zdbIdDigitalType.getName())) {
+//				zdbIdDigital = md.getValue();
+//			}
 			// get identifier
-			else if (md.getType().equals(identifierType)) {
+			if (md.getType().getName().equals(identifierType.getName())) {
 				identifier = md.getValue();
-			} else if (md.getType().equals(labelType)) {
+			} else if (md.getType().getName().equals(labelType.getName())) {
 				titleLabel = md.getValue();
-			} else if (md.getType().equals(mainTitleType)) {
+			} else if (md.getType().getName().equals(mainTitleType.getName())) {
 				mainTitle = md.getValue();
-			} else if (md.getType().equals(languageType)) {
+			} else if (md.getType().getName().equals(languageType.getName())) {
 				language = md.getValue();
-			} else if (md.getType().equals(locationType)) {
+			} else if (md.getType().getName().equals(locationType.getName())) {
 				location = md.getValue();
-			} else if (md.getType().equals(accessConditionType)) {
-				accessCondition = md.getValue();
-			}
+			} 
 		}
 		if (StringUtils.isBlank(mainTitle) && StringUtils.isNotBlank(titleLabel)) {
 			Metadata md = new Metadata(mainTitleType);
@@ -202,29 +198,26 @@ public class NewspaperMetsCreator {
 
 		for (Metadata md : volume.getAllMetadata()) {
 			// get current year
-			if (md.getType().equals(yearDateType)) {
+			if (md.getType().getName().equals(yearDateType.getName())) {
 				publicationYear = md.getValue();
 			}
-			if (md.getType().equals(labelType)) {
+			if (md.getType().getName().equals(labelType.getName())) {
 				volumeLabel = md.getValue();
 			}
-			if (md.getType().equals(mainTitleType)) {
+			if (md.getType().getName().equals(mainTitleType.getName())) {
 				volumeTitle = md.getValue();
 			}
-			if (md.getType().equals(sortNumberType)) {
+			if (md.getType().getName().equals(sortNumberType.getName())) {
 				sortNumber = md.getValue();
 			}
-			if (md.getType().equals(issueNumberType)) {
+			if (md.getType().getName().equals(issueNumberType.getName())) {
 				issueNumber = md.getValue();
 			}
-			if (language == null && md.getType().equals(languageType)) {
+			if (language == null && md.getType().getName().equals(languageType.getName())) {
 				language = md.getValue();
 			}
-			if (location == null && md.getType().equals(locationType)) {
+			if (location == null && md.getType().getName().equals(locationType.getName())) {
 				location = md.getValue();
-			}
-			if (accessCondition == null && md.getType().equals(accessConditionType)) {
-				accessCondition = md.getValue();
 			}
 		}
 
@@ -281,9 +274,9 @@ public class NewspaperMetsCreator {
 		String yearTitle = null;
 		String yearIdentifier = null;
 		for (Metadata md : yearVolume.getAllMetadata()) {
-			if (md.getType().equals(labelType)) {
+			if (md.getType().getName().equals(labelType.getName())) {
 				yearTitle = md.getValue();
-			} else if (md.getType().equals(identifierType)) {
+			} else if (md.getType().getName().equals(identifierType.getName())) {
 				yearIdentifier = md.getValue();
 			}
 		}
@@ -309,69 +302,66 @@ public class NewspaperMetsCreator {
 			String issueSortingNumber = null;
 			String issueLanguage = null;
 			String issueLocation = null;
-			String issueLicence = null;
+//			String issueLicence = null;
 
 			String issueIdentifier = null;
 			String simpleDate = null;
 			String dateValue = null;
 			String resource = null;
 			String purl = null;
-			String analogIssueZdbId = null;
-			String digitalIssueZdbId = null;
+//			String analogIssueZdbId = null;
+//			String digitalIssueZdbId = null;
 			String anchorId = null;
 			String anchorTitle = null;
 
 			for (Metadata md : issue.getAllMetadata()) {
-				if (md.getType().equals(anchorZDBIdDigitalType)) {
-					digitalIssueZdbId = md.getValue();
-				}
-				if (md.getType().equals(zdbIdAnalogType)) {
-					analogIssueZdbId = md.getValue();
-				}
+//				if (md.getType().getName().equals(anchorZDBIdDigitalType.getName())) {
+//					digitalIssueZdbId = md.getValue();
+//				}
+//				if (md.getType().getName().equals(zdbIdAnalogType.getName())) {
+//					analogIssueZdbId = md.getValue();
+//				}
 
-				if (md.getType().equals(anchorIdType)) {
+				if (md.getType().getName().equals(anchorIdType.getName())) {
 					anchorId = md.getValue();
 				}
-				if (md.getType().equals(anchorTitleType)) {
+				if (md.getType().getName().equals(anchorTitleType.getName())) {
 					anchorTitle = md.getValue();
 				}
 
-				if (md.getType().equals(identifierType)) {
+				if (md.getType().getName().equals(identifierType.getName())) {
 					issueIdentifier = md.getValue();
 				}
-				if (md.getType().equals(labelType)) {
+				if (md.getType().getName().equals(labelType.getName())) {
 					md.setValue(getTranslatedIssueLabels(md.getValue()));
 					issueLabel = md.getValue();
 				}
-				if (md.getType().equals(mainTitleType)) {
+				if (md.getType().getName().equals(mainTitleType.getName())) {
 					md.setValue(getTranslatedIssueLabels(md.getValue()));
 					issueTitle = md.getValue();
 				}
-				if (md.getType().equals(issueNumberType)) {
+				if (md.getType().getName().equals(issueNumberType.getName())) {
 					issueNo = md.getValue();
 				}
-				if (md.getType().equals(sortNumberType)) {
+				if (md.getType().getName().equals(sortNumberType.getName())) {
 					issueSortingNumber = md.getValue();
 				}
-				if (md.getType().equals(issueDateType)) {
+				if (md.getType().getName().equals(issueDateType.getName())) {
 					dateValue = md.getValue();
 				}
 
-				if (md.getType().equals(resourceType)) {
+				if (md.getType().getName().equals(resourceType.getName())) {
 					resource = md.getValue();
 				}
-				if (md.getType().equals(purlType)) {
+				if (md.getType().getName().equals(purlType.getName())) {
 					purl = md.getValue();
 				}
 
-				if (md.getType().equals(languageType)) {
+				if (md.getType().getName().equals(languageType.getName())) {
 					issueLanguage = md.getValue();
 				}
-				if (md.getType().equals(locationType)) {
+				if (md.getType().getName().equals(locationType.getName())) {
 					issueLocation = md.getValue();
-				}
-				if (md.getType().equals(accessConditionType)) {
-					issueLicence = md.getValue();
 				}
 
 			}
@@ -404,24 +394,28 @@ public class NewspaperMetsCreator {
 				issue.addMetadata(md);
 			}
 
-			if (StringUtils.isBlank(issueLicence) && StringUtils.isNotBlank(accessCondition)) {
-				Metadata md = new Metadata(accessConditionType);
-				md.setValue(accessCondition);
-				issue.addMetadata(md);
-			}
-			if (StringUtils.isBlank(analogIssueZdbId) && StringUtils.isNotBlank(zdbIdAnalog)) {
-				Metadata md = new Metadata(zdbIdAnalogType);
-				md.setValue(zdbIdAnalog);
-				issue.addMetadata(md);
-			}
-			if (StringUtils.isBlank(digitalIssueZdbId) && StringUtils.isNotBlank(zdbIdDigital)) {
-				Metadata md = new Metadata(anchorZDBIdDigitalType);
-				md.setValue(zdbIdDigital);
-				issue.addMetadata(md);
-			}
+//			if (StringUtils.isBlank(issueLicence) && StringUtils.isNotBlank(accessCondition)) {
+//				Metadata md = new Metadata(accessConditionType);
+//				md.setValue(accessCondition);
+//				issue.addMetadata(md);
+//			}
+//			if (StringUtils.isBlank(analogIssueZdbId) && StringUtils.isNotBlank(zdbIdAnalog)) {
+//				Metadata md = new Metadata(zdbIdAnalogType);
+//				md.setValue(zdbIdAnalog);
+//				issue.addMetadata(md);
+//			}
+//			if (StringUtils.isBlank(digitalIssueZdbId) && StringUtils.isNotBlank(zdbIdDigital)) {
+//				Metadata md = new Metadata(anchorZDBIdDigitalType);
+//				md.setValue(zdbIdDigital);
+//				issue.addMetadata(md);
+//			}
 
 			if (StringUtils.isBlank(issueIdentifier)) {
-				simpleDate = dateValue.replace("-", "");
+				if (dateValue != null) {
+					simpleDate = dateValue.replace("-", "");					
+				} else {
+					simpleDate = String.valueOf(System.currentTimeMillis());
+				}
 				issueIdentifier = yearIdentifier + "-" + simpleDate;
 				Metadata md = new Metadata(identifierType);
 				md.setValue(issueIdentifier);
@@ -512,7 +506,7 @@ public class NewspaperMetsCreator {
 				currentDay.addChild(dummyIssue);
 				if (issue.getAllMetadata() != null) {
 					for (Metadata md : issue.getAllMetadata()) {
-						if (md.getType().equals(labelType)) {
+						if (md.getType().getName().equals(labelType.getName())) {
 							Metadata label = new Metadata(labelType);
 							label.setValue(md.getValue());
 							dummyIssue.addMetadata(label);
