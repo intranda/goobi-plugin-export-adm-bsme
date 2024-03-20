@@ -108,8 +108,6 @@ public class NewspaperMetsCreator {
 		config.setExpressionEngine(new XPathExpressionEngine());
 
 		// read configuration parameters from config file
-//		MetadataType zdbIdAnalogType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbidanalog"));
-//		MetadataType zdbIdDigitalType = prefs.getMetadataTypeByName(config.getString("/metadata/zdbiddigital"));
 		MetadataType purlType = prefs.getMetadataTypeByName(config.getString("/metadata/purl"));
 
 		MetadataType identifierType = prefs.getMetadataTypeByName(config.getString("/metadata/identifier"));
@@ -129,8 +127,6 @@ public class NewspaperMetsCreator {
 
 		MetadataType anchorIdType = prefs.getMetadataTypeByName(config.getString("/metadata/anchorId"));
 		MetadataType anchorTitleType = prefs.getMetadataTypeByName(config.getString("/metadata/anchorTitle"));
-//		MetadataType anchorZDBIdDigitalType = prefs
-//				.getMetadataTypeByName(config.getString("/metadata/anchorZDBIdDigital"));
 
 		DocStructType newspaperType = prefs.getDocStrctTypeByName(config.getString("/docstruct/newspaper"));
 		DocStructType yearType = prefs.getDocStrctTypeByName(config.getString("/docstruct/year"));
@@ -154,8 +150,6 @@ public class NewspaperMetsCreator {
 			problems.add(logical.getType().getName() + " has the wrong type. It is not an anchor.");
 			return false;
 		}
-//		String zdbIdAnalog = null;
-//		String zdbIdDigital = null;
 		String identifier = null;
 		String titleLabel = null;
 		String mainTitle = null;
@@ -163,13 +157,6 @@ public class NewspaperMetsCreator {
 		String location = null;
 
 		for (Metadata md : logical.getAllMetadata()) {
-//			// get zdb id
-//			if (md.getType().getName().equals(zdbIdAnalogType.getName())) {
-//				zdbIdAnalog = md.getValue();
-//			}
-//			if (md.getType().getName().equals(zdbIdDigitalType.getName())) {
-//				zdbIdDigital = md.getValue();
-//			}
 			// get identifier
 			if (md.getType().getName().equals(identifierType.getName())) {
 				identifier = md.getValue();
@@ -302,33 +289,22 @@ public class NewspaperMetsCreator {
 			String issueSortingNumber = null;
 			String issueLanguage = null;
 			String issueLocation = null;
-//			String issueLicence = null;
 
 			String issueIdentifier = null;
 			String simpleDate = null;
 			String dateValue = null;
 			String resource = null;
 			String purl = null;
-//			String analogIssueZdbId = null;
-//			String digitalIssueZdbId = null;
 			String anchorId = null;
 			String anchorTitle = null;
 
 			for (Metadata md : issue.getAllMetadata()) {
-//				if (md.getType().getName().equals(anchorZDBIdDigitalType.getName())) {
-//					digitalIssueZdbId = md.getValue();
-//				}
-//				if (md.getType().getName().equals(zdbIdAnalogType.getName())) {
-//					analogIssueZdbId = md.getValue();
-//				}
-
 				if (md.getType().getName().equals(anchorIdType.getName())) {
 					anchorId = md.getValue();
 				}
 				if (md.getType().getName().equals(anchorTitleType.getName())) {
 					anchorTitle = md.getValue();
 				}
-
 				if (md.getType().getName().equals(identifierType.getName())) {
 					issueIdentifier = md.getValue();
 				}
@@ -375,6 +351,15 @@ public class NewspaperMetsCreator {
 					log.info(e);
 				}
 			}
+			if (StringUtils.isBlank(dateValue)) {
+				problems.add("Abort export, issue has no publication date");
+				return false;
+			}
+
+			if (!dateValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
+				problems.add("Issue date " + dateValue + " has the wrong format. Expected is YYYY-MM-DD");
+				return false;
+			}
 			if (StringUtils.isBlank(issueSortingNumber) && StringUtils.isNotBlank(issueNo)
 					&& StringUtils.isNumeric(issueNo)) {
 				Metadata md = new Metadata(sortNumberType);
@@ -387,35 +372,13 @@ public class NewspaperMetsCreator {
 				md.setValue(language);
 				issue.addMetadata(md);
 			}
-
 			if (StringUtils.isBlank(issueLocation) && StringUtils.isNotBlank(location)) {
 				Metadata md = new Metadata(locationType);
 				md.setValue(location);
 				issue.addMetadata(md);
 			}
-
-//			if (StringUtils.isBlank(issueLicence) && StringUtils.isNotBlank(accessCondition)) {
-//				Metadata md = new Metadata(accessConditionType);
-//				md.setValue(accessCondition);
-//				issue.addMetadata(md);
-//			}
-//			if (StringUtils.isBlank(analogIssueZdbId) && StringUtils.isNotBlank(zdbIdAnalog)) {
-//				Metadata md = new Metadata(zdbIdAnalogType);
-//				md.setValue(zdbIdAnalog);
-//				issue.addMetadata(md);
-//			}
-//			if (StringUtils.isBlank(digitalIssueZdbId) && StringUtils.isNotBlank(zdbIdDigital)) {
-//				Metadata md = new Metadata(anchorZDBIdDigitalType);
-//				md.setValue(zdbIdDigital);
-//				issue.addMetadata(md);
-//			}
-
 			if (StringUtils.isBlank(issueIdentifier)) {
-				if (dateValue != null) {
-					simpleDate = dateValue.replace("-", "");					
-				} else {
-					simpleDate = String.valueOf(System.currentTimeMillis());
-				}
+				simpleDate = dateValue.replace("-", "");					
 				issueIdentifier = yearIdentifier + "-" + simpleDate;
 				Metadata md = new Metadata(identifierType);
 				md.setValue(issueIdentifier);
@@ -443,16 +406,6 @@ public class NewspaperMetsCreator {
 				Metadata md = new Metadata(anchorTitleType);
 				md.setValue(titleLabel);
 				issue.addMetadata(md);
-			}
-
-			if (StringUtils.isBlank(dateValue)) {
-				problems.add("Abort export, issue has no publication date");
-				return false;
-			}
-
-			if (!dateValue.matches("\\d{4}-\\d{2}-\\d{2}")) {
-				problems.add("Issue date " + dateValue + " has the wrong format. Expected is YYYY-MM-DD");
-				return false;
 			}
 
 			if (StringUtils.isBlank(yearVolume.getOrderLabel())) {
