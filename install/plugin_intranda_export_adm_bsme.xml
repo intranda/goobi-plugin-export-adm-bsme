@@ -2,48 +2,28 @@
 
 	<!-- directory where to export to -->
 	<targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
+	
 	<!-- main viewer url -->
 	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>>
 	
-	<constants>
-		<rightsToUse>Yes</rightsToUse>
-		<rightsDetails>ADMN</rightsDetails>
-		<source>Goobi</source>
-		<mediaType>Publication</mediaType>
-		<sourceOrganisation>Abu Dhabi Media Company</sourceOrganisation>
-		<frequency>Daily</frequency>
-	</constants>
+	<!-- configured values to be used inside of the export xml, 
+		can use variable replacer expressions here like e.g.:
+		- $(meta.CatalogIDDigital)
+		- $(meta.topstruct.TitleDocMain)
+		- $(process.Template) -->
+	<rightsToUse>$(process.rightsToUse)</rightsToUse>
+	<rightsDetails>$(process.rightsDetails)</rightsDetails>
+	<source>$(process.source)</source>
+	<mediaType>$(process.mediaType)</mediaType>
+	<sourceOrganisation>$(process.sourceOrganisation)</sourceOrganisation>
+	<frequency>$(process.frequency)</frequency>
+	<technicalNotes>$(process.technicalNotes)</technicalNotes>
 	
-	<export>
-		<images>true</images>
-		<fulltext>true</fulltext>
-		<subfolderPerIssue>true</subfolderPerIssue>
-		<exportFolder>/tmp/export/</exportFolder>
-		<exportImageFolder>/tmp/export/$(meta.CatalogIDDigital)_tif/
-		</exportImageFolder>
-		<exportAltoFolder>/tmp/export/$(meta.CatalogIDDigital)_alto/
-		</exportAltoFolder>
-	</export>
-	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=
-	</metsUrl>
-	<resolverUrl>https://adm.goobi.cloud/viewer/piresolver?id=</resolverUrl>
-
-	<!-- file groups -->
-	<!-- if no file group is set, the file groups from the project configuration 
-		are used -->
-	<filegroups>
-		<filegroup name="DEFAULT"
-			path="https://adm.goobi.cloud/viewer/content/$(meta.CatalogIDDigital)/1000/0/"
-			mimetype="" suffix="" foldername="" filesToIgnore=""
-			mimetypeFromFilename="true" />
-		<filegroup name="FULLTEXT"
-			path="https://adm.goobi.cloud/viewer/api/v1/records/$(meta.CatalogIDDigital)/files/alto/"
-			mimetype="xml/alto" suffix="xml" foldername="getOcrDirectory"
-			filesToIgnore="" mimetypeFromFilename="false" />
-	</filegroups>
 
 	<!-- mets parameter -->
 	<!-- if a field is empty or missing, project configuration is used -->
+	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=</metsUrl>
+	<resolverUrl>https://adm.goobi.cloud/viewer/piresolver?id=</resolverUrl>
 	<metsPointerPath>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.topstruct.CatalogIDDigital).xml
 	</metsPointerPath>
 	<metsPointerPathAnchor>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.CatalogIDDigital).xml
@@ -70,14 +50,11 @@
 	<!-- global metadata settings -->
 	<metadata>
 		<purl>_purl</purl>
-		<zdbiddigital>CatalogIDPeriodicalDBDigital</zdbiddigital>
-		<zdbidanalog>CatalogIDPeriodicalDB</zdbidanalog>
 		<identifier>CatalogIDDigital</identifier>
 		<issueDate>DateIssued</issueDate>
 		<yearDate>CurrentNoSorting</yearDate>
 		<titleLabel>TitleDocMain</titleLabel>
 		<modsTitle>MainTitle</modsTitle>
-		<volumeNumber>VolumeNo</volumeNumber>
 		<issueNumber>CurrentNo</issueNumber>
 		<sortNumber>CurrentNoSorting</sortNumber>
 		<language>DocLanguage</language>
@@ -85,14 +62,12 @@
 		<resourceType>TypeOfResource</resourceType>
 		<anchorId>AnchorID</anchorId>
 		<anchorTitle>AnchorTitle</anchorTitle>
-		<anchorZDBIdDigital>AnchorCatalogIDPeriodicalDBDigital
-		<technicalNotes>TechnicalNotes</technicalNotes>
-		</anchorZDBIdDigital>
 		<accessConditionUse>AccessConditionUse</accessConditionUse>
 		<accessConditionDetails>AccessConditionDetails</accessConditionDetails>
 		<frequency>Frequency</frequency>
-		<technicalNotes>TechnicalNote</technicalNotes>
+		
 	</metadata>
+	
 	<docstruct>
 		<newspaper>Newspaper</newspaper>
 		<year>Year</year>
@@ -101,4 +76,5 @@
 		<issue>NewspaperIssue</issue>
 		<newspaperStub>NewspaperStub</newspaperStub>
 	</docstruct>
+	
 </config_plugin>
