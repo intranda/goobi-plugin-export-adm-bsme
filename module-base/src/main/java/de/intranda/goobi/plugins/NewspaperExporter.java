@@ -189,23 +189,23 @@ public class NewspaperExporter {
                                 ImageInterpreter si = sourcemanager.getMyInterpreter();
 
                                 // MimeType
-                                master.setAttribute("Format", si.getFormatType().getFormat().getMimeType());
+                                // master.setAttribute("Format", si.getFormatType().getFormat().getMimeType());
                                 master.addContent(new Element("Format").setText(si.getFormatType().getFormat().getMimeType()));
 
                                 // Unit for the resolution, always ppi
-                                master.setAttribute("ResolutionUnit", "PPI");
+                                // master.setAttribute("ResolutionUnit", "PPI");
                                 master.addContent(new Element("ResolutionUnit").setText("PPI"));
 
                                 // Resolution
-                                master.setAttribute("Resolution", String.valueOf(si.getOriginalImageXResolution()));
+                                // master.setAttribute("Resolution", String.valueOf(si.getOriginalImageXResolution()));
                                 master.addContent(new Element("Resolution").setText(String.valueOf(si.getOriginalImageXResolution())));
 
                                 // ColorDepth
-                                master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
+                                // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
                                 master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
 
                                 // bitonal, grey, "color"
-                                master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
+                                // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
                                 master.addContent(new Element("ColorSpace").setText(si.getFormatType().getColortype().getLabel()));
 
                                 // Scanning device
