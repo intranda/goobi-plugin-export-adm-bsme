@@ -134,23 +134,25 @@ public class NewspaperExporter {
                 volume.addContent(new Element("Publication_Name")
                         .setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
                 volume.addContent(new Element("Language")
-                        .setText(getLanguageFullname(topStruct, config.getString("/metadata/issueNumber"))));
+                        .setText(getLanguageFullname(topStruct, config.getString("/metadata/DocLanguage"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
                 volume.addContent(new Element("Technical_Notes").setText(technicalNotes));
                 volume.addContent(new Element("Barcode").setText(volumeId));
-                volume.addContent(new Element("MetadataMetsFile").setText(volumeId + ".xml").setAttribute("Format", "xml"));
+                volume.addContent(new Element("MetadataMetsFile").setText(volumeId + ".xml").setAttribute("Format", "application/xml"));
 
                 // add issue information
                 Element issue = new Element("issueInfo");
                 volume.addContent(issue);
                 issue.addContent(
                         new Element("issueNumber").setText(getMetdata(ds, config.getString("/metadata/issueNumber"))));
+                issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFrequency").setText(frequency));
                 issue.addContent(new Element("issueDate").setText(getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
-                issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "pdf"));
-                issue.addContent(new Element("MetadataMetsFile").setText(volumeId + "-" + simpleDate + "-mets.xml").setAttribute("Format", "xml"));
+                issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));
+                issue.addContent(
+                        new Element("MetadataMetsFile").setText(volumeId + "-" + simpleDate + "-mets.xml").setAttribute("Format", "application/xml"));
 
                 // add file information
                 Element files = new Element("Pages");
@@ -239,8 +241,8 @@ public class NewspaperExporter {
 
                         master.addContent(new Element("file").setText(exportFileName + ".tif"));
                         file.addContent(master);
-                        file.addContent(new Element("alto").setText(exportFileName + ".xml").setAttribute("Format", "xml"));
-                        file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "txt"));
+                        file.addContent(new Element("alto").setText(exportFileName + ".xml").setAttribute("Format", "application/xml+alto"));
+                        file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
                         files.addContent(file);
 
                     }
@@ -249,7 +251,7 @@ public class NewspaperExporter {
                 // write the xml file
                 XMLOutputter xmlOutputter = new XMLOutputter();
                 xmlOutputter.setFormat(Format.getPrettyFormat());
-                File xmlfile = new File(targetFolder + volumeId + "-" + simpleDate + "-simple.xml");
+                File xmlfile = new File(targetFolder + volumeId + "-" + simpleDate + ".xml");
                 try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
                     xmlOutputter.output(doc, fileOutputStream);
                 } catch (IOException e) {
