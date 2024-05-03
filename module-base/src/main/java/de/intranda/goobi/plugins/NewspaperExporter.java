@@ -122,6 +122,7 @@ public class NewspaperExporter {
                 String rightsDetails = vr.replace(config.getString("/rightsDetails"));
                 String source = vr.replace(config.getString("/source"));
                 String mediaType = vr.replace(config.getString("/mediaType"));
+                String mediaGroup = vr.replace(config.getString("/mediaGroup"));
                 String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
                 String frequency = vr.replace(config.getString("/frequency"));
                 String technicalNotes = vr.replace(config.getString("/technicalNotes"));
@@ -130,6 +131,7 @@ public class NewspaperExporter {
                 volume.addContent(new Element("Right_Details").setText(rightsDetails));
                 volume.addContent(new Element("Media_Source").setText(source));
                 volume.addContent(new Element("Media_type").setText(mediaType));
+                volume.addContent(new Element("Media_Group").setText(mediaGroup));
                 volume.addContent(new Element("Publication_ID").setText(volumeId));
                 volume.addContent(new Element("Publication_Name")
                         .setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
@@ -341,12 +343,16 @@ public class NewspaperExporter {
     private String getLanguageFullname(DocStruct ds, String field) {
         String lang = getMetdata(ds, field);
         switch (lang) {
+            case "Arabic":
+                return "عربي – Arabic";
             case "ara":
-                return "Arabic";
+                return "عربي – Arabic";
+            case "English":
+                return "انجليزي – English";
+            case "eng":
+                return "انجليزي – English";
             case "ger":
                 return "German";
-            case "eng":
-                return "English";
         }
         return lang;
     }

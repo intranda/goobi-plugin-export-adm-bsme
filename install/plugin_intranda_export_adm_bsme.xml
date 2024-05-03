@@ -15,6 +15,7 @@
 	<rightsDetails>$(process.rightsDetails)</rightsDetails>
 	<source>$(process.source)</source>
 	<mediaType>$(process.mediaType)</mediaType>
+	<mediaGroup>$(process.mediaGroup)</mediaGroup>
 	<sourceOrganisation>$(process.sourceOrganisation)</sourceOrganisation>
 	<frequency>$(process.frequency)</frequency>
 	<technicalNotes>$(process.technicalNotes)</technicalNotes>

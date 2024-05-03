@@ -925,23 +925,8 @@ public class NewspaperMetsCreator {
      */
     private static String getTranslatedIssueLabels(String value) {
         String copy = value;
-        copy = copy.replace("Ausgabe vom Montag, den", "Monday,");
-        copy = copy.replace("Ausgabe vom Dienstag, den", "Tuesday,");
-        copy = copy.replace("Ausgabe vom Mittwoch, den", "Wednesday,");
-        copy = copy.replace("Ausgabe vom Donnerstag, den", "Thursday,");
-        copy = copy.replace("Ausgabe vom Freitag, den", "Friday,");
-        copy = copy.replace("Ausgabe vom Samstag, den", "Saturday,");
-        copy = copy.replace("Ausgabe vom Sonntag, den", "Sunday,");
-
-        copy = copy.replace("Januar ", "January ");
-        copy = copy.replace("Februar ", "February ");
-        copy = copy.replace("März ", "March ");
-        copy = copy.replace("Mai ", "May ");
-        copy = copy.replace("Juni ", "June ");
-        copy = copy.replace("Juli ", "July ");
-        copy = copy.replace("Oktober ", "October ");
-        copy = copy.replace("Dezember ", "December ");
-        // log.debug(value + " ----> " + copy);
+        copy = copy.replace("Ausgabe vom", "");
+        copy = copy.replace("Issue from", "");
         return copy;
     }
 
