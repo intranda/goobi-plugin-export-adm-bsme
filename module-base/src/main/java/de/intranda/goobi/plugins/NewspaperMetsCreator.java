@@ -310,7 +310,8 @@ public class NewspaperMetsCreator {
                 }
                 if (md.getType().getName().equals(labelType.getName())) {
                     // add the anchor label as prefix in front of each issue
-                    md.setValue(titleLabel + " " + getTranslatedIssueLabels(md.getValue()));
+                    String englishNewspaperName = getEnglishPartOfString(titleLabel);
+                    md.setValue(englishNewspaperName + "  " + getTranslatedIssueLabels(md.getValue()));
                     issueLabel = md.getValue();
                 }
                 if (md.getType().getName().equals(mainTitleType.getName())) {
@@ -931,6 +932,20 @@ public class NewspaperMetsCreator {
     }
 
     /**
+     * get English part of a metadata that is separated from Arabic part
+     *
+     * @param value
+     * @return
+     */
+    private static String getEnglishPartOfString(String value) {
+        String copy = value.replace("–", "-");
+        if (copy.contains("-")) {
+            copy = StringUtils.substringAfter(copy, "-").trim();
+        }
+        return copy;
+    }
+
+    /**
      * simple comparator for volumes
      */
     private static Comparator<Volume> volumeComperator = new Comparator<Volume>() { // NOSONAR
@@ -954,5 +969,4 @@ public class NewspaperMetsCreator {
         private String contentids = null;
         private String order = null;
     }
-
 }
