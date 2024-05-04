@@ -3,8 +3,6 @@ package de.intranda.goobi.plugins;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +17,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.sub.goobi.helper.Helper;
-import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -34,7 +31,6 @@ import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
-import ugh.dl.Metadata;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
 import ugh.exceptions.MetadataTypeNotAllowedException;
@@ -107,7 +103,7 @@ public class NewspaperExporter {
         // run through all NewspaperIssues
         for (DocStruct ds : topStruct.getAllChildrenAsFlatList()) {
             if (ds.getType().getName().equals(config.getString("/docstruct/issue"))) {
-                String simpleDate = getMetdata(ds, config.getString("/metadata/issueDate")).replace("-", "");
+                String simpleDate = AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate")).replace("-", "");
 
                 // prepare xml document
                 Document doc = new Document();
@@ -116,7 +112,7 @@ public class NewspaperExporter {
                 // add volume information
                 Element volume = new Element("volumeInfo");
                 doc.getRootElement().addContent(volume);
-                String volumeId = getMetdata(topStruct, config.getString("/metadata/identifier"));
+                String volumeId = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/identifier"));
 
                 String rightsToUse = vr.replace(config.getString("/rightsToUse"));
                 String rightsDetails = vr.replace(config.getString("/rightsDetails"));
@@ -134,9 +130,9 @@ public class NewspaperExporter {
                 volume.addContent(new Element("Media_Group").setText(mediaGroup));
                 volume.addContent(new Element("Publication_ID").setText(volumeId));
                 volume.addContent(new Element("Publication_Name")
-                        .setText(getMetdata(anchor, config.getString("/metadata/titleLabel"))));
+                        .setText(AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"))));
                 volume.addContent(new Element("Language")
-                        .setText(getLanguageFullname(topStruct, config.getString("/metadata/DocLanguage"))));
+                        .setText(AdmBsmeExportHelper.getLanguageFullname(topStruct, config.getString("/metadata/DocLanguage"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
                 volume.addContent(new Element("Technical_Notes").setText(technicalNotes));
@@ -147,10 +143,10 @@ public class NewspaperExporter {
                 Element issue = new Element("issueInfo");
                 volume.addContent(issue);
                 issue.addContent(
-                        new Element("issueNumber").setText(getMetdata(ds, config.getString("/metadata/issueNumber"))));
+                        new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNumber"))));
                 issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFrequency").setText(frequency));
-                issue.addContent(new Element("issueDate").setText(getMetdata(ds, config.getString("/metadata/issueDate"))));
+                issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));
                 issue.addContent(
@@ -278,9 +274,9 @@ public class NewspaperExporter {
 
         // copy all important files to target folder
         try {
-            copyFolderContent(process.getImagesOrigDirectory(false), "tif");
-            copyFolderContent(process.getOcrAltoDirectory(), "xml");
-            copyFolderContent(process.getOcrTxtDirectory(), "txt");
+            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
+            AdmBsmeExportHelper.copyFolderContent(process.getOcrAltoDirectory(), "xml", fileMap, targetFolder);
+            AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
         } catch (IOException | SwapException | DAOException e) {
             log.error("Error while copying the image files to export folder", e);
             return false;
@@ -301,60 +297,6 @@ public class NewspaperExporter {
         }
 
         return true;
-    }
-
-    /**
-     * copy files to target directory
-     * 
-     * @param ds
-     * @throws IOException
-     */
-    private void copyFolderContent(String sourcefolder, String ext) throws IOException {
-        for (Path pathIn : StorageProvider.getInstance().listFiles(sourcefolder)) {
-            String fileIn = pathIn.getFileName().toString();
-            fileIn = fileIn.substring(0, fileIn.indexOf("."));
-            String fileOut = fileMap.get(fileIn);
-            Path pathOut = Paths.get(targetFolder, fileOut + "." + ext);
-            // log.debug(pathIn + " ---> " + pathOut);
-            StorageProvider.getInstance().copyFile(pathIn, pathOut);
-        }
-    }
-
-    /**
-     * get a specific metadata from given docstruct
-     * 
-     * @param ds
-     */
-    private String getMetdata(DocStruct ds, String field) {
-        // run through all metadata to find the right one
-        for (Metadata md : ds.getAllMetadata()) {
-            if (md.getType().getName().equals(field)) {
-                return md.getValue();
-            }
-        }
-        return "";
-    }
-
-    /**
-     * get the language from metadata
-     * 
-     * @param ds
-     */
-    private String getLanguageFullname(DocStruct ds, String field) {
-        String lang = getMetdata(ds, field);
-        switch (lang) {
-            case "Arabic":
-                return "عربي – Arabic";
-            case "ara":
-                return "عربي – Arabic";
-            case "English":
-                return "انجليزي – English";
-            case "eng":
-                return "انجليزي – English";
-            case "ger":
-                return "German";
-        }
-        return lang;
     }
 
 }
