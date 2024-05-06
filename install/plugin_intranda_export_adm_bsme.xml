@@ -1,0 +1,80 @@
+<config_plugin>
+
+	<!-- directory where to export to -->
+	<targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
+	
+	<!-- main viewer url -->
+	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>>
+	
+	<!-- configured values to be used inside of the export xml, 
+		can use variable replacer expressions here like e.g.:
+		- $(meta.CatalogIDDigital)
+		- $(meta.topstruct.TitleDocMain)
+		- $(process.Template) -->
+	<rightsToUse>$(process.rightsToUse)</rightsToUse>
+	<rightsDetails>$(process.rightsDetails)</rightsDetails>
+	<source>$(process.source)</source>
+	<mediaType>$(process.mediaType)</mediaType>
+	<sourceOrganisation>$(process.sourceOrganisation)</sourceOrganisation>
+	<frequency>$(process.frequency)</frequency>
+	<technicalNotes>$(process.technicalNotes)</technicalNotes>
+	
+
+	<!-- mets parameter -->
+	<!-- if a field is empty or missing, project configuration is used -->
+	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=</metsUrl>
+	<resolverUrl>https://adm.goobi.cloud/viewer/piresolver?id=</resolverUrl>
+	<metsPointerPath>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.topstruct.CatalogIDDigital).xml
+	</metsPointerPath>
+	<metsPointerPathAnchor>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.CatalogIDDigital).xml
+	</metsPointerPathAnchor>
+	<metsPointerAddFileExtension>true</metsPointerAddFileExtension>
+	<rightsOwner>Abu Dhabi Media Company</rightsOwner>
+	<rightsOwnerLogo>https://adm.goobi.cloud/viewer/resources/themes/reference/images/dfg_viewer_logo.png
+	</rightsOwnerLogo>
+	<rightsOwnerSiteURL />
+	<rightsOwnerContact />
+	<digiprovPresentation>https://adm.goobi.cloud/viewer/piresolver?id=$(meta.CatalogIDDigital)
+	</digiprovPresentation>
+	<digiprovReference />
+	<digiprovPresentationAnchor>https://adm.goobi.cloud/viewer/piresolver?id=$(meta.topstruct.CatalogIDDigital)
+	</digiprovPresentationAnchor>
+	<digiprovReferenceAnchor />
+	<rightsLicense />
+	<rightsSponsor />
+	<rightsSponsorLogo />
+	<rightsSponsorSiteURL />
+	<purl />
+	<contentIds />
+
+	<!-- global metadata settings -->
+	<metadata>
+		<purl>_purl</purl>
+		<identifier>CatalogIDDigital</identifier>
+		<issueDate>DateIssued</issueDate>
+		<yearDate>CurrentNoSorting</yearDate>
+		<titleLabel>TitleDocMain</titleLabel>
+		<modsTitle>MainTitle</modsTitle>
+		<issueNumber>CurrentNo</issueNumber>
+		<sortNumber>CurrentNoSorting</sortNumber>
+		<language>DocLanguage</language>
+		<location>PhysicalLocation</location>
+		<resourceType>TypeOfResource</resourceType>
+		<anchorId>AnchorID</anchorId>
+		<anchorTitle>AnchorTitle</anchorTitle>
+		<accessConditionUse>AccessConditionUse</accessConditionUse>
+		<accessConditionDetails>AccessConditionDetails</accessConditionDetails>
+		<frequency>Frequency</frequency>
+		
+	</metadata>
+	
+	<docstruct>
+		<newspaper>Newspaper</newspaper>
+		<year>Year</year>
+		<month>Month</month>
+		<day>Day</day>
+		<issue>NewspaperIssue</issue>
+		<newspaperStub>NewspaperStub</newspaperStub>
+	</docstruct>
+	
+</config_plugin>

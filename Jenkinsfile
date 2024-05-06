@@ -21,19 +21,48 @@ pipeline {
         sh 'git reset --hard HEAD && git clean -fdx'
       }
     }
-
-    stage('build') {
+    stage('build-snapshot') {
+      when {
+        not {
+          anyOf {
+            branch 'master'
+            branch 'release_*'
+            allOf {
+              branch 'PR-*'
+              expression { env.CHANGE_BRANCH.startsWith("release_") }
+            }
+          }
+        }
+      }
       steps {
-        sh 'mvn clean verify -U'
-        recordIssues enabledForFailure: true, aggregatingResults: true, tools: [java(), javaDoc()]
+        sh 'mvn clean verify -U -P snapshot-build'
       }
     }
-
+    stage('build-release') {
+      when {
+        anyOf {
+          branch 'master'
+          branch 'release_*'
+          allOf {
+            branch 'PR-*'
+            expression { env.CHANGE_BRANCH.startsWith("release_") }
+          }
+        }
+      }
+      steps {
+        sh 'mvn clean verify -U -P release-build'
+      }
+    }
     stage('sonarcloud') {
       when {
         anyOf {
           branch 'master'
+          branch 'release_*'
           branch 'sonar_*'
+          allOf {
+            branch 'PR-*'
+            expression { env.CHANGE_BRANCH.startsWith("release_") }
+          }
         }
       }
       steps {
@@ -42,12 +71,48 @@ pipeline {
         }
       }
     }
-
+    stage('deploy-libs') {
+      when {
+        anyOf {
+          branch 'master'
+          branch 'develop'
+        }
+      }
+      steps {
+        script {
+          if (fileExists('module-lib/pom.xml')) {
+            sh 'mvn -N deploy'
+            sh 'mvn -f module-lib/pom.xml deploy'
+          }
+        }
+      }
+    }
+    stage('tag release') {
+      when { branch 'master' }
+      steps {
+        withCredentials([gitUsernamePassword(credentialsId: '93f7e7d3-8f74-4744-a785-518fc4d55314',
+                 gitToolName: 'git-tool')]) {
+          sh '''#!/bin/bash -xe
+              projectversion=$(mvn org.apache.maven.plugins:maven-help-plugin:3.4.0:evaluate -Dexpression=project.version -q -DforceStdout)
+              if [ $? != 0 ]
+              then 
+                  exit 1
+              elif [[ "${projectversion}" =~ "SNAPSHOT" ]]
+              then
+                  echo "This is a SNAPSHOT version"
+                  exit 1
+              fi
+              echo "${projectversion}"
+              git tag -a "v${projectversion}" -m "releasing v${projectversion}" && git push origin v"${projectversion}"
+          '''
+        }
+      }
+    }
   }
 
   post {
     always {
-      junit "**/target/surefire-reports/*.xml"
+      junit allowEmptyResults: true, testResults: "**/target/surefire-reports/*.xml"
       step([
         $class           : 'JacocoPublisher',
         execPattern      : '**/target/jacoco.exec',
@@ -62,7 +127,7 @@ pipeline {
       dependencyCheckPublisher pattern: 'target/dependency-check-report.xml'
     }
     success {
-      archiveArtifacts artifacts: '**/target/*.jar, */plugin_*.xml, plugin_*.xml', fingerprint: true, onlyIfSuccessful: true
+      archiveArtifacts artifacts: '**/target/*.jar, install/*', fingerprint: true, onlyIfSuccessful: true
     }
     changed {
       emailext(

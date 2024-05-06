@@ -1,0 +1,1492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Preferences>
+
+ <!-- NEWSPAPER-EXPORT -->
+    <MetadataType>
+        <Name>MainTitle</Name>
+        <language name="de">Haupttitel</language>
+        <language name="en">Main title</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>VolumeNo</Name>
+        <language name="de">Band-Nummer</language>
+        <language name="en">Volume number</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TypeOfResource</Name>
+        <language name="de">Ressourcentyp</language>
+        <language name="en">TypeOfResource</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>AnchorID</Name>
+        <language name="de">Zeitungsidentifier</language>
+        <language name="en">Newspaper identifier</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>AnchorTitle</Name>
+        <language name="de">Zeitungstitel</language>
+        <language name="en">Newspaper title</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Frequency</Name>
+        <language name="de">Frequenz</language>
+        <language name="en">Frequency</language>
+    </MetadataType>
+        <MetadataType>
+        <Name>TechnicalNote</Name>
+        <language name="de">Technische Notizen</language>
+        <language name="en">Technical Notes</language>
+    </MetadataType>
+    
+    
+    <!-- // NEWSPAPER-EXPORT -->
+    
+    <MetadataType>
+        <Name>_representative</Name>
+        <language name="de">Repäsentant</language>
+        <language name="en">Representative</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_urn</Name>
+        <language name="de">URN</language>
+        <language name="en">URN</language>
+        <language name="es">URN</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_ucc_id</Name>
+        <language name="de">UCC_ID</language>
+        <language name="en">UCC_ID</language>
+        <language name="es">UCC_ID</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Resource</Name>
+        <language name="de">Quelle</language>
+        <language name="en">Resource</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>physPageNumber</Name>
+        <language name="de">Physische Seitenzahl (Imagenummer)</language>
+        <language name="en">Physical page number</language>
+        <language name="es">Número de página físico</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>logicalPageNumber</Name>
+        <language name="de">Logische Seitenzahl (gedruckte Zeitenzahl)</language>
+        <language name="en">Logical page number</language>
+        <language name="es">Número de página lógico</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>pagesize</Name>
+        <language name="de">Seitengröße / Format</language>
+        <language name="en">Format of book</language>
+        <language name="es">Formato de la página</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>mediumsource</Name>
+        <language name="de">Vorlagenform</language>
+        <language name="en">Medium of source</language>
+        <language name="es">Medium of source</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>shelfmarkarchiveimageset</Name>
+        <language name="de">Signatur des Archivierungsimagesets</language>
+        <language name="en">Shelfmark of archive imageset</language>
+        <language name="es">Signatura del juego de imágenes para la preservación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>imagedescr</Name>
+        <language name="de">ImageDescription (TIFF-Header)</language>
+        <language name="en">Image description (TIFF header)</language>
+        <language name="es">Descripción de la imagen (etiqueta embebida del TIFF)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>datedigit</Name>
+        <language name="de">Datum Digitalisierung</language>
+        <language name="en">Date digitalization</language>
+        <language name="es">Fecha digitalización</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>pathimagefiles</Name>
+        <language name="de">Pfad der Imagedaten</language>
+        <language name="en">Path of image data</language>
+        <language name="es">Ruta de los datos de la imagen</language>
+    </MetadataType>
+    <!-- !!DO NOT CHANGE!! -->
+  	<!-- !!DO NOT CHANGE!! -->
+    <!-- ########################################################################## ## Metadata types for the logical structure ## ########################################################################## -->
+    <!-- They are fully configurable; make sure, that modules within GOOBI will be reconfigured accordingly, if any changes are made here! -->
+    <MetadataType>
+        <Name>Sponsorship</Name>
+        <language name="de">Digitalisierungspate</language>
+        <language name="en">Sponsorship</language>
+        <language name="es">Patrocinio de la digitalización</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ReportingYear</Name>
+        <language name="de">Berichtsjahr</language>
+        <language name="en">Reporting year</language>
+        <language name="es">Año del informe</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PublisherName</Name>
+        <language name="de">Verleger/Verlag</language>
+        <language name="en">Publisher</language>
+        <language name="es">Editorial</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PlaceOfPublication</Name>
+        <language name="de">Erscheinungsort</language>
+        <language name="en">Place of publication</language>
+        <language name="es">Lugar de publicación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TitleDocSub1</Name>
+        <language name="de">Sachtitel</language>
+        <language name="en">Subtitle</language>
+        <language name="es">Subtítulo</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TitleRelatedWork</Name>
+        <language name="de">Autor / Titel rezensiertes Werk</language>
+        <language name="en">Title Related Work</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CatalogIDPeriodicalDB</Name>
+        <language name="de">Zeitschriftendatenbank-ID</language>
+        <language name="en">Periodicals datatabase ID</language>
+        <language name="es">ID en la base de datos de las revistas</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TitleDocMain</Name>
+        <language name="de">Haupttitel</language>
+        <language name="en">Main title</language>
+        <language name="es">Título principal</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>IdentifierRelatedWork</Name>
+        <language name="de">Identifier Bezugswerk</language>
+        <language name="en">Identifier related work</language>
+        <language name="es">Obra relacionada con identificador</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CurrentNoSorting</Name>
+        <language name="de">Band-Nummer-Sortierung</language>
+        <language name="en">Sorting number</language>
+        <language name="es">Clasificación número de volumen</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CatalogIDSource</Name>
+        <language name="de">PPN (Vorlage)</language>
+        <language name="en">PPN (of source)</language>
+        <language name="es">PPN (de la fuente)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TitleDocMainShort</Name>
+        <language name="de">Haupttitel (Sortierung)</language>
+        <language name="en">Main title (sorting)</language>
+        <language name="es">Título principal (clasificación)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CatalogIDPredecessorPeriodical</Name>
+        <language name="de">PPN des Vorgängers</language>
+        <language name="en">PPN of predecessor</language>
+        <language name="es">PPN del predecesor</language>
+    </MetadataType>
+    <MetadataType type="identifier">
+        <Name>CatalogIDDigital</Name>
+        <language name="de">PPN (digital)</language>
+        <language name="en">PPN (digital)</language>
+        <language name="es">PPN (digital)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>RezenssionsZssDBID</Name>
+        <language name="de">ID aus Rezensionsdatenbank</language>
+        <language name="en">ID from Review database</language>
+        <language name="es">ID de la base de datos de recensiones</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ISSN</Name>
+        <language name="de">ISSN</language>
+        <language name="en">ISSN</language>
+        <language name="es">ISSN</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>SICI</Name>
+        <language name="de">SICI (identifier)</language>
+        <language name="en">SICI (identifier)</language>
+        <language name="es">SICI (identificador)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>DOI</Name>
+        <language name="de">DOI</language>
+        <language name="en">DOI</language>
+        <language name="es">DOI</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>singleDigCollection</Name>
+        <language name="de">Digitale Kollektion</language>
+        <language name="en">Digital collection</language>
+        <language name="es">Colección digital</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>DocLanguage</Name>
+        <language name="de">Sprache</language>
+        <language name="en">language</language>
+        <language name="es">Idioma</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TitleDocParallel</Name>
+        <language name="de">ParallelSachtitel</language>
+        <language name="en">parallel title</language>
+        <language name="es">Título paralelo</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>IllustratorArtist</Name>
+        <language name="de">Künstler-Illustrator</language>
+        <language name="en">Illustrator / Artist</language>
+        <language name="es">Illustrador/Artista</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Translator</Name>
+        <language name="de">Übersetzer</language>
+        <language name="en">Translator</language>
+        <language name="es">Traductor</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Creator</Name>
+        <language name="de">Ersteller (Creator)</language>
+        <language name="en">Creator</language>
+        <language name="es">Creador</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PublicationYear</Name>
+        <language name="de">Erscheinungsdatum</language>
+        <language name="en">publication year</language>
+        <language name="es">Año de publicación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CatalogIDSuccessorPeriodical</Name>
+        <language name="de">PPN der Nachfolger-Zeitschrift</language>
+        <language name="en">PPN of successor journal</language>
+        <language name="es">PPN del períodico sucesor</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Copyright</Name>
+        <language name="de">Copyright</language>
+        <language name="en">Copyright</language>
+        <language name="es">Copyright</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CurrentNo</Name>
+        <language name="de">Band-Nummer</language>
+        <language name="en">Item number</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PublicationRun</Name>
+        <language name="de">Erscheinungsverlauf</language>
+        <language name="en">Regularity of issue</language>
+        <language name="es">Periocidad de la publicación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PublicationStart</Name>
+        <language name="de">Erstes Erscheinungsjahr</language>
+        <language name="en">First year of publication</language>
+        <language name="es">Primer año de publicación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PublicationEnd</Name>
+        <language name="de">Letztes Erscheinungsjahr</language>
+        <language name="en">Last year of publication</language>
+        <language name="es">Último año de publicación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>FormatSourcePrint</Name>
+        <language name="de">Ausmasse/Dimension (Quelle)</language>
+        <language name="en">Proportions/Dimensions (source)</language>
+        <language name="es">Proporciones/Dimensiones (fuente)</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>AccessConditionUse</Name>
+        <language name="de">Nutzungsbedingungen</language>
+        <language name="en">Access condition use</language>
+        <language name="es">Licencia de acceso</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>AccessConditionDetails</Name>
+        <language name="de">Nutzungsbedingungen Details</language>
+        <language name="en">Access condition details</language>
+        <language name="es">Licencia de acceso - detailes</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>SizeSourcePrint</Name>
+        <language name="de">Größe der Vorlage</language>
+        <language name="en">Size of source</language>
+        <language name="es">Tamaño de la fuente</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>shelfmarksource</Name>
+        <language name="de">Signatur der Quelle</language>
+        <language name="en">Shelf mark of source</language>
+        <language name="es">Signatura de la fuente</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>copyrightimageset</Name>
+        <language name="de">Copyright</language>
+        <language name="en">Copyright</language>
+        <language name="es">Copyright</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CreatorsAllOrigin</Name>
+        <language name="de">Alle Autoren und Beteiligte (orig.)</language>
+        <language name="en">All authors and participants (original version)</language>
+        <language name="es">Todos los autores y participantes (orig.)</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Editor</Name>
+        <language name="de">Herausgeber</language>
+        <language name="en">Editor</language>
+        <language name="es">Editor</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Author</Name>
+        <language name="de">Autor</language>
+        <language name="en">Author</language>
+        <language name="es">Autor</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Photographer</Name>
+        <language name="de">Photograph</language>
+        <language name="en">Photographer</language>
+        <language name="es">Fotógrafo</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TSL_ATS</Name>
+        <language name="de">TSL/ATS</language>
+        <language name="en">TSL/ATS</language>
+        <language name="es">TSL/ATS</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_purl</Name>
+        <language name="de">PURL</language>
+        <language name="en">PURL</language>
+        <language name="es">PURL</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_digitalOrigin</Name>
+        <language name="de">digitalOrigin</language>
+        <language name="en">digitalOrigin</language>
+        <language name="es">Origen digital</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_placeOfElectronicOrigin</Name>
+        <language name="de">Herkunft der digitalen Ausgabe (Ort)</language>
+        <language name="en">Origin of Electronic ed.</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_electronicPublisher</Name>
+        <language name="de">Hersteller der digitalen Ausgabe</language>
+        <language name="en">Publisher of Electronic ed.</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_electronicEdition</Name>
+        <language name="de">Electronic ed.</language>
+        <language name="en">Electronic ed.</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>_dateDigitization</Name>
+        <language name="de">Datum Digitalisierung</language>
+        <language name="en">Date digitization</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PhysicalLocation</Name>
+        <language name="de">Physikalischer Standort</language>
+        <language name="en">Physical location</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>BibliographicCitation</Name>
+        <language name="de">Bibliografische Zitate</language>
+        <language name="en">Bibliographic Citation</language>
+        <language name="es">Citas bibliográficas</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Content</Name>
+        <language name="de">Inhalt</language>
+        <language name="en">Content</language>
+        <language name="es">Contenido</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Dating</Name>
+        <language name="de">Datierung</language>
+        <language name="en">Dating</language>
+        <language name="es">Datación</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>Witness</Name>
+        <language name="de">Zeuge</language>
+        <language name="en">Witness</language>
+        <language name="es">Testigo</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Contains</Name>
+        <language name="de">Enthält</language>
+        <language name="en">Contains</language>
+        <language name="es">Contiene</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ContainsToo</Name>
+        <language name="de">Enthält auch</language>
+        <language name="en">Contains too</language>
+        <language name="es">Contiene también</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Period</Name>
+        <language name="de">Zeitraum</language>
+        <language name="en">Period</language>
+        <language name="es">Período</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CertificationType</Name>
+        <language name="de">Beglaubigungsform</language>
+        <language name="en">Certification type</language>
+        <language name="es">Tipo de certificación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>TransmissionType</Name>
+        <language name="de">Überlieferungsart</language>
+        <language name="en">Transmission type</language>
+        <language name="es">Tipo de transmisión</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>CertificationSign</Name>
+        <language name="de">Beglaubigungs-Notarzeichen</language>
+        <language name="en">Certification sign</language>
+        <language name="es">Signo notarial de la certificación</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>RegistrationNote</Name>
+        <language name="de">Archiv- und Registraturvermerke</language>
+        <language name="en">Note of registration</language>
+        <language name="es">Nota del archivo y registro</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ChambersNote</Name>
+        <language name="de">Kanzleivermerke</language>
+        <language name="en">Not of chambers</language>
+        <language name="es">Notas del bufete</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Material</Name>
+        <language name="de">Material</language>
+        <language name="en">Material</language>
+        <language name="es">Material</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Scale</Name>
+        <language name="de">Maßstab</language>
+        <language name="en">Scale</language>
+        <language name="es">Escala</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Object</Name>
+        <language name="de">Objekt</language>
+        <language name="en">Object</language>
+        <language name="es">Objeto</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Person</Name>
+        <language name="de">Person</language>
+        <language name="en">Person</language>
+        <language name="es">Persona</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Format</Name>
+        <language name="de">Format</language>
+        <language name="en">Format</language>
+        <language name="es">Formato</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Origin</Name>
+        <language name="de">Provenienz</language>
+        <language name="en">Origin</language>
+        <language name="es">Origen</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Type</Name>
+        <language name="de">Art</language>
+        <language name="en">Type</language>
+        <language name="es">Tipo</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>SealDescription</Name>
+        <language name="de">Siegelbeschreibung</language>
+        <language name="en">Seal description</language>
+        <language name="es">Descripción del sello</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Description</Name>
+        <language name="de">Beschreibung</language>
+        <language name="en">Description</language>
+        <language name="es">Descripción</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Contintent</Name>
+        <language name="de">Kontinent</language>
+        <language name="en">Continent</language>
+        <language name="es">Continente</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Country</Name>
+        <language name="de">Land</language>
+        <language name="en">Country</language>
+        <language name="es">País</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Province</Name>
+        <language name="de">Provinz</language>
+        <language name="en">Province</language>
+        <language name="es">Provincia</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Region</Name>
+        <language name="de">Region</language>
+        <language name="en">Region</language>
+        <language name="es">Región</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>State</Name>
+        <language name="de">Staat</language>
+        <language name="en">State</language>
+        <language name="es">Estado</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Territory</Name>
+        <language name="de">Territorium</language>
+        <language name="en">Territory</language>
+        <language name="es">Territorio</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>City</Name>
+        <language name="de">Stadt</language>
+        <language name="en">City</language>
+        <language name="es">Ciudad</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Island</Name>
+        <language name="de">Insel</language>
+        <language name="en">Island</language>
+        <language name="es">Isla</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Area</Name>
+        <language name="de">Gebiet</language>
+        <language name="en">Area</language>
+        <language name="es">Área</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ExtraterrestrialArea</Name>
+        <language name="de">extraterrestrisches Gebiet</language>
+        <language name="en">ExtraterrestrialArea</language>
+        <language name="es">Área extraterrestre</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Coordinates</Name>
+        <language name="de">Koordinaten</language>
+        <language name="en">Coordinates</language>
+        <language name="es">Coordinadas</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Projection</Name>
+        <language name="de">Projektion</language>
+        <language name="en">Projection</language>
+        <language name="es">Proyección</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ZDB-IDDigital</Name>
+        <language name="de">ZDB-IDDigital</language>
+        <language name="en">ZDB-IDDigital</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ZDB-IDSource</Name>
+        <language name="de">ZDB-IDSource</language>
+        <language name="en">ZDB-IDSource</language>
+    </MetadataType>
+    <MetadataType type="person">
+        <Name>AuthorReviewedAct</Name>
+        <language name="de">Verfasser des rezensierten Werkes</language>
+        <language name="en">Author of reviewed work</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ReviewedAct</Name>
+        <language name="de">rezensiertes Werk</language>
+        <language name="en">reviewed work</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PartName</Name>
+        <language name="de">Ausgabename</language>
+        <language name="en">Part name</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>PartNumber</Name>
+        <language name="de">Ausgabennummer</language>
+        <language name="en">Part number</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>VDNumber</Name>
+        <language name="de">VD-Nummer</language>
+        <language name="en">VD number</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ZDB-IDPredecessorPeriodical</Name>
+        <language name="de">ZDB Vorg.</language>
+        <language name="en">CatalogID predecessor</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>ZDB-IDSuccessorPeriodical</Name>
+        <language name="de">ZDB Nachf.</language>
+        <language name="en">CatalogID successor</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Owner</Name>
+        <language name="de">Besitzer</language>
+        <language name="en">Owner</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>Date</Name>
+        <language name="de">Datum/Actum</language>
+        <language name="en">Date</language>
+        <language name="es">Date</language>
+    </MetadataType>
+    <MetadataType>
+        <Name>DateIssued</Name>
+        <language name="de">Erscheinungsdatum</language>
+        <language name="en">Date issued</language>
+    </MetadataType>
+    <!-- ########################################################################## ## Logical document structure types ## ########################################################################## -->
+    <DocStrctType>
+        <Name>page</Name>
+        <language name="de">Seite</language>
+        <language name="en">page</language>
+        <language name="rusdml">page</language>
+        <language name="es">Página</language>
+        <metadata num="1m">logicalPageNumber</metadata>
+        <metadata num="*">_urn</metadata>
+        <metadata num="1m">physPageNumber</metadata>
+        <metadata num="*">_ucc_id</metadata>
+    </DocStrctType>
+    <DocStrctType>
+        <Name>BoundBook</Name>
+        <language name="de">gebundenes Buch</language>
+        <language name="en">bound Book</language>
+        <language name="rusdml">bound Book</language>
+        <language name="es">Libro encuadernado</language>
+        <allowedchildtype>page</allowedchildtype>
+        <metadata num="1o">FormatSourcePrint</metadata>
+        <metadata num="1o">imagedescr</metadata>
+        <metadata num="1o">shelfmarksource</metadata>
+        <metadata num="1o">mediumsource</metadata>
+        <metadata num="1o">datedigit</metadata>
+        <metadata num="*">_urn</metadata>
+        <metadata num="1o">shelfmarkarchiveimageset</metadata>
+        <metadata num="1o">copyrightimageset</metadata>
+        <metadata num="1o">pathimagefiles</metadata>
+        <metadata num="1o">PhysicalLocation</metadata>
+        <metadata num="*">_ucc_id</metadata>
+        <metadata num="1o">_representative</metadata>
+    </DocStrctType>
+    <DocStrctType anchor="true">
+        <Name>Newspaper</Name>
+        <language name="de">Zeitung</language>
+        <language name="en">Newspaper</language>
+        <allowedchildtype>Year</allowedchildtype>
+        <allowedchildtype>NewspaperVolume</allowedchildtype>
+        <metadata DefaultDisplay="true" num="1m">TitleDocMain</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocMainShort</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocSub1</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocParallel</metadata>
+        <metadata DefaultDisplay="true" num="1o">PlaceOfPublication</metadata>
+        <metadata DefaultDisplay="true" num="1o">PublisherName</metadata>
+        <metadata DefaultDisplay="true" num="*">DocLanguage</metadata>
+        <metadata DefaultDisplay="true" num="1o">PublicationRun</metadata>
+        <metadata DefaultDisplay="true" num="1o">PublicationStart</metadata>
+        <metadata DefaultDisplay="true" num="1o">PublicationEnd</metadata>
+        <metadata DefaultDisplay="true" num="1o">CatalogIDSource</metadata>
+        <metadata DefaultDisplay="true" num="1m">CatalogIDDigital</metadata>
+        <metadata DefaultDisplay="true" num="+">singleDigCollection</metadata>
+        <metadata num="1o">TSL_ATS</metadata>
+        <metadata num="1o">_dateDigitization</metadata>
+        <metadata num="1o">_placeOfElectronicOrigin</metadata>
+        <metadata num="1o">_electronicEdition</metadata>
+        <metadata num="1o">_electronicPublisher</metadata>
+        <metadata num="1o">_digitalOrigin</metadata>
+        <metadata DefaultDisplay="true" num="*">SizeSourcePrint</metadata>
+        <metadata num="*">_ucc_id</metadata>
+    </DocStrctType>
+    <DocStrctType>
+        <Name>NewspaperEdition</Name>
+        <language name="de">Ausgabe</language>
+        <language name="en">Edition</language>
+        <allowedchildtype>NewspaperSupplement</allowedchildtype>
+        <metadata DefaultDisplay="true" num="1o">PartNumber</metadata>
+        <metadata DefaultDisplay="true" num="1o">PartName</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
+        <metadata num="*">_ucc_id</metadata>
+    </DocStrctType>
+    <DocStrctType>
+        <Name>NewspaperIssue</Name>
+        <language name="de">Ausgabe</language>
+        <language name="en">NewspaperIssue</language>
+        <!-- <allowedchildtype>NewspaperEdition</allowedchildtype> -->
+        <allowedchildtype>NewspaperSupplement</allowedchildtype>
+        <metadata num="1o">CatalogIDDigital</metadata>
+        <metadata DefaultDisplay="true" num="1o">PartNumber</metadata>
+        <metadata DefaultDisplay="true" num="1o">DateIssued</metadata>
+        <metadata num="*">CurrentNoSorting</metadata>
+        <metadata num="1o">DocLanguage</metadata>
+        <metadata num="1o">TypeOfResource</metadata>
+        <metadata num="1o">_purl</metadata>
+        <metadata num="*">CurrentNo</metadata>
+        <metadata num="1o">TitleDocMain</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
+        <metadata num="*">singleDigCollection</metadata>
+        <metadata num="*">_ucc_id</metadata>
+        <metadata num="1o">AnchorID</metadata>
+        <metadata num="1o">AnchorTitle</metadata>
+        <metadata num="1o">PhysicalLocation</metadata>
+        <metadata num="1o">AccessConditionUse</metadata>
+        <metadata num="1o">AccessConditionDetails</metadata>
+        <metadata num="1o">Frequency</metadata>
+        <metadata num="1o">TechnicalNote</metadata>
+    </DocStrctType>
+    <DocStrctType>
+        <Name>NewspaperSupplement</Name>
+        <language name="de">Beilage</language>
+        <language name="en">Supplement</language>
+        <allowedchildtype>NewspaperSupplement</allowedchildtype>
+        <metadata num="1o">CurrentNo</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
+        <metadata num="1o">PartNumber</metadata>
+        <metadata num="*">_ucc_id</metadata>
+    </DocStrctType>
+    <!-- Automatisch eingefügt für das Update auf Goobi 2.2 -->
+    <DocStrctType topStruct="true">
+        <Name>NewspaperVolume</Name>
+        <language name="de">Zeitungsband</language>
+        <language name="en">Newspaper volume</language>
+        <allowedchildtype>NewspaperIssue</allowedchildtype>
+        <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
+        <metadata DefaultDisplay="true" num="1o">TitleDocMainShort</metadata>
+        <metadata DefaultDisplay="true" num="1o">shelfmarksource</metadata>
+        <metadata num="1o">DateIssued</metadata>
+        <metadata DefaultDisplay="true" num="1m">CatalogIDDigital</metadata>
+        <metadata DefaultDisplay="true" num="+">singleDigCollection</metadata>
+        <metadata DefaultDisplay="true" num="1m">CurrentNo</metadata>
+        <metadata DefaultDisplay="true" num="1m">CurrentNoSorting</metadata>
+        <metadata num="*">_ucc_id</metadata>
+        <metadata num="1o">_dateDigitization</metadata>
+        <metadata num="1o">_placeOfElectronicOrigin</metadata>
+        <metadata num="1o">_electronicEdition</metadata>
+        <metadata num="1o">_electronicPublisher</metadata>
+        <metadata num="1o">_digitalOrigin</metadata>
+        <!-- Automatisch eingefügt für das Update auf Goobi 2.2 -->
+        <metadata num="1o">copyrightimageset</metadata>
+        <metadata num="1o">FormatSourcePrint</metadata>
+        <metadata num="1o">SizeSourcePrint</metadata>
+        <metadata DefaultDisplay="true" num="*">DocLanguage</metadata>
+        <metadata num="*">PhysicalLocation</metadata>
+        <metadata DefaultDisplay="false" num="1o">MainTitle</metadata>
+    </DocStrctType>
+
+
+
+
+<!-- NEWSPAPER-EXPORT -->
+<DocStrctType>
+    <Name>Year</Name>
+    <language name="de">Year</language>
+    <language name="en">Year</language>
+    <allowedchildtype>Month</allowedchildtype>
+    <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
+    <metadata DefaultDisplay="true" num="1o">MainTitle</metadata>
+    <metadata num="*">TitleDocMainShort</metadata>
+    <metadata DefaultDisplay="true" num="1o">shelfmarksource</metadata>
+    <metadata num="1o">DateIssued</metadata>
+    <metadata DefaultDisplay="true" num="1m">CatalogIDDigital</metadata>
+    <metadata num="*">CatalogIDSource</metadata>
+    <metadata DefaultDisplay="true" num="+">singleDigCollection</metadata>
+    <metadata DefaultDisplay="true" num="1m">VolumeNo</metadata>
+    <metadata DefaultDisplay="true" num="1o">CurrentNo</metadata>
+    <metadata DefaultDisplay="true" num="1m">CurrentNoSorting</metadata>
+    <metadata num="*">_ucc_id</metadata>
+    <metadata num="1o">_dateDigitization</metadata>
+    <metadata num="1o">_placeOfElectronicOrigin</metadata>
+    <metadata num="1o">_electronicEdition</metadata>
+    <metadata num="1o">_electronicPublisher</metadata>
+    <metadata num="1o">_digitalOrigin</metadata>
+    <metadata num="1o">copyrightimageset</metadata>
+    <metadata num="1o">FormatSourcePrint</metadata>
+    <metadata num="1o">SizeSourcePrint</metadata>
+    <metadata DefaultDisplay="true" num="*">DocLanguage</metadata>
+    <metadata num="*">PhysicalLocation</metadata>
+    <metadata num="1o">_urn</metadata>
+    <metadata num="1o">TypeOfResource</metadata>
+  </DocStrctType>
+
+
+  <DocStrctType>
+    <Name>NewspaperStub</Name>
+    <language name="de">Zeitung</language>
+    <language name="en">Newspaper</language>
+    <allowedchildtype>Year</allowedchildtype>
+    <metadata DefaultDisplay="true" num="1o">TitleDocMain</metadata>
+
+  </DocStrctType>
+
+  <DocStrctType>
+    <Name>Month</Name>
+    <language name="de">Month</language>
+    <language name="en">Month</language>
+    <allowedchildtype>Day</allowedchildtype>
+    <metadata num="1o">TitleDocMain</metadata>
+
+  </DocStrctType>
+
+  <DocStrctType>
+    <Name>Day</Name>
+    <language name="de">Day</language>
+    <language name="en">Day</language>
+    <allowedchildtype>NewspaperIssue</allowedchildtype>
+    <metadata num="1o">TitleDocMain</metadata>
+
+  </DocStrctType>
+<!-- // NEWSPAPER-EXPORT -->
+
+
+
+
+    <!-- DO NOT CHANGE!! -->
+    <Formats>
+        <!-- ########################################################################## ## The PicaPlus Section ## ########################################################################## -->
+        <PicaPlus>
+            <Metadata>
+                <Name>PublisherName</Name>
+                <picaMainTag>033A</picaMainTag>
+                <picaSubTag>n</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>PlaceOfPublication</Name>
+                <picaMainTag>033A</picaMainTag>
+                <picaSubTag>p</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>TitleDocSub1</Name>
+                <picaMainTag>021A</picaMainTag>
+                <picaSubTag>d</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>TitleDocSub1</Name>
+                <picaMainTag>036C</picaMainTag>
+                <picaSubTag>y</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>TitleDocMain</Name>
+                <picaMainTag>021A</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>TitleDocMain</Name>
+                <picaMainTag>021B</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>TitleDocMain</Name>
+                <picaMainTag>036C</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>IdentifierRelatedWork</Name>
+                <picaMainTag>021B</picaMainTag>
+                <picaSubTag>b</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>CatalogIDDigital</Name>
+                <picaMainTag>003@</picaMainTag>
+                <picaSubTag>0</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>DocLanguage</Name>
+                <picaMainTag>010@</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>PublicationYear</Name>
+                <picaMainTag>011@</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>CurrentNo</Name>
+                <picaMainTag>036D</picaMainTag>
+                <picaSubTag>l</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>SizeSourcePrint</Name>
+                <picaMainTag>034D</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>PublicationRun</Name>
+                <picaMainTag>031@</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>PublicationStart</Name>
+                <picaMainTag>011@</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>PublicationEnd</Name>
+                <picaMainTag>011@</picaMainTag>
+                <picaSubTag>b</picaSubTag>
+            </Metadata>
+            <Person>
+                <Name>Author</Name>
+                <picaMainTag>028A</picaMainTag>
+                <picaSubTag type="firstname">d</picaSubTag>
+                <picaSubTag type="lastname">a</picaSubTag>
+                <picaSubTag type="identifier">0</picaSubTag>
+                <picaSubTag type="expansion">8</picaSubTag>
+            </Person>
+            <Person>
+                <Name>Author</Name>
+                <picaMainTag>028B</picaMainTag>
+                <picaSubTag type="firstname">d</picaSubTag>
+                <picaSubTag type="lastname">a</picaSubTag>
+                <picaSubTag type="identifier">0</picaSubTag>
+                <picaSubTag type="expansion">8</picaSubTag>
+            </Person>
+            <Person>
+                <Name>Author</Name>
+                <picaMainTag>028C</picaMainTag>
+                <picaSubTag type="firstname">d</picaSubTag>
+                <picaSubTag type="lastname">a</picaSubTag>
+                <picaSubTag type="identifier">0</picaSubTag>
+                <picaSubTag type="expansion">8</picaSubTag>
+            </Person>
+            <Metadata>
+                <Name>Owner</Name>
+                <picaMainTag>209A</picaMainTag>
+                <picaSubTag>f</picaSubTag>
+            </Metadata>
+            <!-- Automatisch eingefügt für das Update auf Goobi 2.2 -->
+            <Metadata>
+                <Name>copyrightimageset</Name>
+                <picaMainTag>037I</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>shelfmarksource</Name>
+                <picaMainTag>209A</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>shelfmarksource</Name>
+                <picaMainTag>009A</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>ISSN</Name>
+                <picaMainTag>005A</picaMainTag>
+                <picaSubTag>0</picaSubTag>
+            </Metadata>
+            <Metadata>
+                <Name>FormatSourcePrint</Name>
+                <picaMainTag>034I</picaMainTag>
+                <picaSubTag>a</picaSubTag>
+            </Metadata>
+            <DocStruct>
+                <Name>Newspaper</Name>
+                <picaMainTag>002@</picaMainTag>
+                <picaSubTag>0</picaSubTag>
+                <picaContent>Ob</picaContent>
+            </DocStruct>
+            <DocStruct>
+                <Name>Newspaper</Name>
+                <picaMainTag>002@</picaMainTag>
+                <picaSubTag>0</picaSubTag>
+                <picaContent>Ab</picaContent>
+            </DocStruct>
+        </PicaPlus>
+        <!-- ########################################################################## ## METS/MODS ## ########################################################################## -->
+        <METS>
+            <!-- Additional namespaces used in the mapping below -->
+            <NamespaceDefinition>
+                <URI>http://gdz.sub.uni-goettingen.de/</URI>
+                <prefix>gdz</prefix>
+            </NamespaceDefinition>
+            <XPathAnchorQuery>./mods:mods/mods:relatedItem[@type='host']/mods:recordInfo/mods:recordIdentifier</XPathAnchorQuery>
+            <!-- ########################################################################## ## Only the <AnchorIdentifierMetadataType> is needed for internal
+                ##
+                ## METS storing. ## ########################################################################## -->
+            <AnchorIdentifierMetadataType>CatalogIDDigital</AnchorIdentifierMetadataType>
+            <Metadata>
+                <InternalName>_urn</InternalName>
+                <WriteXPath>./mods:mods/mods:recordInfo/#mods:identifier[@type='urn']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Resource</InternalName>
+                <WriteXPath>./mods:mods/#mods:relatedItem[@type='isReferencedBy']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>datedigit</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:dateCaptured[@encoding='w3cdtf']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Sponsorship</InternalName>
+                <WriteXPath>./mods:mods/mods:extension/gdz:gdz/#gdz:sponsorship</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PublisherName</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:publisher</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PlaceOfPublication</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:place/mods:placeTerm[@type='text']</WriteXPath>
+            </Metadata>
+            <!-- TODO: TitleDocMainShort is NOT an abbreviated title. Use <nonsort> in the near future, Goobi metadata GUI changes may be necesarry. <Metadata>
+                <InternalName>TitleDocMainShort</InternalName> <WriteXPath>./mods:mods/mods:titleInfo[@type='abbreviated']/#mods:title</WriteXPath> </Metadata -->
+            <Metadata>
+                <InternalName>TitleDocSub1</InternalName>
+                <WriteXPath>./mods:mods/mods:titleInfo/#mods:subTitle</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TitleRelatedWork</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/#mods:titleInfo[not(@*)]/mods:title</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TitleDocMain</InternalName>
+                <WriteXPath>./mods:mods/mods:titleInfo/#mods:title</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>IdentifierRelatedWork</InternalName>
+                <WriteXPath>./mods:mods/mods:relatedItem/#mods:identifier[@type='IdentifierRelatedWork']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CurrentNoSorting</InternalName>
+                <WriteXPath>./mods:mods/#mods:part[@type='host']/@order</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CatalogIDSource</InternalName>
+                <WriteXPath>./mods:mods/#mods:identifier</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CatalogIDDigital</InternalName>
+                <WriteXPath>./mods:mods/mods:recordInfo/#mods:recordIdentifier</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>ISSN</InternalName>
+                <WriteXPath>./mods:mods/#mods:identifier[@type='ISSN']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>SICI</InternalName>
+                <WriteXPath>./mods:mods/#mods:identifier[@type='SICI']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>DOI</InternalName>
+                <WriteXPath>./mods:mods/#mods:identifier[@type='DOI']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>singleDigCollection</InternalName>
+                <WriteXPath>./mods:mods/#mods:classification[@authority='ivdcc']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>DocLanguage</InternalName>
+                <WriteXPath>./mods:mods/#mods:language/mods:languageTerm[@type='code'][@authority='iso639-2b']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TitleDocParallel</InternalName>
+                <WriteXPath>./mods:mods/#mods:titleInfo[@type='alternative']/mods:title</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>IllustratorArtist</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="ill"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Translator</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="trl"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Creator</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="cre"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PublicationYear</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CurrentNo</InternalName>
+                <WriteXPath>./mods:mods/mods:part/mods:detail/mods:number</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PublicationRun</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:dateOther</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PublicationStart</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@point='start'][@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PublicationEnd</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@point='end'][@encoding='w3cdtf']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>AccessConditionUse</InternalName>
+                <WriteXPath>./mods:mods/#mods:accessCondition[@type='usage']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>AccessConditionDetails</InternalName>
+                <WriteXPath>./mods:mods/#mods:accessCondition[@type='details']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>SizeSourcePrint</InternalName>
+                <WriteXPath>./mods:mods/mods:physicalDescription/#mods:extent</WriteXPath>
+            </Metadata>
+            
+            <!-- ########################################################################## ## Metadata mapping definition ## ########################################################################## -->
+            <Metadata>
+                <InternalName>shelfmarksource</InternalName>
+                <WriteXPath>./mods:mods/mods:location/#mods:shelfLocator</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Editor</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="edt"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Author</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="aut"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Photographer</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="pht"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TSL_ATS</InternalName>
+                <WriteXPath>./mods:mods/mods:subject[@authority="gdz"]/mods:topic</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_purl</InternalName>
+                <WriteXPath>./mods:mods/mods:identifier[@type='purl']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_digitalOrigin</InternalName>
+                <WriteXPath>./mods:mods/mods:physicalDescription/#mods:digitalOrigin/</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>BibliographicCitation</InternalName>
+                <WriteXPath>./mods:mods/mods:identifier[@type='VD-ID']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Content</InternalName>
+                <XPath>./mods:mods/mods:subject[@authority="gdz"]/mods:topic</XPath>
+                <WriteXPath>./mods:mods/mods:subject[@authority="gdz"]/mods:topic</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Dating</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+                <XPath>./mods:mods/mods:originInfo[1]/#mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</XPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Witness</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="wit"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Contains</InternalName>
+                <WriteXPath>./mods:mods/mods:abstract/mods:contains[@encoding='w3cdtf']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>ContainsToo</InternalName>
+                <WriteXPath>./mods:mods/mods:abstract/mods:include[@encoding='w3cdtf']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Period</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CertificationType</InternalName>
+                <WriteXPath>/mods:mods/mods:note[@type="statement of responsibility"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TransmissionType</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="original location"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>CertificationSign</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="statement of responsibility"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>RegistrationNote</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="action"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>ChambersNote</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="creation - production credits"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Material</InternalName>
+                <WriteXPath>./mods:mods/mods:physicalDescription/mods:form[@authority="gbv"][@type="material"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Scale</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:cartographics/mods:scale</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Object</InternalName>
+                <WriteXPath>./mods:mods/mods:tableOfContents[@type="partial contents"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Person</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:name</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Format</InternalName>
+                <WriteXPath>./mods:mods/mods:physicalDescription/mods:note[@type="source dimensions"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Origin</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="ownership"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Type</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:cartographics/mods:projection</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>SealDescription</InternalName>
+                <WriteXPath>./mods:mods/mods:note[@type="content"]</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Description</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:topic</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Contintent</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:continent</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Country</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierachicalGeographic/#mods:country</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Province</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:province</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Region</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:region</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>State</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:state</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Territory</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:territory</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>City</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:city</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Island</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:island</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Area</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:area</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>ExtraterrestrialArea</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:hierarchicalGeographic/#mods:extraterrestrialArea</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Coordinates</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:cartographics/#mods:coordinates</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Projection</InternalName>
+                <WriteXPath>./mods:mods/mods:subject/mods:cartographics/#mods:projection</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>AuthorReviewedAct</InternalName>
+                <WriteXPath>./mods:mods/#mods:name[@type='personal'][mods:role/mods:roleTerm="rev"[@authority='marcrelator'][@type='code']]
+                </WriteXPath>
+                <FirstnameXPath>./mods:namePart[@type='given']</FirstnameXPath>
+                <LastnameXPath>./mods:namePart[@type='family']</LastnameXPath>
+                <DisplayNameXPath>./mods:displayForm</DisplayNameXPath>
+                <IdentifierXPath>../mods:name[@authority='gbv'][@ID='']</IdentifierXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>ReviewedAct</InternalName>
+                <WriteXPath>./mods:mods/mods:extension/hamburg:hamburg/#hamburg:reviewedAct</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PartName</InternalName>
+                <WriteXPath>./mods:mods/mods:titleInfo/#mods:partName</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PartNumber</InternalName>
+                <ValueCondition>/^\d+$/</ValueCondition>
+                <WriteXPath>./mods:mods/mods:titleInfo/#mods:partNumber</WriteXPath>
+            </Metadata>
+
+            <Metadata>
+                <!-- changed export to mods:partName instead of mods:partNumber because it contains alphanumeric characters -->
+                <InternalName>PartNumber</InternalName>
+                <ValueCondition>/\D/</ValueCondition>
+                <WriteXPath>./mods:mods/mods:titleInfo/#mods:partName</WriteXPath>
+            </Metadata>
+                <!-- if the field contains a date, use it as publication date-->
+            <Metadata>
+                <InternalName>CurrentNoSorting</InternalName>
+                <ValueCondition>/^\d{4}$/</ValueCondition>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/#mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>VDNumber</InternalName>
+                <WriteXPath>./mods:mods/#mods:identifier[@type='vd number']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Owner</InternalName>
+                <WriteXPath>./mods:location/mods:physicalLocation[@authority='subhh']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_placeOfElectronicOrigin</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[2]/#mods:place/mods:placeTerm[@type='text']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_electronicPublisher</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[2]/#mods:publisher</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_electronicEdition</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[2]/#mods:edition</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>_dateDigitization</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[2]/#mods:dateCaptured[@encoding='w3cdtf']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>PhysicalLocation</InternalName>
+                <WriteXPath>./mods:mods/mods:location/#mods:physicalLocation</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Date</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>DateIssued</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:dateIssued[@encoding='w3cdtf'][@keyDate='yes']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>Frequency</InternalName>
+                <WriteXPath>./mods:mods/mods:originInfo[1]/mods:frequency</WriteXPath>
+            </Metadata>
+            <DocStruct>
+                <InternalName>page</InternalName>
+                <MetsType>page</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>BoundBook</InternalName>
+                <MetsType>physSequence</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>Newspaper</InternalName>
+                <MetsType>newspaper</MetsType>
+            </DocStruct>
+
+            <DocStruct>
+                <InternalName>NewspaperVolume</InternalName>
+                <MetsType>volume</MetsType>
+            </DocStruct>
+
+            <DocStruct>
+                <InternalName>NewspaperEdition</InternalName>
+                <MetsType>edition</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>NewspaperIssue</InternalName>
+                <MetsType>issue</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>NewspaperSupplement</InternalName>
+                <MetsType>supplement</MetsType>
+            </DocStruct>
+
+            <!-- NEWSPAPER-EXPORT -->
+            <Metadata>
+                <InternalName>AnchorID</InternalName>
+                <WriteXPath>./mods:mods/mods:relatedItem[@type='host']/mods:recordInfo/mods:recordIdentifier[@source='zdb-ppn']</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>AnchorTitle</InternalName>
+                <WriteXPath>./mods:mods/mods:relatedItem[@type='host']/mods:titleInfo/mods:title</WriteXPath>
+            </Metadata>
+            <Metadata>
+                <InternalName>TypeOfResource</InternalName>
+                <WriteXPath>./mods:mods/mods:typeOfResource</WriteXPath>
+            </Metadata>
+            <DocStruct>
+                <InternalName>Year</InternalName>
+                <MetsType>year</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>Month</InternalName>
+                <MetsType>month</MetsType>
+            </DocStruct>
+            <DocStruct>
+                <InternalName>Day</InternalName>
+                <MetsType>day</MetsType>
+            </DocStruct>
+             <Metadata>
+                <InternalName>TechnicalNote</InternalName>
+                <WriteXPath>/mods:mods/mods:note[@type="reproduction"]</WriteXPath>
+            </Metadata>
+            <!-- // NEWSPAPER-EXPORT -->
+
+        </METS>
+    </Formats>
+</Preferences>
