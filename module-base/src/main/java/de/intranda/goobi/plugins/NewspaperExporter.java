@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -73,7 +74,7 @@ public class NewspaperExporter {
         this.prefs = prefs;
         this.dd = dd;
         viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
-        targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
+        targetFolder = config.getString("targetDirectoryNewspapers", "/opt/digiverso/goobi/output/");
         pdfIssues = new ArrayList<>();
     }
 
@@ -121,21 +122,34 @@ public class NewspaperExporter {
                 String mediaGroup = vr.replace(config.getString("/mediaGroup"));
                 String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
                 String frequency = vr.replace(config.getString("/frequency"));
-                String technicalNotes = vr.replace(config.getString("/technicalNotes"));
 
                 volume.addContent(new Element("Rights_to_Use").setText(rightsToUse));
                 volume.addContent(new Element("Right_Details").setText(rightsDetails));
                 volume.addContent(new Element("Media_Source").setText(source));
                 volume.addContent(new Element("Media_type").setText(mediaType));
                 volume.addContent(new Element("Media_Group").setText(mediaGroup));
-                volume.addContent(new Element("Publication_ID").setText(volumeId));
+                // not needed anymore
+                // volume.addContent(new Element("Publication_ID").setText(volumeId));
                 volume.addContent(new Element("Publication_Name")
                         .setText(AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"))));
                 volume.addContent(new Element("Language")
-                        .setText(AdmBsmeExportHelper.getLanguageFullname(topStruct, config.getString("/metadata/DocLanguage"))));
+                        .setText(AdmBsmeExportHelper.getLanguageFullname(topStruct, config.getString("/metadata/language"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
-                volume.addContent(new Element("Technical_Notes").setText(technicalNotes));
+
+                // add all journal entries as technical notes
+                if (process.getJournal() != null) {
+                    Element technicalNotes = new Element("Technical_Notes");
+                    for (JournalEntry je : process.getJournal()) {
+                        technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
+                                .setAttribute("type", je.getType().getTitle())
+                                .setText(je.getFormattedContent()));
+                    }
+                    volume.addContent(technicalNotes);
+                } else {
+                    volume.addContent(new Element("Technical_Notes").setText("- no entry available -"));
+                }
+
                 volume.addContent(new Element("Barcode").setText(volumeId));
                 volume.addContent(new Element("MetadataMetsFile").setText(volumeId + ".xml").setAttribute("Format", "application/xml"));
 
@@ -146,6 +160,16 @@ public class NewspaperExporter {
                         new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNumber"))));
                 issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFrequency").setText(frequency));
+
+                // get the anchor title and leave the english part of the title
+                String issueTitlePrefix = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
+                issueTitlePrefix = AdmBsmeExportHelper.getEnglishPartOfString(issueTitlePrefix);
+                // get the issue title
+                String issueTitle =
+                        AdmBsmeExportHelper.getTranslatedIssueLabels(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
+                // put prefix and title together
+                issue.addContent(new Element("issueTitle").setText(issueTitlePrefix + issueTitle));
+
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));

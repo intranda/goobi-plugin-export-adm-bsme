@@ -1,7 +1,8 @@
 <config_plugin>
 
-	<!-- directory where to export to -->
-	<targetDirectory>/opt/digiverso/viewer/hotfolder/</targetDirectory>
+	<!-- directories where to export to -->
+	<targetDirectoryMagazines>/opt/digiverso/viewer/hotfolderMagazines/</targetDirectoryMagazines>
+	<targetDirectoryNewspapers>/opt/digiverso/viewer/hotfolderNewspapers/</targetDirectoryNewspapers>
 	
 	<!-- main viewer url -->
 	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>>
@@ -11,16 +12,15 @@
 		- $(meta.CatalogIDDigital)
 		- $(meta.topstruct.TitleDocMain)
 		- $(process.Template) -->
-	<rightsToUse>$(process.rightsToUse)</rightsToUse>
-	<rightsDetails>$(process.rightsDetails)</rightsDetails>
-	<source>$(process.source)</source>
-	<mediaType>$(process.mediaType)</mediaType>
-	<mediaGroup>$(process.mediaGroup)</mediaGroup>
-	<sourceOrganisation>$(process.sourceOrganisation)</sourceOrganisation>
-	<frequency>$(process.frequency)</frequency>
-	<technicalNotes>$(process.technicalNotes)</technicalNotes>
+    <rightsToUse>$(template.Rights to Use)</rightsToUse>
+    <rightsDetails>$(template.Rights Details)</rightsDetails>
+    <source>Goobi</source>
+    <mediaType>$(template.Media Type)</mediaType>
+    <mediaGroup>$(template.Media Group)</mediaGroup>
+    <sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
+    <frequency>$(template.Issue Frequency)</frequency>
+        
 	
-
 	<!-- mets parameter -->
 	<!-- if a field is empty or missing, project configuration is used -->
 	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=</metsUrl>
@@ -53,6 +53,7 @@
 		<purl>_purl</purl>
 		<identifier>CatalogIDDigital</identifier>
 		<issueDate>DateIssued</issueDate>
+		<dateOfOrigin>DateOfOrigin</dateOfOrigin>
 		<yearDate>CurrentNoSorting</yearDate>
 		<titleLabel>TitleDocMain</titleLabel>
 		<modsTitle>MainTitle</modsTitle>

@@ -85,7 +85,7 @@ public class NewspaperMetsCreator {
         this.prefs = prefs;
         this.dd = dd;
         this.fileMap = fileMap;
-        targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
+        targetFolder = config.getString("targetDirectoryNewspapers", "/opt/digiverso/goobi/output/");
         vr = new VariableReplacer(dd, prefs, process, null);
     }
 
@@ -309,13 +309,18 @@ public class NewspaperMetsCreator {
                     issueIdentifier = md.getValue();
                 }
                 if (md.getType().getName().equals(labelType.getName())) {
-                    // add the anchor label as prefix in front of each issue
-                    String englishNewspaperName = getEnglishPartOfString(titleLabel);
-                    md.setValue(englishNewspaperName + "  " + getTranslatedIssueLabels(md.getValue()));
+
+                    // EITHER: add the anchor label as prefix in front of each issue
+                    String englishNewspaperName = AdmBsmeExportHelper.getEnglishPartOfString(titleLabel);
+                    md.setValue(englishNewspaperName + " " + AdmBsmeExportHelper.getTranslatedIssueLabels(md.getValue()));
+
+                    // OR: use original title (incl. arabic font)
+                    // md.setValue(titleLabel + " " + getTranslatedIssueLabels(md.getValue()));
+
                     issueLabel = md.getValue();
                 }
                 if (md.getType().getName().equals(mainTitleType.getName())) {
-                    md.setValue(getTranslatedIssueLabels(md.getValue()));
+                    md.setValue(AdmBsmeExportHelper.getTranslatedIssueLabels(md.getValue()));
                     issueTitle = md.getValue();
                 }
                 if (md.getType().getName().equals(issueNumberType.getName())) {
@@ -916,33 +921,6 @@ public class NewspaperMetsCreator {
             strId = "0" + strId;
         }
         return strId;
-    }
-
-    /**
-     * extremely simple translation method to convert German issue labes into pseudo english labels
-     *
-     * @param value
-     * @return
-     */
-    private static String getTranslatedIssueLabels(String value) {
-        String copy = value;
-        copy = copy.replace("Ausgabe vom", "");
-        copy = copy.replace("Issue from", "");
-        return copy;
-    }
-
-    /**
-     * get English part of a metadata that is separated from Arabic part
-     *
-     * @param value
-     * @return
-     */
-    private static String getEnglishPartOfString(String value) {
-        String copy = value.replace("–", "-");
-        if (copy.contains("-")) {
-            copy = StringUtils.substringAfter(copy, "-").trim();
-        }
-        return copy;
     }
 
     /**

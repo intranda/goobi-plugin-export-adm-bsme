@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -69,7 +70,7 @@ public class MagazineExporter {
         this.prefs = prefs;
         this.dd = dd;
         viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
-        targetFolder = config.getString("targetDirectory", "/opt/digiverso/goobi/output/");
+        targetFolder = config.getString("targetDirectoryMagazines", "/opt/digiverso/goobi/output/");
     }
 
     /**
@@ -111,21 +112,33 @@ public class MagazineExporter {
         String mediaType = vr.replace(config.getString("/mediaType"));
         String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
-        String technicalNotes = vr.replace(config.getString("/technicalNotes"));
 
         volume.addContent(new Element("Rights_to_Use").setText(rightsToUse));
         volume.addContent(new Element("Right_Details").setText(rightsDetails));
         volume.addContent(new Element("Media_Source").setText(source));
         volume.addContent(new Element("Media_type").setText(mediaType));
         volume.addContent(new Element("Media_Group").setText(mediaGroup));
-        volume.addContent(new Element("Publication_ID").setText(volumeId));
+        // not needed anymore
+        // volume.addContent(new Element("Publication_ID").setText(volumeId));
         volume.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"))));
         volume.addContent(new Element("Language")
-                .setText(AdmBsmeExportHelper.getLanguageFullname(anchor, config.getString("/metadata/DocLanguage"))));
+                .setText(AdmBsmeExportHelper.getLanguageFullname(anchor, config.getString("/metadata/language"))));
         volume.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
-        volume.addContent(new Element("Technical_Notes").setText(technicalNotes));
+
+        // add all journal entries as technical notes
+        if (process.getJournal() != null) {
+            Element technicalNotes = new Element("Technical_Notes");
+            for (JournalEntry je : process.getJournal()) {
+                technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
+                        .setAttribute("type", je.getType().getTitle())
+                        .setText(je.getFormattedContent()));
+            }
+            volume.addContent(technicalNotes);
+        } else {
+            volume.addContent(new Element("Technical_Notes").setText("- no entry available -"));
+        }
 
         // add issue information
         Element issue = new Element("issueInfo");
@@ -133,7 +146,7 @@ public class MagazineExporter {
         issue.addContent(
                 new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueNumber"))));
         issue.addContent(new Element("issueID").setText(volumeId));
-        issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueDate"))));
+        issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin"))));
         issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId));
         volume.addContent(new Element("Barcode").setText(volumeId));
         issue.addContent(new Element("issueFile").setText(volumeId + ".pdf").setAttribute("Format", "application/pdf"));

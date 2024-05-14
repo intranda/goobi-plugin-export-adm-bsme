@@ -5,6 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import de.sub.goobi.helper.StorageProvider;
 import ugh.dl.DocStruct;
 import ugh.dl.Metadata;
@@ -41,6 +43,33 @@ public class AdmBsmeExportHelper {
             }
         }
         return "";
+    }
+
+    /**
+     * extremely simple translation method to convert German issue labes into pseudo english labels
+     *
+     * @param value
+     * @return
+     */
+    public static String getTranslatedIssueLabels(String value) {
+        String copy = value;
+        copy = copy.replace("Ausgabe vom", "");
+        copy = copy.replace("Issue from", "");
+        return copy;
+    }
+
+    /**
+     * get English part of a metadata that is separated from Arabic part
+     *
+     * @param value
+     * @return
+     */
+    public static String getEnglishPartOfString(String value) {
+        String copy = value.replace("–", "-");
+        if (copy.contains("-")) {
+            copy = StringUtils.substringAfter(copy, "-").trim();
+        }
+        return copy;
     }
 
     /**
