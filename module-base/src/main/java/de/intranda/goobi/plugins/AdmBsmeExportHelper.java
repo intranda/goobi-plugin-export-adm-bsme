@@ -46,15 +46,15 @@ public class AdmBsmeExportHelper {
     }
 
     /**
-     * extremely simple translation method to convert German issue labes into pseudo english labels
+     * extremely simple method to remove Ausgabe or Issue Information from title of an issue
      *
      * @param value
      * @return
      */
-    public static String getTranslatedIssueLabels(String value) {
+    public static String getCleanIssueLabel(String value) {
         String copy = value;
-        copy = copy.replace("Ausgabe vom", "");
-        copy = copy.replace("Issue from", "");
+        copy = copy.replace("Ausgabe vom ", "");
+        copy = copy.replace("Issue from ", "");
         return copy;
     }
 
@@ -68,6 +68,20 @@ public class AdmBsmeExportHelper {
         String copy = value.replace("–", "-");
         if (copy.contains("-")) {
             copy = StringUtils.substringAfter(copy, "-").trim();
+        }
+        return copy;
+    }
+
+    /**
+     * get Arabic part of a metadata that is separated from English part
+     *
+     * @param value
+     * @return
+     */
+    public static String getArabicPartOfString(String value) {
+        String copy = value.replace("–", "-");
+        if (copy.contains("-")) {
+            copy = StringUtils.substringBefore(copy, "-").trim();
         }
         return copy;
     }

@@ -312,7 +312,7 @@ public class NewspaperMetsCreator {
 
                     // EITHER: add the anchor label as prefix in front of each issue
                     String englishNewspaperName = AdmBsmeExportHelper.getEnglishPartOfString(titleLabel);
-                    md.setValue(englishNewspaperName + " " + AdmBsmeExportHelper.getTranslatedIssueLabels(md.getValue()));
+                    md.setValue(englishNewspaperName + " " + AdmBsmeExportHelper.getCleanIssueLabel(md.getValue()));
 
                     // OR: use original title (incl. arabic font)
                     // md.setValue(titleLabel + " " + getTranslatedIssueLabels(md.getValue()));
@@ -320,7 +320,7 @@ public class NewspaperMetsCreator {
                     issueLabel = md.getValue();
                 }
                 if (md.getType().getName().equals(mainTitleType.getName())) {
-                    md.setValue(AdmBsmeExportHelper.getTranslatedIssueLabels(md.getValue()));
+                    md.setValue(AdmBsmeExportHelper.getCleanIssueLabel(md.getValue()));
                     issueTitle = md.getValue();
                 }
                 if (md.getType().getName().equals(issueNumberType.getName())) {

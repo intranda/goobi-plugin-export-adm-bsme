@@ -12,6 +12,7 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
@@ -141,9 +142,11 @@ public class NewspaperExporter {
                 if (process.getJournal() != null) {
                     Element technicalNotes = new Element("Technical_Notes");
                     for (JournalEntry je : process.getJournal()) {
-                        technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
-                                .setAttribute("type", je.getType().getTitle())
-                                .setText(je.getFormattedContent()));
+                        if (je.getType() == LogType.USER) {
+                            technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
+                                    .setAttribute("type", je.getType().getTitle())
+                                    .setText(je.getFormattedContent()));
+                        }
                     }
                     volume.addContent(technicalNotes);
                 } else {
@@ -161,14 +164,17 @@ public class NewspaperExporter {
                 issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFrequency").setText(frequency));
 
-                // get the anchor title and leave the english part of the title
-                String issueTitlePrefix = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
-                issueTitlePrefix = AdmBsmeExportHelper.getEnglishPartOfString(issueTitlePrefix);
-                // get the issue title
+                // get all title information
+                String anchorTitle = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
+                String anchorTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(anchorTitle);
+                String anchorTitleAra = AdmBsmeExportHelper.getArabicPartOfString(anchorTitle);
                 String issueTitle =
-                        AdmBsmeExportHelper.getTranslatedIssueLabels(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
-                // put prefix and title together
-                issue.addContent(new Element("issueTitle").setText(issueTitlePrefix + issueTitle));
+                        AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
+
+                // add an English title
+                issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + issueTitle));
+                // add an Arabic title
+                issue.addContent(new Element("issueTitleARA").setText(issueTitle + "-" + anchorTitleAra));
 
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));

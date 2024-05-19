@@ -3,6 +3,7 @@ package de.intranda.goobi.plugins;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,12 +14,14 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -131,9 +134,11 @@ public class MagazineExporter {
         if (process.getJournal() != null) {
             Element technicalNotes = new Element("Technical_Notes");
             for (JournalEntry je : process.getJournal()) {
-                technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
-                        .setAttribute("type", je.getType().getTitle())
-                        .setText(je.getFormattedContent()));
+                if (je.getType() == LogType.USER) {
+                    technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
+                            .setAttribute("type", je.getType().getTitle())
+                            .setText(je.getFormattedContent()));
+                }
             }
             volume.addContent(technicalNotes);
         } else {
@@ -147,6 +152,19 @@ public class MagazineExporter {
                 new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueNumber"))));
         issue.addContent(new Element("issueID").setText(volumeId));
         issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin"))));
+
+        // get all title information
+        String anchorTitle = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
+        String anchorTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(anchorTitle);
+        String anchorTitleAra = AdmBsmeExportHelper.getArabicPartOfString(anchorTitle);
+        String issueTitle =
+                AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel")));
+
+        // add an English title
+        issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + issueTitle));
+        // add an Arabic title
+        issue.addContent(new Element("issueTitleARA").setText(issueTitle + "-" + anchorTitleAra));
+
         issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId));
         volume.addContent(new Element("Barcode").setText(volumeId));
         issue.addContent(new Element("issueFile").setText(volumeId + ".pdf").setAttribute("Format", "application/pdf"));
@@ -240,7 +258,7 @@ public class MagazineExporter {
         // write the xml file
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
-        File xmlfile = new File(targetFolder + volumeId + ".xml");
+        File xmlfile = new File(targetFolder + volumeId + "-simple.xml");
         try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
             xmlOutputter.output(doc, fileOutputStream);
         } catch (IOException e) {
@@ -253,13 +271,31 @@ public class MagazineExporter {
             AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
             AdmBsmeExportHelper.copyFolderContent(process.getOcrAltoDirectory(), "xml", fileMap, targetFolder);
             AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
+            StorageProviderInterface sp = StorageProvider.getInstance();
+
             // rename the regular METS file
-            StorageProvider.getInstance()
-                    .renameTo(Paths.get(targetFolder, process.getTitel() + ".xml"), Paths.get(targetFolder, volumeId + "-mets.xml").toString());
+            Path pmets = Paths.get(targetFolder, volumeId + "-mets.xml");
+            if (sp.isFileExists(pmets)) {
+                sp.deleteFile(pmets);
+            }
+            sp.renameTo(Paths.get(targetFolder, process.getTitel() + ".xml"), pmets.toString());
+
             // rename the regular anchor METS file
-            StorageProvider.getInstance()
-                    .renameTo(Paths.get(targetFolder, process.getTitel() + "_anchor.xml"),
-                            Paths.get(targetFolder, volumeId + "-mets_anchor.xml").toString());
+            Path panchor = Paths.get(targetFolder, volumeId + "-mets_anchor.xml");
+            if (sp.isFileExists(panchor)) {
+                sp.deleteFile(panchor);
+            }
+            sp.renameTo(Paths.get(targetFolder, process.getTitel() + "_anchor.xml"),
+                    panchor.toString());
+
+            // rename the simple xml file
+            Path psimple = Paths.get(targetFolder, volumeId + ".xml");
+            if (sp.isFileExists(psimple)) {
+                sp.deleteFile(psimple);
+            }
+            sp.renameTo(Paths.get(targetFolder, volumeId + "-simple.xml"),
+                    psimple.toString());
+
         } catch (IOException | SwapException | DAOException e) {
             log.error("Error while copying the image files to export folder", e);
             return false;
