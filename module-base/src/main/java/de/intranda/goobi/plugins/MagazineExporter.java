@@ -157,13 +157,14 @@ public class MagazineExporter {
         String anchorTitle = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
         String anchorTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(anchorTitle);
         String anchorTitleAra = AdmBsmeExportHelper.getArabicPartOfString(anchorTitle);
-        String issueTitle =
-                AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel")));
+        //String issueTitle = AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel")));
+        String issueDate =
+                AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin")));
 
         // add an English title
-        issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + issueTitle));
+        issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + issueDate));
         // add an Arabic title
-        issue.addContent(new Element("issueTitleARA").setText(issueTitle + "-" + anchorTitleAra));
+        issue.addContent(new Element("issueTitleARA").setText(issueDate + "-" + anchorTitleAra));
 
         issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId));
         volume.addContent(new Element("Barcode").setText(volumeId));

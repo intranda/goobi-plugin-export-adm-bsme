@@ -134,7 +134,7 @@ public class NewspaperExporter {
                 volume.addContent(new Element("Publication_Name")
                         .setText(AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"))));
                 volume.addContent(new Element("Language")
-                        .setText(AdmBsmeExportHelper.getLanguageFullname(topStruct, config.getString("/metadata/language"))));
+                        .setText(AdmBsmeExportHelper.getLanguageFullname(anchor, config.getString("/metadata/language"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
 
