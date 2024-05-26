@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
 import org.goobi.production.enums.LogType;
@@ -49,6 +50,7 @@ public class MagazineExporter {
     private DigitalDocument dd;
     private String viewerUrl;
     private String targetFolder;
+    private String pdfCopyFolder;
 
     // keep a list of all image files as they need to be renamed
     private Map<String, String> fileMap;
@@ -74,6 +76,7 @@ public class MagazineExporter {
         this.dd = dd;
         viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
         targetFolder = config.getString("targetDirectoryMagazines", "/opt/digiverso/goobi/output/");
+        pdfCopyFolder = config.getString("pdfCopyMagazines");
     }
 
     /**
@@ -151,7 +154,11 @@ public class MagazineExporter {
         issue.addContent(
                 new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueNumber"))));
         issue.addContent(new Element("issueID").setText(volumeId));
-        issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin"))));
+
+        // get the date and transform it from dd-mm-yyyy to yyyy-mm-dd
+        String date = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin"));
+        date = AdmBsmeExportHelper.convertDateFormatToYearMonthDay(date);
+        issue.addContent(new Element("issueDate").setText(date));
 
         // get all title information
         String anchorTitle = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
@@ -309,6 +316,12 @@ public class MagazineExporter {
             fout = new FileOutputStream(pdfi.getName());
             new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
             fout.close();
+
+            // if a separate PDF copy shall be stored
+            if (StringUtils.isNotBlank(pdfCopyFolder)) {
+                StorageProvider.getInstance().copyFile(Paths.get(pdfi.getName()), Paths.get(pdfCopyFolder, volumeId + ".pdf"));
+            }
+
         } catch (IOException | ContentLibException e) {
             log.error("Error while generating PDF files", e);
             return false;

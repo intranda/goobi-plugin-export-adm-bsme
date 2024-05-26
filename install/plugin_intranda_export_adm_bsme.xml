@@ -1,30 +1,37 @@
 <config_plugin>
 
 	<!-- directories where to export to -->
-	<targetDirectoryMagazines>/opt/digiverso/viewer/hotfolderMagazines/</targetDirectoryMagazines>
-	<targetDirectoryNewspapers>/opt/digiverso/viewer/hotfolderNewspapers/</targetDirectoryNewspapers>
+	<targetDirectoryNewspapers>/opt/digiverso/export/bsme/mnt/export/Newspapers/</targetDirectoryNewspapers>
+	<targetDirectoryMagazines>/opt/digiverso/export/bsme/mnt/export/Magazines/</targetDirectoryMagazines>
+	<targetDirectoryPositives>/opt/digiverso/export/bsme/mnt/export/Positives/</targetDirectoryPositives>
+	<targetDirectoryNegatives>/opt/digiverso/export/bsme/mnt/export/Negatives/</targetDirectoryNegatives>
+	<targetDirectorySlides>/opt/digiverso/iexport/bsme/mnt/export/Slides/</targetDirectorySlides>
+	<targetDirectoryGeneric>/opt/digiverso/export/bsme/mnt/export/Generic/</targetDirectoryGeneric>
 	
+	<!-- additional PDF copy directory, leave empty if not needed -->
+	<pdfCopyNewspapers>/opt/digiverso/export/bsme/mnt/pdf/Newspapers/</pdfCopyNewspapers>
+	<pdfCopyMagazines>/opt/digiverso/export/bsme/mnt/pdf/Magazines/</pdfCopyMagazines>
+
 	<!-- main viewer url -->
-	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>>
-	
-	<!-- configured values to be used inside of the export xml, 
-		can use variable replacer expressions here like e.g.:
-		- $(meta.CatalogIDDigital)
-		- $(meta.topstruct.TitleDocMain)
+	<viewerUrl>https://adm.goobi.cloud/viewer/</viewerUrl>
+
+	<!-- configured values to be used inside of the export xml, can use variable 
+		replacer expressions here like e.g.: - $(meta.CatalogIDDigital) - $(meta.topstruct.TitleDocMain) 
 		- $(process.Template) -->
-    <rightsToUse>$(template.Rights to Use)</rightsToUse>
-    <rightsDetails>$(template.Rights Details)</rightsDetails>
-    <source>Goobi</source>
-    <mediaType>$(template.Media Type)</mediaType>
-    <mediaGroup>$(template.Media Group)</mediaGroup>
-    <sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
-    <frequency>$(template.Issue Frequency)</frequency>
-        
-	
+	<rightsToUse>$(template.Rights to Use)</rightsToUse>
+	<rightsDetails>$(template.Rights Details)</rightsDetails>
+	<source>Goobi</source>
+	<mediaType>$(template.Media Type)</mediaType>
+	<mediaGroup>$(template.Media Group)</mediaGroup>
+	<sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
+	<frequency>$(template.Issue Frequency)</frequency>
+
 	<!-- mets parameter -->
 	<!-- if a field is empty or missing, project configuration is used -->
-	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=</metsUrl>
-	<resolverUrl>https://adm.goobi.cloud/viewer/piresolver?id=</resolverUrl>
+	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=
+	</metsUrl>
+	<resolverUrl>https://adm.goobi.cloud/viewer/piresolver?id=
+	</resolverUrl>
 	<metsPointerPath>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.topstruct.CatalogIDDigital).xml
 	</metsPointerPath>
 	<metsPointerPathAnchor>https://adm.goobi.cloud/viewer/sourcefile?id=$(meta.CatalogIDDigital).xml
@@ -65,11 +72,11 @@
 		<anchorId>AnchorID</anchorId>
 		<anchorTitle>AnchorTitle</anchorTitle>
 		<accessConditionUse>AccessConditionUse</accessConditionUse>
-		<accessConditionDetails>AccessConditionDetails</accessConditionDetails>
+		<accessConditionDetails>AccessConditionDetails
+		</accessConditionDetails>
 		<frequency>Frequency</frequency>
-		
 	</metadata>
-	
+
 	<docstruct>
 		<newspaper>Newspaper</newspaper>
 		<year>Year</year>
@@ -78,5 +85,5 @@
 		<issue>NewspaperIssue</issue>
 		<newspaperStub>NewspaperStub</newspaperStub>
 	</docstruct>
-	
+
 </config_plugin>

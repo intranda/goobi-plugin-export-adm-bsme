@@ -3,6 +3,7 @@ package de.intranda.goobi.plugins;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
 import org.goobi.production.enums.LogType;
@@ -19,6 +21,7 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -50,6 +53,7 @@ public class NewspaperExporter {
     private DigitalDocument dd;
     private String viewerUrl;
     private String targetFolder;
+    private String pdfCopyFolder;
 
     // keep a list of all image files as they need to be renamed
     private Map<String, String> fileMap;
@@ -76,6 +80,7 @@ public class NewspaperExporter {
         this.dd = dd;
         viewerUrl = config.getString("viewerUrl", "https://viewer.goobi.io");
         targetFolder = config.getString("targetDirectoryNewspapers", "/opt/digiverso/goobi/output/");
+        pdfCopyFolder = config.getString("pdfCopyNewspapers");
         pdfIssues = new ArrayList<>();
     }
 
@@ -171,10 +176,14 @@ public class NewspaperExporter {
                 String issueTitle =
                         AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
 
+                // convert date from from yyyy-mm-dd to dd-mm-yyyy
+                String date = AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"));
+                date = AdmBsmeExportHelper.convertDateFormatToDayMonthYear(date);
+
                 // add an English title
-                issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + issueTitle));
+                issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + date));
                 // add an Arabic title
-                issue.addContent(new Element("issueTitleARA").setText(issueTitle + "-" + anchorTitleAra));
+                issue.addContent(new Element("issueTitleARA").setText(date + "-" + anchorTitleAra));
 
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
@@ -320,6 +329,13 @@ public class NewspaperExporter {
                 fout = new FileOutputStream(pi.getName());
                 new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
                 fout.close();
+
+                // if a separate PDF copy shall be stored
+                if (StringUtils.isNotBlank(pdfCopyFolder)) {
+                    StorageProvider.getInstance()
+                            .copyFile(Paths.get(pi.getName()), Paths.get(pdfCopyFolder, Paths.get(pi.getName()).getFileName().toString()));
+                }
+
             } catch (IOException | ContentLibException e) {
                 log.error("Error while generating PDF files", e);
                 return false;
