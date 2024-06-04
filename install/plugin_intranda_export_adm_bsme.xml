@@ -5,7 +5,7 @@
 	<targetDirectoryMagazines>/opt/digiverso/export/bsme/mnt/export/Magazines/</targetDirectoryMagazines>
 	<targetDirectoryPositives>/opt/digiverso/export/bsme/mnt/export/Positives/</targetDirectoryPositives>
 	<targetDirectoryNegatives>/opt/digiverso/export/bsme/mnt/export/Negatives/</targetDirectoryNegatives>
-	<targetDirectorySlides>/opt/digiverso/iexport/bsme/mnt/export/Slides/</targetDirectorySlides>
+	<targetDirectorySlides>/opt/digiverso/export/bsme/mnt/export/Slides/</targetDirectorySlides>
 	<targetDirectoryGeneric>/opt/digiverso/export/bsme/mnt/export/Generic/</targetDirectoryGeneric>
 	
 	<!-- additional PDF copy directory, leave empty if not needed -->
@@ -24,8 +24,16 @@
 	<mediaType>$(template.Media Type)</mediaType>
 	<mediaGroup>$(template.Media Group)</mediaGroup>
 	<sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
-	<frequency>$(template.Issue Frequency)</frequency>
-
+	<eventName>$(template.Event Name)</eventName>
+	<eventDate>$(template.Event Date)</eventDate>
+	<subject>$(template.Subject)</subject>
+	<photographer>$(template.Photographer)</photographer>
+	<personsInImage>$(template.Persons in Image)</personsInImage>
+	<locations>$(template.Locations)</locations>
+	<description>$(template.Description)</description>
+	<editorInChief>$(template.Editor in Chief)</editorInChief>
+	<format>$(template.Format)</format>
+	
 	<!-- mets parameter -->
 	<!-- if a field is empty or missing, project configuration is used -->
 	<metsUrl addFileExtension="true">https://adm.goobi.cloud/viewer/sourcefile?id=
