@@ -107,6 +107,12 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                     success = ex.startExport();
                 }
 
+                if ("AdmSlide".equals(topStruct.getType().getName())) {
+                    // if it is a Slide
+                    SlideExporter ex = new SlideExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
+                }
+
             }
 
         } catch (ReadException | PreferencesException | IOException | SwapException e) {
