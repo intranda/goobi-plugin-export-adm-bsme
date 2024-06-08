@@ -97,13 +97,13 @@ public class AdmBsmeExportHelper {
         String lang = getMetdata(ds, field);
         switch (lang) {
             case "Arabic":
-                return "عربي – Arabic";
+                return "عربي - Arabic";
             case "ara":
-                return "عربي – Arabic";
+                return "عربي - Arabic";
             case "English":
-                return "انجليزي – English";
+                return "انجليزي - English";
             case "eng":
-                return "انجليزي – English";
+                return "انجليزي - English";
             case "ger":
                 return "German";
         }

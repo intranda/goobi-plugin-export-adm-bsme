@@ -113,22 +113,22 @@ public class SlideExporter {
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_type").setText(mediaType));
-        // info.addContent(new Element("Media_Group").setText(mediaGroup));
-        info.addContent(new Element("Envelope_Barcode").setText(identifier));
-
         info.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
+        info.addContent(new Element("Barcode").setText(identifier));
         info.addContent(new Element("Event_Date").setText(eventDate));
         info.addContent(new Element("Event_Name").setText(eventName));
-        info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Photographer").setText(photographer));
-        info.addContent(new Element("Film_Format").setText(format));
+        info.addContent(new Element("Format").setText(format));
         info.addContent(new Element("Persons_in_Image").setText(personsInImage));
-        info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
+
+        // info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
+        // info.addContent(new Element("Media_Group").setText(mediaGroup));
+        // info.addContent(new Element("Subject").setText(subject));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {

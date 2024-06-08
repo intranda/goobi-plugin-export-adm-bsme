@@ -134,14 +134,14 @@ public class NewspaperExporter {
                 volume.addContent(new Element("Media_Source").setText(source));
                 volume.addContent(new Element("Media_type").setText(mediaType));
                 volume.addContent(new Element("Media_Group").setText(mediaGroup));
-                // not needed anymore
-                // volume.addContent(new Element("Publication_ID").setText(volumeId));
                 volume.addContent(new Element("Publication_Name")
                         .setText(AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"))));
                 volume.addContent(new Element("Language")
                         .setText(AdmBsmeExportHelper.getLanguageFullname(anchor, config.getString("/metadata/language"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
+
+                // volume.addContent(new Element("Publication_ID").setText(volumeId));
 
                 // add all journal entries as technical notes
                 if (process.getJournal() != null) {

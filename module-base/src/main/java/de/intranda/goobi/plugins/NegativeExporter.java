@@ -113,9 +113,7 @@ public class NegativeExporter {
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_type").setText(mediaType));
-        // info.addContent(new Element("Media_Group").setText(mediaGroup));
         info.addContent(new Element("Envelope_Barcode").setText(identifier));
-
         info.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(
@@ -129,6 +127,8 @@ public class NegativeExporter {
         info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
+
+        // info.addContent(new Element("Media_Group").setText(mediaGroup));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {

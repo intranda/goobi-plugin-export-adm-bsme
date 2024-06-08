@@ -24,6 +24,7 @@
 	<mediaType>$(template.Media Type)</mediaType>
 	<mediaGroup>$(template.Media Group)</mediaGroup>
 	<sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
+	<frequency>$(template.Issue Frequency)</frequency>
 	<eventName>$(template.Event Name)</eventName>
 	<eventDate>$(template.Event Date)</eventDate>
 	<subject>$(template.Subject)</subject>
