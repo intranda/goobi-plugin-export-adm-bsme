@@ -3,6 +3,8 @@ package de.intranda.goobi.plugins;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -95,16 +97,54 @@ public class AdmBsmeExportHelper {
         String lang = getMetdata(ds, field);
         switch (lang) {
             case "Arabic":
-                return "عربي – Arabic";
+                return "عربي - Arabic";
             case "ara":
-                return "عربي – Arabic";
+                return "عربي - Arabic";
             case "English":
-                return "انجليزي – English";
+                return "انجليزي - English";
             case "eng":
-                return "انجليزي – English";
+                return "انجليزي - English";
             case "ger":
                 return "German";
         }
         return lang;
+    }
+
+    /**
+     * convert the date from dd-mm-yyyy to format yyyy-mm-dd and give it back
+     * 
+     * @param inputDate
+     * @return
+     */
+    public static String convertDateFormatToDayMonthYear(String inputDate) {
+        return convertDateFormat(inputDate, "yyyy-MM-dd", "dd-MM-yyyy");
+    }
+
+    /**
+     * convert the date from yyyy-mm-dd to format dd-mm-yyyy and give it back
+     * 
+     * @param inputDate
+     * @return
+     */
+    public static String convertDateFormatToYearMonthDay(String inputDate) {
+        return convertDateFormat(inputDate, "dd-MM-yyyy", "yyyy-MM-dd");
+    }
+
+    /**
+     * convert the date from one format to the other
+     * 
+     * @param inputDate
+     * @return
+     */
+    private static String convertDateFormat(String inputDate, String inFormat, String outFormat) {
+        SimpleDateFormat inputFormatter = new SimpleDateFormat(inFormat);
+        SimpleDateFormat outputFormatter = new SimpleDateFormat(outFormat);
+
+        try {
+            Date date = inputFormatter.parse(inputDate);
+            return outputFormatter.format(date);
+        } catch (Exception e) {
+            return inputDate;
+        }
     }
 }

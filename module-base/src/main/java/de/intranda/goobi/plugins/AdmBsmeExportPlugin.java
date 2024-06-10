@@ -84,17 +84,33 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                 success = ne.startExport();
             } else {
 
-                // do a regular export
-                IExportPlugin export = new ExportDms();
-                export.setExportFulltext(false);
-                export.setExportImages(false);
-                success = export.startExport(process);
-
                 // for magazines do a specific export
-                if (success && "Periodical".equals(topStruct.getType().getName())) {
+                if ("Periodical".equals(topStruct.getType().getName())) {
                     // if it is a Magazine
-                    MagazineExporter me = new MagazineExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
-                    success = me.startExport();
+
+                    // do a regular export
+                    IExportPlugin export = new ExportDms();
+                    export.setExportFulltext(false);
+                    export.setExportImages(false);
+                    success = export.startExport(process);
+
+                    // do the specific export
+                    if (success) {
+                        MagazineExporter ex = new MagazineExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                        success = ex.startExport();
+                    }
+
+                }
+                if ("AdmNegative".equals(topStruct.getType().getName())) {
+                    // if it is a Negative
+                    NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
+                }
+
+                if ("AdmSlide".equals(topStruct.getType().getName())) {
+                    // if it is a Slide
+                    SlideExporter ex = new SlideExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
                 }
 
             }
