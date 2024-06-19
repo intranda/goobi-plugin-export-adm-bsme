@@ -1,4 +1,4 @@
-package de.intranda.goobi.plugins;
+package de.intranda.goobi.plugins.exporters;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,6 +18,7 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import de.intranda.goobi.plugins.AdmBsmeExportHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
@@ -36,7 +37,7 @@ import ugh.dl.Reference;
 
 @PluginImplementation
 @Log4j2
-public class NegativeExporter {
+public class SlideExporter {
 
     private XMLConfiguration config;
     private Process process;
@@ -60,13 +61,13 @@ public class NegativeExporter {
      * @param prefs
      * @param dd
      */
-    public NegativeExporter(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd) {
+    public SlideExporter(XMLConfiguration config, Process process, Prefs prefs, DigitalDocument dd) {
         this.config = config;
         config.setExpressionEngine(new XPathExpressionEngine());
         this.process = process;
         this.prefs = prefs;
         this.dd = dd;
-        targetFolder = config.getString("targetDirectoryNegatives", "/opt/digiverso/goobi/output/");
+        targetFolder = config.getString("targetDirectorySlides", "/opt/digiverso/goobi/output/");
     }
 
     /**
@@ -86,10 +87,10 @@ public class NegativeExporter {
 
         // prepare xml document
         Document doc = new Document();
-        doc.setRootElement(new Element("envelope"));
+        doc.setRootElement(new Element("image"));
 
         // add volume information
-        Element info = new Element("envelopeInfo");
+        Element info = new Element("SlideInfo");
         doc.getRootElement().addContent(info);
         String identifier = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/identifier"));
 
@@ -113,22 +114,22 @@ public class NegativeExporter {
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_type").setText(mediaType));
-        info.addContent(new Element("Envelope_Barcode").setText(identifier));
         info.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
+        info.addContent(new Element("Barcode").setText(identifier));
         info.addContent(new Element("Event_Date").setText(eventDate));
         info.addContent(new Element("Event_Name").setText(eventName));
-        info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Photographer").setText(photographer));
-        info.addContent(new Element("Film_Format").setText(format));
+        info.addContent(new Element("Format").setText(format));
         info.addContent(new Element("Persons_in_Image").setText(personsInImage));
-        info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
 
+        // info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         // info.addContent(new Element("Media_Group").setText(mediaGroup));
+        // info.addContent(new Element("Subject").setText(subject));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {
@@ -146,9 +147,6 @@ public class NegativeExporter {
         }
 
         // add file information
-        Element files = new Element("Images");
-        doc.getRootElement().addContent(files);
-
         List<Reference> refs = topStruct.getAllToReferences("logical_physical");
         if (refs != null) {
             for (Reference ref : refs) {
@@ -165,8 +163,6 @@ public class NegativeExporter {
                 }
 
                 // add file element
-                Element file = new Element("Image");
-                file.setAttribute("id", String.format("%04d", fileCounter));
                 Element master = new Element("master");
 
                 // add image information
@@ -216,8 +212,7 @@ public class NegativeExporter {
                 }
 
                 master.addContent(new Element("file").setText(exportFileName + ".tif"));
-                file.addContent(master);
-                files.addContent(file);
+                doc.getRootElement().addContent(master);
             }
         }
 

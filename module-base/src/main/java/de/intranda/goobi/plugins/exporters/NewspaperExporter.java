@@ -1,4 +1,4 @@
-package de.intranda.goobi.plugins;
+package de.intranda.goobi.plugins.exporters;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +20,8 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import de.intranda.goobi.plugins.AdmBsmeExportHelper;
+import de.intranda.goobi.plugins.PdfIssue;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
