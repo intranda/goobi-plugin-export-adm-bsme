@@ -109,12 +109,14 @@ public class NegativeExporter {
         String description = vr.replace(config.getString("/description"));
         String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
+        String envelopeNumber = vr.replace(config.getString("/envelopeNumber"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_Type").setText(mediaType));
         info.addContent(new Element("Envelope_Barcode").setText(identifier));
+        info.addContent(new Element("Envelope_Number").setText(envelopeNumber));
         info.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(

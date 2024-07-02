@@ -102,7 +102,8 @@ public class SlideExporter {
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
-        String subject = vr.replace(config.getString("/subject"));
+        String subjectEng = vr.replace(config.getString("/subjectEnglish"));
+        String subjectAra = vr.replace(config.getString("/subjectArabic"));
         String photographer = vr.replace(config.getString("/photographer"));
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
@@ -121,6 +122,8 @@ public class SlideExporter {
         info.addContent(new Element("Barcode").setText(identifier));
         info.addContent(new Element("Event_Date").setText(eventDate));
         info.addContent(new Element("Event_Name").setText(eventName));
+        info.addContent(new Element("Subject_ENG").setText(subjectEng));
+        info.addContent(new Element("Subject_ARA").setText(subjectAra));
         info.addContent(new Element("Photographer").setText(photographer));
         info.addContent(new Element("Format").setText(format));
         info.addContent(new Element("Persons_in_Image").setText(personsInImage));
@@ -129,7 +132,6 @@ public class SlideExporter {
 
         // info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         // info.addContent(new Element("Media_Group").setText(mediaGroup));
-        // info.addContent(new Element("Subject").setText(subject));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {
