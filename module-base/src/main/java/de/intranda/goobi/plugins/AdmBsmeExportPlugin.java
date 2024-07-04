@@ -14,6 +14,7 @@ import de.intranda.goobi.plugins.exporters.GenericExporter;
 import de.intranda.goobi.plugins.exporters.MagazineExporter;
 import de.intranda.goobi.plugins.exporters.NegativeExporter;
 import de.intranda.goobi.plugins.exporters.NewspaperExporter;
+import de.intranda.goobi.plugins.exporters.PositiveExporter;
 import de.intranda.goobi.plugins.exporters.SlideExporter;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.export.dms.ExportDms;
@@ -109,6 +110,11 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                 if ("AdmNegative".equals(topStruct.getType().getName())) {
                     // if it is a Negative
                     NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
+                }
+                if ("AdmPositive".equals(topStruct.getType().getName())) {
+                    // if it is a Negative
+                    PositiveExporter ex = new PositiveExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
 
