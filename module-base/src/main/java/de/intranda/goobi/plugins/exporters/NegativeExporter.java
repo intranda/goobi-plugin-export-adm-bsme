@@ -98,7 +98,7 @@ public class NegativeExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));

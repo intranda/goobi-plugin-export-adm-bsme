@@ -18,22 +18,27 @@
 	<!-- configured values to be used inside of the export xml, can use variable 
 		replacer expressions here like e.g.: - $(meta.CatalogIDDigital) - $(meta.topstruct.TitleDocMain) 
 		- $(process.Template) -->
-	<rightsToUse>$(template.Rights to Use)</rightsToUse>
-	<rightsDetails>$(template.Rights Details)</rightsDetails>
+	<rightsToUse>$(meta.AdmRightToUse)</rightsToUse>
+	<rightsDetails>$(meta.AdmRightDetails)</rightsDetails>
 	<source>Goobi</source>
-	<mediaType>$(template.Media Type)</mediaType>
-	<mediaGroup>$(template.Media Group)</mediaGroup>
-	<sourceOrganisation>$(template.Source Organization)</sourceOrganisation>
-	<frequency>$(template.Issue Frequency)</frequency>
-	<eventName>$(template.Event Name)</eventName>
-	<eventDate>$(template.Event Date)</eventDate>
-	<subject>$(template.Subject)</subject>
-	<photographer>$(template.Photographer)</photographer>
-	<personsInImage>$(template.Persons in Image)</personsInImage>
-	<locations>$(template.Locations)</locations>
-	<description>$(template.Description)</description>
-	<editorInChief>$(template.Editor in Chief)</editorInChief>
-	<format>$(template.Format)</format>
+	<mediaType>$(meta.AdmMediaType)</mediaType>
+	<mediaGroup>$(meta.AdmMediaGroup)</mediaGroup>
+	<sourceOrganisation>$(meta.AdmSourceOrganization)</sourceOrganisation>
+	<frequency>$(meta.AdmIssueFrequency)</frequency>
+	<eventName>$(meta.AdmEventName)</eventName>
+	<eventDate>$(meta.AdmEventDate)</eventDate>
+	<eventTime>$(meta.AdmEventTime)</eventTime>
+	<subject>$(meta.Subject)</subject>
+	<subjectArabic>$(meta.AdmSubjectArabic)</subjectArabic>
+	<subjectEnglish>$(meta.AdmSubjectEnglish)</subjectEnglish>
+	<photographer>$(meta.AdmPhotographer)</photographer>
+	<personsInImage>$(meta.AdmPersonsInImage)</personsInImage>
+	<locations>$(meta.AdmEventLocations)</locations>
+	<description>$(meta.Description)</description>
+	<editorInChief>$(meta.AdmEditorInChief)</editorInChief>
+	<format>$(meta.Format)</format>
+	<envelopeNumber>$(meta.AdmEnvelopeNumber)</envelopeNumber>
+	<backprint>$(meta.AdmBackprint)</backprint>
 	
 	<!-- mets parameter -->
 	<!-- if a field is empty or missing, project configuration is used -->

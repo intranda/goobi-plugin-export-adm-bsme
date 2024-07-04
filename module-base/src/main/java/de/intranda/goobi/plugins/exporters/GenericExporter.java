@@ -98,7 +98,7 @@ public class GenericExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        //        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
@@ -107,8 +107,9 @@ public class GenericExporter {
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
         String description = vr.replace(config.getString("/description"));
-        String editorInChief = vr.replace(config.getString("/editorInChief"));
+        //        String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
+        String backprint = vr.replace(config.getString("/backprint"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
         info.addContent(new Element("Right_Details").setText(rightsDetails));
@@ -118,6 +119,8 @@ public class GenericExporter {
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
+        info.addContent(new Element("Barcode").setText(identifier));
+        info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Event_Date").setText(eventDate));
         info.addContent(new Element("Event_Name").setText(eventName));
         info.addContent(new Element("Photographer").setText(photographer));
@@ -125,6 +128,7 @@ public class GenericExporter {
         info.addContent(new Element("Persons_in_Image").setText(personsInImage));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
+        info.addContent(new Element("Backprint").setText(backprint));
 
         // info.addContent(new Element("Media_Group").setText(mediaGroup));
 
