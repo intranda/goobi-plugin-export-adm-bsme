@@ -3,6 +3,8 @@ package de.intranda.goobi.plugins.exporters;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +22,6 @@ import org.jdom2.output.XMLOutputter;
 
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
 import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -85,13 +86,8 @@ public class PositiveExporter {
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
-        // prepare xml document
-        Document doc = new Document();
-        doc.setRootElement(new Element("Envelope"));
-
-        // add volume information
+        // prepare process information
         Element info = new Element("envelopeInfo");
-        doc.getRootElement().addContent(info);
         String identifier = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/identifier"));
 
         String rightsToUse = vr.replace(config.getString("/rightsToUse"));
@@ -148,13 +144,23 @@ public class PositiveExporter {
             info.addContent(new Element("Technical_Notes").setText("- no entry available -"));
         }
 
-        // add file information
-        Element files = new Element("Images");
-        doc.getRootElement().addContent(files);
-
         List<Reference> refs = topStruct.getAllToReferences("logical_physical");
         if (refs != null) {
+
+            // EACH IMAGE - START
             for (Reference ref : refs) {
+
+                // prepare xml document
+                Document doc = new Document();
+                doc.setRootElement(new Element("Envelope"));
+                info.detach();
+                doc.getRootElement().addContent(info);
+
+                // add file information
+                Element files = new Element("Images");
+                doc.getRootElement().addContent(files);
+
+                // Image details
                 DocStruct page = ref.getTarget();
                 String realFileName = page.getImageName();
                 String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
@@ -222,29 +228,45 @@ public class PositiveExporter {
 
                 master.addContent(new Element("file").setText(exportFileName + ".tif"));
                 file.addContent(master);
+
+                try {
+                    // copy image file to target folder
+                    Path in = Paths.get(process.getImagesOrigDirectory(false), realFileNameWithoutExtension + ".tif");
+                    Path out = Paths.get(targetFolder, exportFileName + ".tif");
+                    StorageProvider.getInstance().copyFile(in, out);
+
+                    // copy plaintext file to target folder and add it to xml
+                    Path ocrPlaintextPath = Paths.get(process.getOcrTxtDirectory(), realFileNameWithoutExtension + ".txt");
+                    if (StorageProvider.getInstance().isFileExists(ocrPlaintextPath)) {
+                        file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                        out = Paths.get(targetFolder, exportFileName + ".txt");
+                        StorageProvider.getInstance().copyFile(ocrPlaintextPath, out);
+                    } else {
+                        file.addContent(new Element("text").setAttribute("Format", "text/plain"));
+                    }
+
+                } catch (IOException | SwapException | DAOException e) {
+                    log.error("Error while copying the image and ocr files to export folder", e);
+                    return false;
+                }
+
                 files.addContent(file);
+
+                // write the xml file
+                XMLOutputter xmlOutputter = new XMLOutputter();
+                xmlOutputter.setFormat(Format.getPrettyFormat());
+
+                File xmlfile = new File(targetFolder + identifier + "-" + String.format("%03d", fileCounter) + ".xml");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
+                    xmlOutputter.output(doc, fileOutputStream);
+                } catch (IOException e) {
+                    log.error("Error writing the simple xml file", e);
+                    return false;
+                }
+
             }
-        }
+            // EACH IMAGE - END
 
-        // write the xml file
-        XMLOutputter xmlOutputter = new XMLOutputter();
-        xmlOutputter.setFormat(Format.getPrettyFormat());
-        File xmlfile = new File(targetFolder + identifier + ".xml");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
-            xmlOutputter.output(doc, fileOutputStream);
-        } catch (IOException e) {
-            log.error("Error writing the simple xml file", e);
-            return false;
-        }
-
-        try {
-            // copy all important files to target folder
-            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-        } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
-            return false;
         }
 
         return true;
