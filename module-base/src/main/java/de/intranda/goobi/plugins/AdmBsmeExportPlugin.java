@@ -10,6 +10,12 @@ import org.goobi.production.enums.PluginType;
 import org.goobi.production.plugin.interfaces.IExportPlugin;
 import org.goobi.production.plugin.interfaces.IPlugin;
 
+import de.intranda.goobi.plugins.exporters.GenericExporter;
+import de.intranda.goobi.plugins.exporters.MagazineExporter;
+import de.intranda.goobi.plugins.exporters.NegativeExporter;
+import de.intranda.goobi.plugins.exporters.NewspaperExporter;
+import de.intranda.goobi.plugins.exporters.PositiveExporter;
+import de.intranda.goobi.plugins.exporters.SlideExporter;
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.export.dms.ExportDms;
 import de.sub.goobi.helper.Helper;
@@ -106,10 +112,21 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                     NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
+                if ("AdmPositive".equals(topStruct.getType().getName())) {
+                    // if it is a Negative
+                    PositiveExporter ex = new PositiveExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
+                }
 
                 if ("AdmSlide".equals(topStruct.getType().getName())) {
                     // if it is a Slide
                     SlideExporter ex = new SlideExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
+                }
+
+                if ("AdmGeneric".equals(topStruct.getType().getName())) {
+                    // if it is a Generic
+                    GenericExporter ex = new GenericExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
 
