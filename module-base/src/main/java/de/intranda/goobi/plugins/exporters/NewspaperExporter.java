@@ -97,6 +97,7 @@ public class NewspaperExporter {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
         fileMap = new HashMap<String, String>();
+        HashMap<String, Document> simpleXmlMap = new HashMap<String, Document>();
         fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
 
@@ -287,17 +288,7 @@ public class NewspaperExporter {
                     }
                 }
 
-                // write the xml file
-                XMLOutputter xmlOutputter = new XMLOutputter();
-                xmlOutputter.setFormat(Format.getPrettyFormat());
-                File xmlfile = new File(targetFolder + volumeId + "-" + simpleDate + ".xml");
-                try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
-                    xmlOutputter.output(doc, fileOutputStream);
-                } catch (IOException e) {
-                    log.error("Error writing the simple xml file", e);
-                    return false;
-                }
-
+                simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + ".xml", doc);
                 pdfIssues.add(pdfi);
             }
         }
@@ -340,6 +331,19 @@ public class NewspaperExporter {
 
             } catch (IOException | ContentLibException e) {
                 log.error("Error while generating PDF files", e);
+                return false;
+            }
+        }
+
+        // finally write all simple xml files
+        for (String key : simpleXmlMap.keySet()) {
+            XMLOutputter xmlOutputter = new XMLOutputter();
+            xmlOutputter.setFormat(Format.getPrettyFormat());
+            File xmlfile = new File(key);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
+                xmlOutputter.output(simpleXmlMap.get(key), fileOutputStream);
+            } catch (IOException e) {
+                log.error("Error writing the simple xml file", e);
                 return false;
             }
         }

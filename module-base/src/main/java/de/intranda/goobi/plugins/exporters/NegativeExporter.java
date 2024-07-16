@@ -19,8 +19,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
-import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -101,6 +99,7 @@ public class NegativeExporter {
         //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
+        String eventTime = vr.replace(config.getString("/eventTime"));
         String eventName = vr.replace(config.getString("/eventName"));
         String subject = vr.replace(config.getString("/subject"));
         String photographer = vr.replace(config.getString("/photographer"));
@@ -122,6 +121,7 @@ public class NegativeExporter {
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
         info.addContent(new Element("Event_Date").setText(eventDate));
+        info.addContent(new Element("Event_Time").setText(eventTime));
         info.addContent(new Element("Event_Name").setText(eventName));
         info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Photographer").setText(photographer));
@@ -224,6 +224,14 @@ public class NegativeExporter {
             }
         }
 
+        // copy all important files to target folder
+        try {
+            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
+        } catch (IOException | SwapException | DAOException e) {
+            log.error("Error while copying the image files to export folder", e);
+            return false;
+        }
+
         // write the xml file
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
@@ -232,16 +240,6 @@ public class NegativeExporter {
             xmlOutputter.output(doc, fileOutputStream);
         } catch (IOException e) {
             log.error("Error writing the simple xml file", e);
-            return false;
-        }
-
-        try {
-            // copy all important files to target folder
-            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-        } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
             return false;
         }
 

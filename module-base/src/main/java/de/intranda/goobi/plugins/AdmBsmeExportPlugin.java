@@ -112,7 +112,7 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                     NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
-                if ("AdmPositive".equals(topStruct.getType().getName())) {
+                if ("AdmPositiveEnvelope".equals(topStruct.getType().getName())) {
                     // if it is a Negative
                     PositiveExporter ex = new PositiveExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();

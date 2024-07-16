@@ -19,8 +19,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
-import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -218,6 +216,14 @@ public class SlideExporter {
             }
         }
 
+        // copy all important files to target folder
+        try {
+            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
+        } catch (IOException | SwapException | DAOException e) {
+            log.error("Error while copying the image files to export folder", e);
+            return false;
+        }
+
         // write the xml file
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
@@ -226,16 +232,6 @@ public class SlideExporter {
             xmlOutputter.output(doc, fileOutputStream);
         } catch (IOException e) {
             log.error("Error writing the simple xml file", e);
-            return false;
-        }
-
-        try {
-            // copy all important files to target folder
-            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-        } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
             return false;
         }
 

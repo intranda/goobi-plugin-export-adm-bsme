@@ -155,11 +155,11 @@ public class MagazineExporter {
         volume.addContent(issue);
         issue.addContent(
                 new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueNumber"))));
-        issue.addContent(new Element("issueID").setText(volumeId));
+        issue.addContent(new Element("Barcode_Number").setText(volumeId));
 
         // get the date and transform it from dd-mm-yyyy to yyyy-mm-dd
         String date = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/dateOfOrigin"));
-        date = AdmBsmeExportHelper.convertDateFormatToYearMonthDay(date);
+        //date = AdmBsmeExportHelper.convertDateFormatToYearMonthDay(date);
         issue.addContent(new Element("issueDate").setText(date));
 
         // get all title information
@@ -176,7 +176,6 @@ public class MagazineExporter {
         issue.addContent(new Element("issueTitleARA").setText(issueDate + "-" + anchorTitleAra));
 
         issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId));
-        volume.addContent(new Element("Barcode").setText(volumeId));
         issue.addContent(new Element("issueFile").setText(volumeId + ".pdf").setAttribute("Format", "application/pdf"));
         issue.addContent(
                 new Element("issueMetadataFile").setText(volumeId + "-mets.xml").setAttribute("Format", "application/xml"));
@@ -210,10 +209,18 @@ public class MagazineExporter {
                 file.setAttribute("pg", String.format("%04d", fileCounter));
                 Element master = new Element("master");
 
+                // File for OCR plaintext and ALTO
+                File txtFile = null;
+                File altoFile = null;
+
                 // add image information
                 try {
                     File realFile = new File(process.getImagesOrigDirectory(false),
                             realFileNameWithoutExtension + ".tif");
+                    txtFile = new File(process.getOcrTxtDirectory(),
+                            realFileNameWithoutExtension + ".txt");
+                    altoFile = new File(process.getOcrAltoDirectory(),
+                            realFileNameWithoutExtension + ".xml");
                     try (ImageManager sourcemanager = new ImageManager(realFile.toURI())) {
                         ImageInterpreter si = sourcemanager.getMyInterpreter();
 
@@ -258,22 +265,16 @@ public class MagazineExporter {
 
                 master.addContent(new Element("file").setText(exportFileName + ".tif"));
                 file.addContent(master);
-                file.addContent(new Element("alto").setText(exportFileName + ".xml").setAttribute("Format", "application/xml+alto"));
-                file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                // add ocr entry if ocr txt file is available for a page
+                if (StorageProvider.getInstance().isFileExists(txtFile.toPath())) {
+                    file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                }
+                if (StorageProvider.getInstance().isFileExists(altoFile.toPath())) {
+                    file.addContent(new Element("alto").setText(exportFileName + ".xml").setAttribute("Format", "application/xml+alto"));
+                }
                 files.addContent(file);
 
             }
-        }
-
-        // write the xml file
-        XMLOutputter xmlOutputter = new XMLOutputter();
-        xmlOutputter.setFormat(Format.getPrettyFormat());
-        File xmlfile = new File(targetFolder + volumeId + "-simple.xml");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
-            xmlOutputter.output(doc, fileOutputStream);
-        } catch (IOException e) {
-            log.error("Error writing the simple xml file", e);
-            return false;
         }
 
         try {
@@ -298,14 +299,6 @@ public class MagazineExporter {
             sp.renameTo(Paths.get(targetFolder, process.getTitel() + "_anchor.xml"),
                     panchor.toString());
 
-            // rename the simple xml file
-            Path psimple = Paths.get(targetFolder, volumeId + ".xml");
-            if (sp.isFileExists(psimple)) {
-                sp.deleteFile(psimple);
-            }
-            sp.renameTo(Paths.get(targetFolder, volumeId + "-simple.xml"),
-                    psimple.toString());
-
         } catch (IOException | SwapException | DAOException e) {
             log.error("Error while copying the image files to export folder", e);
             return false;
@@ -326,6 +319,17 @@ public class MagazineExporter {
 
         } catch (IOException | ContentLibException e) {
             log.error("Error while generating PDF files", e);
+            return false;
+        }
+
+        // write the xml file
+        XMLOutputter xmlOutputter = new XMLOutputter();
+        xmlOutputter.setFormat(Format.getPrettyFormat());
+        File xmlfile = new File(targetFolder + volumeId + ".xml");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
+            xmlOutputter.output(doc, fileOutputStream);
+        } catch (IOException e) {
+            log.error("Error writing the simple xml file", e);
             return false;
         }
 

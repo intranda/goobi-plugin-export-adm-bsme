@@ -97,6 +97,7 @@ public class PositiveExporter {
         //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
+        String eventTime = vr.replace(config.getString("/eventTime"));
         String eventName = vr.replace(config.getString("/eventName"));
         String subject = vr.replace(config.getString("/subject"));
         String photographer = vr.replace(config.getString("/photographer"));
@@ -119,6 +120,7 @@ public class PositiveExporter {
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
         info.addContent(new Element("Event_Date").setText(eventDate));
+        info.addContent(new Element("Event_Time").setText(eventTime));
         info.addContent(new Element("Event_Name").setText(eventName));
         info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Photographer").setText(photographer));
@@ -126,8 +128,6 @@ public class PositiveExporter {
         info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
-
-        // info.addContent(new Element("Media_Group").setText(mediaGroup));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {
@@ -255,7 +255,6 @@ public class PositiveExporter {
                 // write the xml file
                 XMLOutputter xmlOutputter = new XMLOutputter();
                 xmlOutputter.setFormat(Format.getPrettyFormat());
-
                 File xmlfile = new File(targetFolder + identifier + "-" + String.format("%03d", fileCounter) + ".xml");
                 try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
                     xmlOutputter.output(doc, fileOutputStream);
