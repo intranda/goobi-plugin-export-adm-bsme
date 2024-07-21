@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -48,8 +46,6 @@ public class PositiveExporter {
     private String targetFolder;
 
     // keep a list of all image files as they need to be renamed
-    private Map<String, String> fileMap;
-    private int fileCounter;
     private VariableReplacer vr;
 
     @Getter
@@ -82,8 +78,6 @@ public class PositiveExporter {
     public boolean startExport() {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
-        fileMap = new HashMap<String, String>();
-        fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -179,23 +173,18 @@ public class PositiveExporter {
                         String realFileName = page.getImageName();
                         String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
 
-                        // get the new file name for the image and reuse if created previously
-                        String exportFileName = fileMap.get(realFileNameWithoutExtension);
-                        if (exportFileName == null) {
-                            String counter = String.format("%03d", ++fileCounter);
-                            exportFileName = identifier + "-" + counter;
-                            fileMap.put(realFileNameWithoutExtension, exportFileName);
+                        if (realFileNameWithoutExtension.endsWith("b")) {
+                            continue;
                         }
 
                         // define the name for the xml file for the first image only
                         if (xmlfile == null) {
-                            xmlfile = new File(targetFolder + identifier + "-" + String.format("%03d", fileCounter) + ".xml");
+                            xmlfile = new File(targetFolder + realFileNameWithoutExtension + ".xml");
                         }
 
                         // add file element
                         Element file = new Element("Image");
-                        file.setAttribute("id", String.format("%03d", fileCounter));
-                        file.addContent(new Element("Barcode").setText(identifier + "-" + String.format("%03d", fileCounter)));
+                        file.addContent(new Element("Barcode").setText(realFileNameWithoutExtension));
                         file.addContent(new Element("Backprint").setText(backprintText));
                         Element master = new Element("master");
 
@@ -245,23 +234,26 @@ public class PositiveExporter {
                             return false;
                         }
 
-                        master.addContent(new Element("file").setText(exportFileName + ".tif"));
+                        master.addContent(new Element("file").setText(realFileName));
                         file.addContent(master);
 
                         try {
-                            // copy image file to target folder
-                            Path in = Paths.get(process.getImagesOrigDirectory(false), realFileNameWithoutExtension + ".tif");
-                            Path out = Paths.get(targetFolder, exportFileName + ".tif");
-                            StorageProvider.getInstance().copyFile(in, out);
+                            // copy image file to target folder if it is not a backside
+                            if (!realFileNameWithoutExtension.endsWith("b")) {
+                                Path in = Paths.get(process.getImagesOrigDirectory(false), realFileName);
+                                Path out = Paths.get(targetFolder, realFileName);
+                                StorageProvider.getInstance().copyFile(in, out);
 
-                            // copy plaintext file to target folder and add it to xml
-                            Path ocrPlaintextPath = Paths.get(process.getOcrTxtDirectory(), realFileNameWithoutExtension + ".txt");
-                            if (StorageProvider.getInstance().isFileExists(ocrPlaintextPath)) {
-                                file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
-                                out = Paths.get(targetFolder, exportFileName + ".txt");
-                                StorageProvider.getInstance().copyFile(ocrPlaintextPath, out);
-                            } else {
-                                file.addContent(new Element("text").setAttribute("Format", "text/plain"));
+                                // copy plaintext file to target folder and add it to xml
+                                Path ocrPlaintextPath = Paths.get(process.getOcrTxtDirectory(), realFileNameWithoutExtension + ".txt");
+                                if (StorageProvider.getInstance().isFileExists(ocrPlaintextPath)) {
+                                    file.addContent(
+                                            new Element("text").setText(realFileNameWithoutExtension + ".txt").setAttribute("Format", "text/plain"));
+                                    out = Paths.get(targetFolder, realFileNameWithoutExtension + ".txt");
+                                    StorageProvider.getInstance().copyFile(ocrPlaintextPath, out);
+                                } else {
+                                    file.addContent(new Element("text").setAttribute("Format", "text/plain"));
+                                }
                             }
 
                         } catch (IOException | SwapException | DAOException e) {
