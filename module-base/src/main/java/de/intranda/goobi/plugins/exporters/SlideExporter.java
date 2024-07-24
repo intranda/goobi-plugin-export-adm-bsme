@@ -157,9 +157,7 @@ public class SlideExporter {
                 // get the new file name for the image and reuse if created previously
                 String exportFileName = fileMap.get(realFileNameWithoutExtension);
                 if (exportFileName == null) {
-                    String counter = String.format("%04d", ++fileCounter);
-                    exportFileName = identifier + "-" + counter;
-                    fileMap.put(realFileNameWithoutExtension, exportFileName);
+                    fileMap.put(realFileNameWithoutExtension, identifier);
                 }
 
                 // add file element
