@@ -45,7 +45,6 @@ public class SlideExporter {
 
     // keep a list of all image files as they need to be renamed
     private Map<String, String> fileMap;
-    private int fileCounter;
     private VariableReplacer vr;
 
     @Getter
@@ -79,7 +78,6 @@ public class SlideExporter {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
         fileMap = new HashMap<String, String>();
-        fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -96,7 +94,7 @@ public class SlideExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
@@ -106,7 +104,7 @@ public class SlideExporter {
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
         String description = vr.replace(config.getString("/description"));
-        String editorInChief = vr.replace(config.getString("/editorInChief"));
+        //String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
