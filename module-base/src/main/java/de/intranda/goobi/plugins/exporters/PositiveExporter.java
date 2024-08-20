@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
@@ -33,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
+import ugh.dl.Metadata;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
 
@@ -47,8 +46,6 @@ public class PositiveExporter {
     private String targetFolder;
 
     // keep a list of all image files as they need to be renamed
-    private Map<String, String> fileMap;
-    private int fileCounter;
     private VariableReplacer vr;
 
     @Getter
@@ -81,8 +78,6 @@ public class PositiveExporter {
     public boolean startExport() {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
-        fileMap = new HashMap<String, String>();
-        fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -97,6 +92,7 @@ public class PositiveExporter {
         //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
+        String eventTime = vr.replace(config.getString("/eventTime"));
         String eventName = vr.replace(config.getString("/eventName"));
         String subject = vr.replace(config.getString("/subject"));
         String photographer = vr.replace(config.getString("/photographer"));
@@ -106,7 +102,6 @@ public class PositiveExporter {
         String editorInChief = vr.replace(config.getString("/editorInChief"));
         //String format = vr.replace(config.getString("/format"));
         String envelopeNumber = vr.replace(config.getString("/envelopeNumber"));
-        String backprint = vr.replace(config.getString("/backprint"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
         info.addContent(new Element("Right_Details").setText(rightsDetails));
@@ -119,6 +114,7 @@ public class PositiveExporter {
         info.addContent(
                 new Element("Source_Organization").setText(sourceOrganisation));
         info.addContent(new Element("Event_Date").setText(eventDate));
+        info.addContent(new Element("Event_Time").setText(eventTime));
         info.addContent(new Element("Event_Name").setText(eventName));
         info.addContent(new Element("Subject").setText(subject));
         info.addContent(new Element("Photographer").setText(photographer));
@@ -126,8 +122,6 @@ public class PositiveExporter {
         info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
-
-        // info.addContent(new Element("Media_Group").setText(mediaGroup));
 
         // add all journal entries as technical notes
         if (process.getJournal() != null) {
@@ -144,119 +138,139 @@ public class PositiveExporter {
             info.addContent(new Element("Technical_Notes").setText("- no entry available -"));
         }
 
-        List<Reference> refs = topStruct.getAllToReferences("logical_physical");
-        if (refs != null) {
+        // get all Positives inside of the Envelope
+        List<DocStruct> positiveList = topStruct.getAllChildren();
+        if (positiveList != null) {
 
-            // EACH IMAGE - START
-            for (Reference ref : refs) {
-
+            // EACH POSITIVE - START
+            for (DocStruct ds : positiveList) {
                 // prepare xml document
                 Document doc = new Document();
                 doc.setRootElement(new Element("Envelope"));
                 info.detach();
                 doc.getRootElement().addContent(info);
+                File xmlfile = null;
+
+                // get the backprint for the positive
+                String backprintText = "";
+                List<? extends Metadata> mds = ds.getAllMetadataByType(prefs.getMetadataTypeByName("AdmBackprint"));
+                if (mds != null && mds.size() > 0) {
+                    backprintText = mds.get(0).getValue().trim();
+                }
 
                 // add file information
                 Element files = new Element("Images");
                 doc.getRootElement().addContent(files);
 
-                // Image details
-                DocStruct page = ref.getTarget();
-                String realFileName = page.getImageName();
-                String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
+                List<Reference> refs = ds.getAllToReferences("logical_physical");
+                if (refs != null) {
 
-                // get the new file name for the image and reuse if created previously
-                String exportFileName = fileMap.get(realFileNameWithoutExtension);
-                if (exportFileName == null) {
-                    String counter = String.format("%03d", ++fileCounter);
-                    exportFileName = identifier + "-" + counter;
-                    fileMap.put(realFileNameWithoutExtension, exportFileName);
-                }
+                    // EACH IMAGE OF CURRENT POSITIVE - START
+                    for (Reference ref : refs) {
 
-                // add file element
-                Element file = new Element("Image");
-                file.setAttribute("id", String.format("%03d", fileCounter));
-                file.addContent(new Element("Barcode").setText(identifier + "-" + String.format("%03d", fileCounter)));
-                file.addContent(new Element("Backprint").setText(backprint));
-                Element master = new Element("master");
+                        // Image details
+                        DocStruct page = ref.getTarget();
+                        String realFileName = page.getImageName();
+                        String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
 
-                // add image information
-                try {
-                    File realFile = new File(process.getImagesOrigDirectory(false),
-                            realFileNameWithoutExtension + ".tif");
-                    try (ImageManager sourcemanager = new ImageManager(realFile.toURI())) {
-                        ImageInterpreter si = sourcemanager.getMyInterpreter();
+                        if (realFileNameWithoutExtension.endsWith("b")) {
+                            continue;
+                        }
 
-                        // MimeType
-                        // master.setAttribute("Format", si.getFormatType().getFormat().getMimeType());
-                        master.addContent(new Element("Format").setText(si.getFormatType().getFormat().getMimeType()));
+                        // define the name for the xml file for the first image only
+                        if (xmlfile == null) {
+                            xmlfile = new File(targetFolder + realFileNameWithoutExtension + ".xml");
+                        }
 
-                        // Unit for the resolution, always ppi
-                        // master.setAttribute("ResolutionUnit", "PPI");
-                        master.addContent(new Element("ResolutionUnit").setText("PPI"));
+                        // add file element
+                        Element file = new Element("Image");
+                        file.addContent(new Element("Barcode").setText(realFileNameWithoutExtension));
+                        file.addContent(new Element("Backprint").setText(backprintText));
+                        Element master = new Element("master");
 
-                        // Resolution
-                        // master.setAttribute("Resolution", String.valueOf(si.getOriginalImageXResolution()));
-                        master.addContent(new Element("Resolution").setText(String.valueOf(si.getOriginalImageXResolution())));
+                        // add image information
+                        try {
+                            File realFile = new File(process.getImagesOrigDirectory(false),
+                                    realFileNameWithoutExtension + ".tif");
+                            try (ImageManager sourcemanager = new ImageManager(realFile.toURI())) {
+                                ImageInterpreter si = sourcemanager.getMyInterpreter();
 
-                        // ColorDepth
-                        // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
-                        master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
+                                // MimeType
+                                // master.setAttribute("Format", si.getFormatType().getFormat().getMimeType());
+                                master.addContent(new Element("Format").setText(si.getFormatType().getFormat().getMimeType()));
 
-                        // bitonal, grey, "color"
-                        // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
-                        master.addContent(new Element("ColorSpace").setText(si.getFormatType().getColortype().getLabel()));
+                                // Unit for the resolution, always ppi
+                                // master.setAttribute("ResolutionUnit", "PPI");
+                                master.addContent(new Element("ResolutionUnit").setText("PPI"));
 
-                        // Scanning device
-                        master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
+                                // Resolution
+                                // master.setAttribute("Resolution", String.valueOf(si.getOriginalImageXResolution()));
+                                master.addContent(new Element("Resolution").setText(String.valueOf(si.getOriginalImageXResolution())));
 
-                        // Scanning device id
-                        String scanningDeviceId = "- no serial number available -"; //si.getMetadata().toString();
-                        master.addContent(new Element("ScanningDeviceID").setText(scanningDeviceId));
+                                // ColorDepth
+                                // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
+                                master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
 
-                        // Width
-                        master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));
+                                // bitonal, grey, "color"
+                                // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
+                                master.addContent(new Element("ColorSpace").setText(si.getFormatType().getColortype().getLabel()));
 
-                        // Height
-                        master.addContent(new Element("Height").setText(String.valueOf(si.getOriginalImageHeight())));
-                        sourcemanager.close();
+                                // Scanning device
+                                master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
+
+                                // Scanning device id
+                                String scanningDeviceId = "- no serial number available -"; //si.getMetadata().toString();
+                                master.addContent(new Element("ScanningDeviceID").setText(scanningDeviceId));
+
+                                // Width
+                                master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));
+
+                                // Height
+                                master.addContent(new Element("Height").setText(String.valueOf(si.getOriginalImageHeight())));
+                                sourcemanager.close();
+                            }
+                        } catch (IOException | SwapException | DAOException | ImageManagerException e) {
+                            log.error("Error while reading image metadata", e);
+                            return false;
+                        }
+
+                        master.addContent(new Element("file").setText(realFileName));
+                        file.addContent(master);
+
+                        try {
+                            // copy image file to target folder if it is not a backside
+                            if (!realFileNameWithoutExtension.endsWith("b")) {
+                                Path in = Paths.get(process.getImagesOrigDirectory(false), realFileName);
+                                Path out = Paths.get(targetFolder, realFileName);
+                                StorageProvider.getInstance().copyFile(in, out);
+
+                                // copy plaintext file to target folder and add it to xml
+                                Path ocrPlaintextPath = Paths.get(process.getOcrTxtDirectory(), realFileNameWithoutExtension + ".txt");
+                                if (StorageProvider.getInstance().isFileExists(ocrPlaintextPath)) {
+                                    file.addContent(
+                                            new Element("text").setText(realFileNameWithoutExtension + ".txt").setAttribute("Format", "text/plain"));
+                                    out = Paths.get(targetFolder, realFileNameWithoutExtension + ".txt");
+                                    StorageProvider.getInstance().copyFile(ocrPlaintextPath, out);
+                                } else {
+                                    file.addContent(new Element("text").setAttribute("Format", "text/plain"));
+                                }
+                            }
+
+                        } catch (IOException | SwapException | DAOException e) {
+                            log.error("Error while copying the image and ocr files to export folder", e);
+                            return false;
+                        }
+
+                        files.addContent(file);
+
                     }
-                } catch (IOException | SwapException | DAOException | ImageManagerException e) {
-                    log.error("Error while reading image metadata", e);
-                    return false;
+                    // EACH IMAGE OF CURRENT POSITIVE - END
+
                 }
 
-                master.addContent(new Element("file").setText(exportFileName + ".tif"));
-                file.addContent(master);
-
-                try {
-                    // copy image file to target folder
-                    Path in = Paths.get(process.getImagesOrigDirectory(false), realFileNameWithoutExtension + ".tif");
-                    Path out = Paths.get(targetFolder, exportFileName + ".tif");
-                    StorageProvider.getInstance().copyFile(in, out);
-
-                    // copy plaintext file to target folder and add it to xml
-                    Path ocrPlaintextPath = Paths.get(process.getOcrTxtDirectory(), realFileNameWithoutExtension + ".txt");
-                    if (StorageProvider.getInstance().isFileExists(ocrPlaintextPath)) {
-                        file.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
-                        out = Paths.get(targetFolder, exportFileName + ".txt");
-                        StorageProvider.getInstance().copyFile(ocrPlaintextPath, out);
-                    } else {
-                        file.addContent(new Element("text").setAttribute("Format", "text/plain"));
-                    }
-
-                } catch (IOException | SwapException | DAOException e) {
-                    log.error("Error while copying the image and ocr files to export folder", e);
-                    return false;
-                }
-
-                files.addContent(file);
-
-                // write the xml file
+                // write the xml file per positive
                 XMLOutputter xmlOutputter = new XMLOutputter();
                 xmlOutputter.setFormat(Format.getPrettyFormat());
-
-                File xmlfile = new File(targetFolder + identifier + "-" + String.format("%03d", fileCounter) + ".xml");
                 try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
                     xmlOutputter.output(doc, fileOutputStream);
                 } catch (IOException e) {
@@ -265,7 +279,7 @@ public class PositiveExporter {
                 }
 
             }
-            // EACH IMAGE - END
+            // EACH POSITIVE - END
 
         }
 

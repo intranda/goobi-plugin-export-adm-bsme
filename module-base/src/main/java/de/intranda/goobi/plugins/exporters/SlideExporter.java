@@ -19,8 +19,6 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
-import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -47,7 +45,6 @@ public class SlideExporter {
 
     // keep a list of all image files as they need to be renamed
     private Map<String, String> fileMap;
-    private int fileCounter;
     private VariableReplacer vr;
 
     @Getter
@@ -81,7 +78,6 @@ public class SlideExporter {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
         fileMap = new HashMap<String, String>();
-        fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -98,7 +94,7 @@ public class SlideExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
@@ -108,7 +104,7 @@ public class SlideExporter {
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
         String description = vr.replace(config.getString("/description"));
-        String editorInChief = vr.replace(config.getString("/editorInChief"));
+        //String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
@@ -159,8 +155,7 @@ public class SlideExporter {
                 // get the new file name for the image and reuse if created previously
                 String exportFileName = fileMap.get(realFileNameWithoutExtension);
                 if (exportFileName == null) {
-                    String counter = String.format("%04d", ++fileCounter);
-                    exportFileName = identifier + "-" + counter;
+                    exportFileName = identifier;
                     fileMap.put(realFileNameWithoutExtension, exportFileName);
                 }
 
@@ -218,6 +213,14 @@ public class SlideExporter {
             }
         }
 
+        // copy all important files to target folder
+        try {
+            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
+        } catch (IOException | SwapException | DAOException e) {
+            log.error("Error while copying the image files to export folder", e);
+            return false;
+        }
+
         // write the xml file
         XMLOutputter xmlOutputter = new XMLOutputter();
         xmlOutputter.setFormat(Format.getPrettyFormat());
@@ -226,16 +229,6 @@ public class SlideExporter {
             xmlOutputter.output(doc, fileOutputStream);
         } catch (IOException e) {
             log.error("Error writing the simple xml file", e);
-            return false;
-        }
-
-        try {
-            // copy all important files to target folder
-            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-        } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
             return false;
         }
 

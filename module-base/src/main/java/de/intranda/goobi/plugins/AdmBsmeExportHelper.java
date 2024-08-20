@@ -126,9 +126,9 @@ public class AdmBsmeExportHelper {
      * @param inputDate
      * @return
      */
-    public static String convertDateFormatToYearMonthDay(String inputDate) {
-        return convertDateFormat(inputDate, "dd-MM-yyyy", "yyyy-MM-dd");
-    }
+    //    public static String convertDateFormatToYearMonthDay(String inputDate) {
+    //        return convertDateFormat(inputDate, "dd-MM-yyyy", "yyyy-MM-dd");
+    //    }
 
     /**
      * convert the date from one format to the other

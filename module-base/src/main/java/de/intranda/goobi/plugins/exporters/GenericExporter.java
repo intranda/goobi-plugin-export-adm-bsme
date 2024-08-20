@@ -20,7 +20,6 @@ import org.jdom2.output.XMLOutputter;
 
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
 import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -47,7 +46,6 @@ public class GenericExporter {
 
     // keep a list of all image files as they need to be renamed
     private Map<String, String> fileMap;
-    private int fileCounter;
     private VariableReplacer vr;
 
     @Getter
@@ -81,7 +79,6 @@ public class GenericExporter {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
         fileMap = new HashMap<String, String>();
-        fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -98,7 +95,7 @@ public class GenericExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        //        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        // String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
@@ -107,7 +104,7 @@ public class GenericExporter {
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
         String description = vr.replace(config.getString("/description"));
-        //        String editorInChief = vr.replace(config.getString("/editorInChief"));
+        // String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
         String backprint = vr.replace(config.getString("/backprint"));
 
@@ -161,10 +158,12 @@ public class GenericExporter {
                 // get the new file name for the image and reuse if created previously
                 String exportFileName = fileMap.get(realFileNameWithoutExtension);
                 if (exportFileName == null) {
-                    String counter = String.format("%04d", ++fileCounter);
-                    exportFileName = identifier + "-" + counter;
+                    exportFileName = identifier;
                     fileMap.put(realFileNameWithoutExtension, exportFileName);
                 }
+
+                // File for OCR plaintext
+                File txtFile = null;
 
                 // add file element
                 Element master = new Element("master");
@@ -173,6 +172,8 @@ public class GenericExporter {
                 try {
                     File realFile = new File(process.getImagesOrigDirectory(false),
                             realFileNameWithoutExtension + ".tif");
+                    txtFile = new File(process.getOcrTxtDirectory(),
+                            realFileNameWithoutExtension + ".txt");
                     try (ImageManager sourcemanager = new ImageManager(realFile.toURI())) {
                         ImageInterpreter si = sourcemanager.getMyInterpreter();
 
@@ -217,9 +218,23 @@ public class GenericExporter {
 
                 master.addContent(new Element("file").setText(exportFileName + ".tif"));
                 files.addContent(master);
-                files.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+
+                // add ocr entry if ocr txt file is available for a page
+                if (StorageProvider.getInstance().isFileExists(txtFile.toPath())) {
+                    files.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                }
 
             }
+        }
+
+        // first do image and ocr copy work
+        try {
+            // copy all important files to target folder
+            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
+            AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
+        } catch (IOException | SwapException | DAOException e) {
+            log.error("Error while copying the image files to export folder", e);
+            return false;
         }
 
         // write the xml file
@@ -230,16 +245,6 @@ public class GenericExporter {
             xmlOutputter.output(doc, fileOutputStream);
         } catch (IOException e) {
             log.error("Error writing the simple xml file", e);
-            return false;
-        }
-
-        try {
-            // copy all important files to target folder
-            AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-        } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
             return false;
         }
 
