@@ -1,14 +1,18 @@
 package de.intranda.goobi.plugins.exporters;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import de.intranda.goobi.plugins.AdmBsmeExportHelper;
+import de.intranda.goobi.plugins.PdfIssue;
+import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.VariableReplacer;
+import de.sub.goobi.helper.exceptions.DAOException;
+import de.sub.goobi.helper.exceptions.SwapException;
+import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
+import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
+import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
@@ -19,23 +23,6 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-
-import de.intranda.goobi.plugins.AdmBsmeExportHelper;
-import de.intranda.goobi.plugins.PdfIssue;
-import de.sub.goobi.helper.Helper;
-import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.VariableReplacer;
-import de.sub.goobi.helper.exceptions.DAOException;
-import de.sub.goobi.helper.exceptions.SwapException;
-import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
-import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
-import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
-import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
-import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
-import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
-import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Prefs;
@@ -44,6 +31,18 @@ import ugh.exceptions.MetadataTypeNotAllowedException;
 import ugh.exceptions.PreferencesException;
 import ugh.exceptions.TypeNotAllowedForParentException;
 import ugh.exceptions.WriteException;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
 
 @PluginImplementation
 @Log4j2
@@ -317,11 +316,12 @@ public class NewspaperExporter {
         // generate PDF files per issue
         for (PdfIssue pi : pdfIssues) {
             try {
-                Map<String, String> map = pi.getAsMap();
-                FileOutputStream fout;
-                fout = new FileOutputStream(pi.getName());
-                new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
-                fout.close();
+                gluePDF(
+                        StorageProvider.getInstance().listFiles(process.getOcrPdfDirectory()).stream()
+                                .map(p -> new File(p.toString()))
+                                .collect(Collectors.toList()),
+                        new File(pi.getName())
+                );
 
                 // if a separate PDF copy shall be stored
                 if (StringUtils.isNotBlank(pdfCopyFolder)) {
@@ -329,7 +329,7 @@ public class NewspaperExporter {
                             .copyFile(Paths.get(pi.getName()), Paths.get(pdfCopyFolder, Paths.get(pi.getName()).getFileName().toString()));
                 }
 
-            } catch (IOException | ContentLibException e) {
+            } catch (IOException | SwapException e) {
                 log.error("Error while generating PDF files", e);
                 return false;
             }
