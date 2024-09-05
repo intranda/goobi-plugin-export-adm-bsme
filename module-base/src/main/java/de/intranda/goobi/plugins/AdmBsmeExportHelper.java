@@ -11,6 +11,10 @@ import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
 import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.goobi.beans.JournalEntry;
+import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
+import org.jdom2.Element;
 import ugh.dl.DocStruct;
 import ugh.dl.Metadata;
 
@@ -21,9 +25,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AdmBsmeExportHelper {
 
@@ -158,6 +165,28 @@ public class AdmBsmeExportHelper {
         } catch (Exception e) {
             return inputDate;
         }
+    }
+
+    public static Element createTechnicalNotesElementFromRelevantJournalEntries(Process process) {
+        Element result = new Element("Technical_Notes");
+
+        List<JournalEntry> journal = Optional.ofNullable(process.getJournal())
+                .map(j -> j.stream()
+                        .filter(e -> e.getType() == LogType.IMPORTANT_USER)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        if (!journal.isEmpty()) {
+            journal.forEach(e ->
+                    result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
+                            .setAttribute("type", e.getType().getTitle())
+                            .setText(e.getFormattedContent()))
+            );
+        } else {
+            result.setText("- no entry available -");
+        }
+
+        return result;
     }
 
     public static void generatePDF(PdfIssue pdfi) throws ContentLibException, IOException {
