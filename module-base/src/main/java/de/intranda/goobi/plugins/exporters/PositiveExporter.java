@@ -10,9 +10,7 @@ import java.util.List;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
-import org.goobi.production.enums.LogType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
@@ -34,6 +32,8 @@ import ugh.dl.DocStruct;
 import ugh.dl.Metadata;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
+
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
 
 @PluginImplementation
 @Log4j2
@@ -124,19 +124,7 @@ public class PositiveExporter {
         info.addContent(new Element("Description").setText(description));
 
         // add all journal entries as technical notes
-        if (process.getJournal() != null) {
-            Element technicalNotes = new Element("Technical_Notes");
-            for (JournalEntry je : process.getJournal()) {
-                if (je.getType() == LogType.USER) {
-                    technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
-                            .setAttribute("type", je.getType().getTitle())
-                            .setText(je.getFormattedContent()));
-                }
-            }
-            info.addContent(technicalNotes);
-        } else {
-            info.addContent(new Element("Technical_Notes").setText("- no entry available -"));
-        }
+        info.addContent(createTechnicalNotesElementFromRelevantJournalEntries(process));
 
         // get all Positives inside of the Envelope
         List<DocStruct> positiveList = topStruct.getAllChildren();

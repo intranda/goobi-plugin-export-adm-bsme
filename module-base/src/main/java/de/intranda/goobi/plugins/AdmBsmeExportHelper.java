@@ -1,17 +1,36 @@
 package de.intranda.goobi.plugins;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.pdf.PRAcroForm;
+import com.lowagie.text.pdf.PdfCopy;
+import com.lowagie.text.pdf.PdfImportedPage;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.SimpleBookmark;
+import de.sub.goobi.helper.StorageProvider;
+import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
+import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
+import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
+import org.apache.commons.lang.StringUtils;
+import org.goobi.beans.JournalEntry;
+import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
+import org.jdom2.Element;
+import ugh.dl.DocStruct;
+import ugh.dl.Metadata;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-
-import de.sub.goobi.helper.StorageProvider;
-import ugh.dl.DocStruct;
-import ugh.dl.Metadata;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class AdmBsmeExportHelper {
 
@@ -146,5 +165,78 @@ public class AdmBsmeExportHelper {
         } catch (Exception e) {
             return inputDate;
         }
+    }
+
+    public static Element createTechnicalNotesElementFromRelevantJournalEntries(Process process) {
+        Element result = new Element("Technical_Notes");
+
+        List<JournalEntry> journal = Optional.ofNullable(process.getJournal())
+                .map(j -> j.stream()
+                        .filter(e -> e.getType() == LogType.IMPORTANT_USER)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+
+        if (!journal.isEmpty()) {
+            journal.forEach(e ->
+                    result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
+                            .setAttribute("type", e.getType().getTitle())
+                            .setText(e.getFormattedContent()))
+            );
+        } else {
+            result.setText("- no entry available -");
+        }
+
+        return result;
+    }
+
+    public static void generatePDF(PdfIssue pdfi) throws ContentLibException, IOException {
+        Map<String, String> map = pdfi.getAsMap();
+        FileOutputStream fout;
+        fout = new FileOutputStream(pdfi.getName());
+        new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
+        fout.close();
+    }
+
+    public static void gluePDF(List<File> inputFiles, File outputFile) throws IOException {
+        int pageOffset = 0;
+        List<Map<String, Object>> master = new ArrayList<>();
+        Document document = null;
+        PdfCopy writer = null;
+        for (File file : inputFiles) {
+            // we create a reader for a certain document
+            PdfReader reader = new PdfReader(file.getAbsolutePath());
+            reader.consolidateNamedDestinations();
+
+            List<Map<String, Object>> bookmarks = SimpleBookmark.getBookmarkList(reader);
+            if (bookmarks != null) {
+                if (pageOffset != 0) {
+                    SimpleBookmark.shiftPageNumbersInRange(bookmarks, pageOffset, null);
+                }
+                master.addAll(bookmarks);
+            }
+            pageOffset += 1;
+
+            if (document == null) {
+                // step 1: creation of a document-object
+                document = new Document(reader.getPageSizeWithRotation(1));
+                // step 2: we create a writer that listens to the document
+                writer = new PdfCopy(document, new FileOutputStream(outputFile));
+                // step 3: we open the document
+                document.open();
+            }
+            // step 4: we add only the first page
+            PdfImportedPage firstPage = writer.getImportedPage(reader, 1);
+            writer.addPage(firstPage);
+
+            PRAcroForm form = reader.getAcroForm();
+            if (form != null) {
+                writer.copyAcroForm(reader);
+            }
+        }
+        if (!master.isEmpty()) {
+            writer.setOutlines(master);
+        }
+        // step 5: we close the document
+        document.close();
     }
 }

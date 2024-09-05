@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.commons.lang.StringUtils;
-import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
-import org.goobi.production.enums.LogType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
@@ -28,12 +27,9 @@ import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
-import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
 import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
-import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
-import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -41,6 +37,9 @@ import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
+
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
 
 @PluginImplementation
 @Log4j2
@@ -136,19 +135,7 @@ public class MagazineExporter {
         // volume.addContent(new Element("Publication_ID").setText(volumeId));
 
         // add all journal entries as technical notes
-        if (process.getJournal() != null) {
-            Element technicalNotes = new Element("Technical_Notes");
-            for (JournalEntry je : process.getJournal()) {
-                if (je.getType() == LogType.USER) {
-                    technicalNotes.addContent(new Element("Entry").setAttribute("date", je.getFormattedCreationDate())
-                            .setAttribute("type", je.getType().getTitle())
-                            .setText(je.getFormattedContent()));
-                }
-            }
-            volume.addContent(technicalNotes);
-        } else {
-            volume.addContent(new Element("Technical_Notes").setText("- no entry available -"));
-        }
+        volume.addContent(createTechnicalNotesElementFromRelevantJournalEntries(process));
 
         // add issue information
         Element issue = new Element("issueInfo");
@@ -306,18 +293,19 @@ public class MagazineExporter {
 
         // generate PDF files per issue
         try {
-            Map<String, String> map = pdfi.getAsMap();
-            FileOutputStream fout;
-            fout = new FileOutputStream(pdfi.getName());
-            new GetPdfAction().writePdf(map, ContentServerConfiguration.getInstance(), fout);
-            fout.close();
+            gluePDF(
+                    StorageProvider.getInstance().listFiles(process.getOcrPdfDirectory()).stream()
+                            .map(p -> new File(p.toString()))
+                            .collect(Collectors.toList()),
+                    new File(pdfi.getName())
+            );
 
             // if a separate PDF copy shall be stored
             if (StringUtils.isNotBlank(pdfCopyFolder)) {
                 StorageProvider.getInstance().copyFile(Paths.get(pdfi.getName()), Paths.get(pdfCopyFolder, volumeId + ".pdf"));
             }
 
-        } catch (IOException | ContentLibException e) {
+        } catch (IOException | SwapException e) {
             log.error("Error while generating PDF files", e);
             return false;
         }
