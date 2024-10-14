@@ -206,10 +206,6 @@ public class PositiveExporter {
                                 // Scanning device
                                 master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
 
-                                // Scanning device id
-                                String scanningDeviceId = "- no serial number available -"; //si.getMetadata().toString();
-                                master.addContent(new Element("ScanningDeviceID").setText(scanningDeviceId));
-
                                 // Width
                                 master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));
 
