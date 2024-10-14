@@ -69,7 +69,7 @@ Insbesondere der Aufbau der XML-Export-Dateien ist je nach Publikationstyp sehr 
       <BitDepth>8</BitDepth>
       <ColorSpace>color</ColorSpace>
       <ScanningDevice>Bookeye 5</ScanningDevice>
-      <ScanningDeviceID>- no serial number available -</ScanningDeviceID>
+      <ScanningDeviceID />
       <Width>1272</Width>
       <Height>1680</Height>
       <file>123456789-0001.tif</file>
@@ -81,7 +81,7 @@ Insbesondere der Aufbau der XML-Export-Dateien ist je nach Publikationstyp sehr 
       <BitDepth>8</BitDepth>
       <ColorSpace>color</ColorSpace>
       <ScanningDevice>Bookeye 5</ScanningDevice>
-      <ScanningDeviceID>- no serial number available -</ScanningDeviceID>
+      <ScanningDeviceID />
       <Width>1272</Width>
       <Height>1680</Height>
       <file>123456789-0002.tif</file>
@@ -94,7 +94,7 @@ Insbesondere der Aufbau der XML-Export-Dateien ist je nach Publikationstyp sehr 
       <BitDepth>8</BitDepth>
       <ColorSpace>color</ColorSpace>
       <ScanningDevice>Bookeye 5</ScanningDevice>
-      <ScanningDeviceID>- no serial number available -</ScanningDeviceID>
+      <ScanningDeviceID />
       <Width>1192</Width>
       <Height>1608</Height>
       <file>123456789-0003.tif</file>

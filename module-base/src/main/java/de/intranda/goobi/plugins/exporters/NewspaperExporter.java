@@ -239,6 +239,9 @@ public class NewspaperExporter {
                                 // Scanning device
                                 master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
 
+                                // Scanning device id
+                                master.addContent(new Element("ScanningDeviceID"));
+
                                 // Width
                                 master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));
 
