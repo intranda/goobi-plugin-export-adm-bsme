@@ -10,6 +10,8 @@ import de.sub.goobi.helper.StorageProvider;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
 import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
@@ -32,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Log4j2
 public class AdmBsmeExportHelper {
 
     /**
@@ -198,6 +201,11 @@ public class AdmBsmeExportHelper {
     }
 
     public static void gluePDF(List<File> inputFiles, File outputFile) throws IOException {
+        if (inputFiles.isEmpty()) {
+            log.warn("No input files to glue together");
+            return;
+        }
+
         int pageOffset = 0;
         List<Map<String, Object>> master = new ArrayList<>();
         Document document = null;
@@ -233,6 +241,7 @@ public class AdmBsmeExportHelper {
                 writer.copyAcroForm(reader);
             }
         }
+
         if (!master.isEmpty()) {
             writer.setOutlines(master);
         }
