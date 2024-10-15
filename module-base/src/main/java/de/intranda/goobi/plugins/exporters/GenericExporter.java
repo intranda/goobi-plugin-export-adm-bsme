@@ -95,7 +95,7 @@ public class GenericExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        // String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventName = vr.replace(config.getString("/eventName"));
@@ -104,14 +104,18 @@ public class GenericExporter {
         String personsInImage = vr.replace(config.getString("/personsInImage"));
         String locations = vr.replace(config.getString("/locations"));
         String description = vr.replace(config.getString("/description"));
-        // String editorInChief = vr.replace(config.getString("/editorInChief"));
+        String editorInChief = vr.replace(config.getString("/editorInChief"));
         String format = vr.replace(config.getString("/format"));
         String backprint = vr.replace(config.getString("/backprint"));
+        String envelopeNumber = vr.replace(config.getString("/envelopeNumber"));
 
         info.addContent(new Element("Rights_to_Use").setText(rightsToUse));
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_Type").setText(mediaType));
+        info.addContent(new Element("Media_Group").setText(mediaGroup));
+        info.addContent(new Element("Envelope_Number").setText(envelopeNumber));
+        info.addContent(new Element("Editor_in_Chief").setText(editorInChief));
         info.addContent(new Element("Publication_Name")
                 .setText(AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/titleLabel"))));
         info.addContent(
@@ -126,8 +130,6 @@ public class GenericExporter {
         info.addContent(new Element("location").setText(locations));
         info.addContent(new Element("Description").setText(description));
         info.addContent(new Element("Backprint").setText(backprint));
-
-        // info.addContent(new Element("Media_Group").setText(mediaGroup));
 
         // add all journal entries as technical notes
         info.addContent(createTechnicalNotesElementFromRelevantJournalEntries(process));
