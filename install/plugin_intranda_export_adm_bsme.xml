@@ -28,6 +28,7 @@
 	<sourceOrganisation>$(meta.AdmSourceOrganization)</sourceOrganisation>
 	<frequency>$(meta.AdmIssueFrequency)</frequency>
 	<eventName>$(meta.AdmEventName)</eventName>
+	<eventNameEnglish>$(meta.AdmEventNameEnglish)</eventNameEnglish>
 	<eventDate>$(meta.AdmEventDate)</eventDate>
 	<eventTime>$(meta.AdmEventTime)</eventTime>
 	<subject>$(meta.Subject)</subject>
@@ -37,6 +38,7 @@
 	<personsInImage>$(meta.AdmPersonsInImage)</personsInImage>
 	<locations>$(meta.AdmEventLocations)</locations>
 	<description>$(meta.Description)</description>
+	<descriptionArabic>$(meta.AdmEventDescriptionArabic)</descriptionArabic>
 	<editorInChief>$(meta.AdmEditorInChief)</editorInChief>
 	<format>$(meta.Format)</format>
 	<envelopeNumber>$(meta.AdmEnvelopeNumber)</envelopeNumber>
