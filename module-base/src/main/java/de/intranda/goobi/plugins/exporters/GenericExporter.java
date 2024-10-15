@@ -179,7 +179,7 @@ public class GenericExporter {
 
                         // ColorDepth
                         // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
-                        master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
+                        master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth() * si.getSamplesperpixel())));
 
                         // bitonal, grey, "color"
                         // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
