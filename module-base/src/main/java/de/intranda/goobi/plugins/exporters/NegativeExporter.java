@@ -96,7 +96,7 @@ public class NegativeExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventTime = vr.replace(config.getString("/eventTime"));
@@ -114,6 +114,7 @@ public class NegativeExporter {
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_Type").setText(mediaType));
+        info.addContent(new Element("Media_Group").setText(mediaGroup));
         info.addContent(new Element("Envelope_Barcode").setText(identifier));
         info.addContent(new Element("Envelope_Number").setText(envelopeNumber));
         info.addContent(new Element("Publication_Name")
