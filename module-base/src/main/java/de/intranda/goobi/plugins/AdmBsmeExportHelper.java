@@ -10,7 +10,6 @@ import de.sub.goobi.helper.StorageProvider;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
 import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.JournalEntry;
@@ -179,15 +178,11 @@ public class AdmBsmeExportHelper {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        if (!journal.isEmpty()) {
-            journal.forEach(e ->
-                    result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
-                            .setAttribute("type", e.getType().getTitle())
-                            .setText(e.getFormattedContent()))
-            );
-        } else {
-            result.setText("- no entry available -");
-        }
+        journal.forEach(e ->
+                result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
+                        .setAttribute("type", e.getType().getTitle())
+                        .setText(e.getFormattedContent()))
+        );
 
         return result;
     }
