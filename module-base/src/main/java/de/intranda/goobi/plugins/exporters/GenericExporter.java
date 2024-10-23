@@ -1,21 +1,5 @@
 package de.intranda.goobi.plugins.exporters;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.goobi.beans.Process;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.VariableReplacer;
@@ -27,10 +11,30 @@ import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.Process;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Prefs;
 import ugh.dl.Reference;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
 
@@ -138,6 +142,7 @@ public class GenericExporter {
         Element files = new Element("Files");
         doc.getRootElement().addContent(files);
 
+        String ocrFileName = null;
         List<Reference> refs = topStruct.getAllToReferences("logical_physical");
         if (refs != null) {
             for (Reference ref : refs) {
@@ -162,8 +167,6 @@ public class GenericExporter {
                 try {
                     File realFile = new File(process.getImagesOrigDirectory(false),
                             realFileNameWithoutExtension + ".tif");
-                    txtFile = new File(process.getOcrTxtDirectory(),
-                            realFileNameWithoutExtension + ".txt");
                     try (ImageManager sourcemanager = new ImageManager(realFile.toURI())) {
                         ImageInterpreter si = sourcemanager.getMyInterpreter();
 
@@ -208,11 +211,19 @@ public class GenericExporter {
                 master.addContent(new Element("file").setText(exportFileName + ".tif"));
                 files.addContent(master);
 
-                // add ocr entry if ocr txt file is available for a page
-                if (StorageProvider.getInstance().isFileExists(txtFile.toPath())) {
-                    files.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                // add ocr entry if any ocr result is available
+                try {
+                    if (!StorageProvider.getInstance().listFiles(process.getOcrTxtDirectory()).isEmpty()) {
+                        files.addContent(new Element("text").setText(exportFileName + ".txt").setAttribute("Format", "text/plain"));
+                        ocrFileName = exportFileName + ".txt";
+                    }
+                } catch (IOException | SwapException e) {
+                    log.error("Error while reading image metadata", e);
+                    return false;
                 }
 
+                // Always add only add first image
+                break;
             }
         }
 
@@ -220,7 +231,10 @@ public class GenericExporter {
         try {
             // copy all important files to target folder
             AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
-            AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
+            if (ocrFileName != null) {
+                createMergedOcrFile(Path.of(process.getOcrTxtDirectory()), Path.of(targetFolder, ocrFileName));
+            }
+
         } catch (IOException | SwapException | DAOException e) {
             log.error("Error while copying the image files to export folder", e);
             return false;
@@ -238,5 +252,20 @@ public class GenericExporter {
         }
 
         return true;
+    }
+
+    private void createMergedOcrFile(Path scan, Path target) {
+        try {
+            if (StorageProvider.getInstance().isFileExists(target)) {
+                StorageProvider.getInstance().deleteFile(target);
+            }
+            Charset charset = StandardCharsets.UTF_8;
+            for (Path ocrFile : StorageProvider.getInstance().listFiles(scan.toString())) {
+                List<String> lines = Files.readAllLines(ocrFile, charset);
+                Files.write(target, lines, charset, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            }
+        } catch (IOException e) {
+            log.error("Error writing combined ocr txt file", e);
+        }
     }
 }

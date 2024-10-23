@@ -47,6 +47,10 @@ public class AdmBsmeExportHelper {
             String fileIn = pathIn.getFileName().toString();
             fileIn = fileIn.substring(0, fileIn.indexOf("."));
             String fileOut = fileMap.get(fileIn);
+            // Skip files that are not mapped
+            if (fileOut == null) {
+                continue;
+            }
             Path pathOut = Paths.get(targetFolder, fileOut + "." + ext);
             // log.debug(pathIn + " ---> " + pathOut);
             StorageProvider.getInstance().copyFile(pathIn, pathOut);
