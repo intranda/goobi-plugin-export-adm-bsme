@@ -1,15 +1,5 @@
 package de.intranda.goobi.plugins;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.goobi.beans.Process;
-import org.goobi.production.enums.LogType;
-import org.goobi.production.enums.PluginType;
-import org.goobi.production.plugin.interfaces.IExportPlugin;
-import org.goobi.production.plugin.interfaces.IPlugin;
-
 import de.intranda.goobi.plugins.exporters.GenericExporter;
 import de.intranda.goobi.plugins.exporters.MagazineExporter;
 import de.intranda.goobi.plugins.exporters.NegativeExporter;
@@ -26,6 +16,11 @@ import de.sub.goobi.helper.exceptions.UghHelperException;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
+import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
+import org.goobi.production.enums.PluginType;
+import org.goobi.production.plugin.interfaces.IExportPlugin;
+import org.goobi.production.plugin.interfaces.IPlugin;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
@@ -36,6 +31,10 @@ import ugh.exceptions.PreferencesException;
 import ugh.exceptions.ReadException;
 import ugh.exceptions.TypeNotAllowedForParentException;
 import ugh.exceptions.WriteException;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @PluginImplementation
 @Log4j2
@@ -84,16 +83,12 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
             DigitalDocument dd = ff.getDigitalDocument();
             DocStruct topStruct = dd.getLogicalDocStruct();
 
-            if ("Newspaper".equals(topStruct.getType().getName())) {
-                // if it is a NewspaperVolume do the Newspaper-Export
-                NewspaperExporter ne = new NewspaperExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
-                success = ne.startExport();
-            } else {
-
-                // for magazines do a specific export
-                if ("Periodical".equals(topStruct.getType().getName())) {
-                    // if it is a Magazine
-
+            switch (topStruct.getType().getName()) {
+                case "Newspaper" -> {
+                    NewspaperExporter ne = new NewspaperExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ne.startExport();
+                }
+                case "Periodical" -> {
                     // do a regular export
                     IExportPlugin export = new ExportDms();
                     export.setExportFulltext(false);
@@ -105,34 +100,26 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                         MagazineExporter ex = new MagazineExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                         success = ex.startExport();
                     }
-
                 }
-                if ("AdmNegative".equals(topStruct.getType().getName())) {
-                    // if it is a Negative
+                case "AdmNegative" -> {
                     NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
-                if ("AdmPositiveEnvelope".equals(topStruct.getType().getName())) {
-                    // if it is a Negative
+                case "AdmPositiveEnvelope" -> {
                     PositiveExporter ex = new PositiveExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
-
-                if ("AdmSlide".equals(topStruct.getType().getName())) {
-                    // if it is a Slide
+                case "AdmSlide" -> {
                     SlideExporter ex = new SlideExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
-
-                if ("AdmGeneric".equals(topStruct.getType().getName())) {
-                    // if it is a Generic
+                case "AdmGeneric" -> {
                     GenericExporter ex = new GenericExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
                     success = ex.startExport();
                 }
-
             }
-
-        } catch (ReadException | PreferencesException | IOException | SwapException e) {
+        } catch (ReadException | PreferencesException | IOException |
+                 SwapException e) {
             problems.add("Export aborted for process with ID: " + e.getMessage());
             Helper.addMessageToProcessJournal(process.getId(), LogType.ERROR, "Export aborte because of an unexpected exception: " + e.getMessage());
             log.error("Export aborted for process with ID " + process.getId(), e);
@@ -147,5 +134,4 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
 
         return success;
     }
-
 }

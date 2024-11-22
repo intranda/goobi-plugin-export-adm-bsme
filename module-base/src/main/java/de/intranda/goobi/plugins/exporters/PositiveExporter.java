@@ -89,7 +89,7 @@ public class PositiveExporter {
         String rightsDetails = vr.replace(config.getString("/rightsDetails"));
         String source = vr.replace(config.getString("/source"));
         String mediaType = vr.replace(config.getString("/mediaType"));
-        //String mediaGroup = vr.replace(config.getString("/mediaGroup"));
+        String mediaGroup = vr.replace(config.getString("/mediaGroup"));
         String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
         String eventDate = vr.replace(config.getString("/eventDate"));
         String eventTime = vr.replace(config.getString("/eventTime"));
@@ -107,6 +107,7 @@ public class PositiveExporter {
         info.addContent(new Element("Right_Details").setText(rightsDetails));
         info.addContent(new Element("Media_Source").setText(source));
         info.addContent(new Element("Media_Type").setText(mediaType));
+        info.addContent(new Element("Media_Group").setText(mediaGroup));
         info.addContent(new Element("Envelope_Barcode").setText(identifier));
         info.addContent(new Element("Envelope_Number").setText(envelopeNumber));
         info.addContent(new Element("Publication_Name")
@@ -197,7 +198,7 @@ public class PositiveExporter {
 
                                 // ColorDepth
                                 // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
-                                master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
+                                master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth() * si.getSamplesperpixel())));
 
                                 // bitonal, grey, "color"
                                 // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
@@ -207,8 +208,7 @@ public class PositiveExporter {
                                 master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
 
                                 // Scanning device id
-                                String scanningDeviceId = "- no serial number available -"; //si.getMetadata().toString();
-                                master.addContent(new Element("ScanningDeviceID").setText(scanningDeviceId));
+                                master.addContent(new Element("ScanningDeviceID"));
 
                                 // Width
                                 master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));

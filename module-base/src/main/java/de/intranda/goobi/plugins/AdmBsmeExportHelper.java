@@ -10,6 +10,7 @@ import de.sub.goobi.helper.StorageProvider;
 import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
 import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
 import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.StringUtils;
 import org.goobi.beans.JournalEntry;
 import org.goobi.beans.Process;
@@ -32,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Log4j2
 public class AdmBsmeExportHelper {
 
     /**
@@ -45,6 +47,10 @@ public class AdmBsmeExportHelper {
             String fileIn = pathIn.getFileName().toString();
             fileIn = fileIn.substring(0, fileIn.indexOf("."));
             String fileOut = fileMap.get(fileIn);
+            // Skip files that are not mapped
+            if (fileOut == null) {
+                continue;
+            }
             Path pathOut = Paths.get(targetFolder, fileOut + "." + ext);
             // log.debug(pathIn + " ---> " + pathOut);
             StorageProvider.getInstance().copyFile(pathIn, pathOut);
@@ -176,15 +182,11 @@ public class AdmBsmeExportHelper {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        if (!journal.isEmpty()) {
-            journal.forEach(e ->
-                    result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
-                            .setAttribute("type", e.getType().getTitle())
-                            .setText(e.getFormattedContent()))
-            );
-        } else {
-            result.setText("- no entry available -");
-        }
+        journal.forEach(e ->
+                result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
+                        .setAttribute("type", e.getType().getTitle())
+                        .setText(e.getFormattedContent()))
+        );
 
         return result;
     }
@@ -198,6 +200,11 @@ public class AdmBsmeExportHelper {
     }
 
     public static void gluePDF(List<File> inputFiles, File outputFile) throws IOException {
+        if (inputFiles.isEmpty()) {
+            log.warn("No input files to glue together");
+            return;
+        }
+
         int pageOffset = 0;
         List<Map<String, Object>> master = new ArrayList<>();
         Document document = null;
@@ -233,6 +240,7 @@ public class AdmBsmeExportHelper {
                 writer.copyAcroForm(reader);
             }
         }
+
         if (!master.isEmpty()) {
             writer.setOutlines(master);
         }

@@ -230,7 +230,7 @@ public class NewspaperExporter {
 
                                 // ColorDepth
                                 // master.setAttribute("BitDepth", String.valueOf(si.getColordepth()));
-                                master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth())));
+                                master.addContent(new Element("BitDepth").setText(String.valueOf(si.getColordepth() * si.getSamplesperpixel())));
 
                                 // bitonal, grey, "color"
                                 // master.setAttribute("ColorSpace", si.getFormatType().getColortype().getLabel());
@@ -240,8 +240,7 @@ public class NewspaperExporter {
                                 master.addContent(new Element("ScanningDevice").setText(vr.replace("${process.Capturing device}")));
 
                                 // Scanning device id
-                                String scanningDeviceId = "- no serial number available -"; //si.getMetadata().toString();
-                                master.addContent(new Element("ScanningDeviceID").setText(scanningDeviceId));
+                                master.addContent(new Element("ScanningDeviceID"));
 
                                 // Width
                                 master.addContent(new Element("Width").setText(String.valueOf(si.getOriginalImageWidth())));
