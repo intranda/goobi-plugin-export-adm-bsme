@@ -13,6 +13,7 @@ import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.ExportFileException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.helper.exceptions.UghHelperException;
+import de.sub.goobi.metadaten.MetadatenImagesHelper;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
@@ -25,12 +26,7 @@ import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
 import ugh.dl.Prefs;
-import ugh.exceptions.DocStructHasNoTypeException;
-import ugh.exceptions.MetadataTypeNotAllowedException;
-import ugh.exceptions.PreferencesException;
-import ugh.exceptions.ReadException;
-import ugh.exceptions.TypeNotAllowedForParentException;
-import ugh.exceptions.WriteException;
+import ugh.exceptions.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,6 +78,18 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
             ff = process.readMetadataFile();
             DigitalDocument dd = ff.getDigitalDocument();
             DocStruct topStruct = dd.getLogicalDocStruct();
+
+            MetadatenImagesHelper mih = new MetadatenImagesHelper(prefs, dd);
+
+            if (dd.getFileSet() == null || dd.getFileSet().getAllFiles().isEmpty()) {
+                Helper.setMeldung(process.getTitel() + ": digital document does not contain images; adding them for mets file creation");
+                mih.createPagination(process, null);
+                try {
+                    process.writeMetadataFile(ff);
+                } catch (UGHException | IOException | SwapException e) {
+                    log.error(e);
+                }
+            }
 
             switch (topStruct.getType().getName()) {
                 case "Newspaper" -> {
