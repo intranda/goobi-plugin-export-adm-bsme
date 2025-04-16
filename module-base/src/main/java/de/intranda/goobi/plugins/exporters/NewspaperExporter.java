@@ -171,6 +171,9 @@ public class NewspaperExporter {
                 // add an Arabic title
                 issue.addContent(new Element("issueTitleARA").setText(date + "-" + anchorTitleAra));
 
+                issue.addContent(new Element("issueName").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueName"))));
+                issue.addContent(new Element("issueNotes").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNotes"))));
+
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("No_of_Pages").setText(String.valueOf(ds.getAllToReferences("logical_physical").size())));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
@@ -325,6 +328,20 @@ public class NewspaperExporter {
                                                 .orElse(null))
                                         .orElse(null)
                         );
+
+                        // Update issueName
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueName")
+                                .setText(AdmBsmeExportHelper.getMetdata(supplementDs, config.getString("/metadata/issueName")));
+
+                        // Update issueNotes
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueNotes")
+                                .setText(AdmBsmeExportHelper.getMetdata(supplementDs, config.getString("/metadata/issueNotes")));
 
                         simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-" + suffix + ".xml", supplementDoc);
                     }

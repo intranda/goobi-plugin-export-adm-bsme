@@ -84,6 +84,8 @@
 		<titleLabel>TitleDocMain</titleLabel>
 		<modsTitle>MainTitle</modsTitle>
 		<issueNumber>CurrentNo</issueNumber>
+		<issueName>IssueName</issueName>
+		<issueNotes>AdmIssueNote</issueNotes>
 		<sortNumber>CurrentNoSorting</sortNumber>
 		<language>DocLanguage</language>
 		<location>PhysicalLocation</location>
