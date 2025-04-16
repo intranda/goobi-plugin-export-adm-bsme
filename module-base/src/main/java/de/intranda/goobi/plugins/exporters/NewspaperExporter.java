@@ -175,7 +175,7 @@ public class NewspaperExporter {
                 issue.addContent(new Element("issueNotes").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNotes"))));
 
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
-                issue.addContent(new Element("No_of_Pages").setText(String.valueOf(ds.getAllToReferences("logical_physical").size())));
+                issue.addContent(new Element("No_of_Pages"));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));
                 issue.addContent(
@@ -277,6 +277,8 @@ public class NewspaperExporter {
                 simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-MI" + ".xml", doc);
                 pdfIssues.add(pdfi);
 
+                Set<String> supplementPages = new HashSet<>();
+
                 // Export each supplement on its own
                 for (DocStruct supplementDs : ds.getAllChildrenAsFlatList()) {
                     if (supplementDs.getType().getName().equals(config.getString("/docstruct/supplement"))) {
@@ -294,6 +296,7 @@ public class NewspaperExporter {
                                 pagesToKeep.add(fileMap.get(realFileNameWithoutExtension));
                             }
                         }
+                        supplementPages.addAll(pagesToKeep);
 
                         // Remove all Page elements not belonging to this supplement
                         List<Element> pages = supplementDoc.getRootElement().getChild("Pages").getChildren("Page");
@@ -316,8 +319,15 @@ public class NewspaperExporter {
                         }
 
                         // Update No_of_Pages value
-                        Element noOfPages = supplementDoc.getRootElement().getChild("volumeInfo").getChild("issueInfo").getChild("No_of_Pages");
-                        noOfPages.setText(String.valueOf(supplementDoc.getRootElement().getChild("Pages").getChildren("Page").size()));
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("No_of_Pages")
+                                .setText(
+                                        String.valueOf(supplementDoc.getRootElement()
+                                                .getChild("Pages")
+                                                .getChildren("Page")
+                                                .size()));
 
                         String suffix = determineSupplementBasedOnIssueName(
                                 Optional.ofNullable(supplementDs.getAllMetadata())
@@ -346,6 +356,37 @@ public class NewspaperExporter {
                         simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-" + suffix + ".xml", supplementDoc);
                     }
                 }
+
+                // Remove all supplement Page elements from the issue
+                List<Element> pages = doc.getRootElement().getChild("Pages").getChildren("Page");
+                Iterator<Element> iterator = pages.iterator();
+                while (iterator.hasNext()) {
+                    Element child = iterator.next();
+                    Element master = child.getChild("master");
+                    if (master != null) {
+                        Element file = master.getChild("file");
+                        if (file == null) {
+                            iterator.remove();
+                        } else {
+                            String value = file.getTextTrim();
+                            String fileNameWithoutExtension = value.substring(0, value.lastIndexOf("."));
+                            if (supplementPages.contains(fileNameWithoutExtension)) {
+                                iterator.remove();
+                            }
+                        }
+                    }
+                }
+
+                // Update No_of_Pages value
+                doc.getRootElement()
+                        .getChild("volumeInfo")
+                        .getChild("issueInfo")
+                        .getChild("No_of_Pages")
+                        .setText(
+                                String.valueOf(doc.getRootElement()
+                                        .getChild("Pages")
+                                        .getChildren("Page")
+                                        .size()));
             }
         }
 
