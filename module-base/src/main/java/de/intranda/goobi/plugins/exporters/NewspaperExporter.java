@@ -21,10 +21,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import ugh.dl.DigitalDocument;
-import ugh.dl.DocStruct;
-import ugh.dl.Prefs;
-import ugh.dl.Reference;
+import ugh.dl.*;
 import ugh.exceptions.MetadataTypeNotAllowedException;
 import ugh.exceptions.PreferencesException;
 import ugh.exceptions.TypeNotAllowedForParentException;
@@ -34,10 +31,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
@@ -277,8 +271,64 @@ public class NewspaperExporter {
                     }
                 }
 
-                simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + ".xml", doc);
+                simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-MI" + ".xml", doc);
                 pdfIssues.add(pdfi);
+
+                // Export each supplement on its own
+                for (DocStruct supplementDs : ds.getAllChildrenAsFlatList()) {
+                    if (supplementDs.getType().getName().equals(config.getString("/docstruct/supplement"))) {
+                        Document supplementDoc = doc.clone();
+
+                        System.err.println(supplementDoc);
+
+                        Set<String> pagesToKeep = new HashSet<>();
+                        List<Reference> supplementRefs = supplementDs.getAllToReferences("logical_physical");
+                        if (refs != null) {
+                            for (Reference ref : supplementRefs) {
+                                DocStruct page = ref.getTarget();
+                                String realFileName = page.getImageName();
+                                String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
+                                pagesToKeep.add(fileMap.get(realFileNameWithoutExtension));
+                            }
+                        }
+
+                        // Remove all Page elements not belonging to this supplement
+                        List<Element> pages = supplementDoc.getRootElement().getChild("Pages").getChildren("Page");
+                        Iterator<Element> iterator = pages.iterator();
+                        while (iterator.hasNext()) {
+                            Element child = iterator.next();
+                            Element master = child.getChild("master");
+                            if (master != null) {
+                                Element file = master.getChild("file");
+                                if (file == null) {
+                                    iterator.remove();
+                                } else {
+                                    String value = file.getTextTrim();
+                                    String fileNameWithoutExtension = value.substring(0, value.lastIndexOf("."));
+                                    if (!pagesToKeep.contains(fileNameWithoutExtension)) {
+                                        iterator.remove();
+                                    }
+                                }
+                            }
+                        }
+
+                        // Update No_of_Pages value
+                        Element noOfPages = supplementDoc.getRootElement().getChild("volumeInfo").getChild("issueInfo").getChild("No_of_Pages");
+                        noOfPages.setText(String.valueOf(supplementDoc.getRootElement().getChild("Pages").getChildren("Page").size()));
+
+                        String suffix = determineSupplementBasedOnIssueName(
+                                Optional.ofNullable(supplementDs.getAllMetadata())
+                                        .map(allMetadata -> allMetadata.stream()
+                                                .filter(m -> m.getType().getName().equals("IssueName"))
+                                                .findFirst()
+                                                .map(Metadata::getValue)
+                                                .orElse(null))
+                                        .orElse(null)
+                        );
+
+                        simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-" + suffix + ".xml", supplementDoc);
+                    }
+                }
             }
         }
 
@@ -348,6 +398,35 @@ public class NewspaperExporter {
         }
 
         return success;
+    }
+
+    private static String determineSupplementBasedOnIssueName(String issueName) {
+        if (issueName.contains("Munawat")) {
+            return "MS";
+        }
+        if (issueName.contains("Sport")) {
+            return "SS";
+        }
+        if (issueName.contains("Economics")) {
+            return "ES";
+        }
+        if (issueName.contains("Other")) {
+            return "OS";
+        }
+        if (issueName.contains("Arabic and International")) {
+            return "IS";
+        }
+        if (issueName.contains("Culture")) {
+            return "CS";
+        }
+        if (issueName.contains("Local")) {
+            return "LS";
+        }
+        if (issueName.contains("Viewpoints")) {
+            return "VS";
+        }
+
+        return "ZZ";
     }
 
 }

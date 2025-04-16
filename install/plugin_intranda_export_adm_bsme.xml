@@ -102,6 +102,7 @@
 		<month>Month</month>
 		<day>Day</day>
 		<issue>NewspaperIssue</issue>
+		<supplement>NewspaperSupplement</supplement>
 		<newspaperStub>NewspaperStub</newspaperStub>
 	</docstruct>
 
