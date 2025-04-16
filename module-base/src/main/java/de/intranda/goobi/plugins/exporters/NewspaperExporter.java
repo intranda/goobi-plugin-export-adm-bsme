@@ -129,6 +129,7 @@ public class NewspaperExporter {
                 String mediaGroup = vr.replace(config.getString("/mediaGroup"));
                 String sourceOrganisation = vr.replace(config.getString("/sourceOrganisation"));
                 String frequency = vr.replace(config.getString("/frequency"));
+                String volumeNumber = vr.replace(config.getString("/volumeNumber"));
 
                 volume.addContent(new Element("Rights_to_Use").setText(rightsToUse));
                 volume.addContent(new Element("Right_Details").setText(rightsDetails));
@@ -141,6 +142,8 @@ public class NewspaperExporter {
                         .setText(AdmBsmeExportHelper.getLanguageFullname(anchor, config.getString("/metadata/language"))));
                 volume.addContent(
                         new Element("Source_Organization").setText(sourceOrganisation));
+                volume.addContent(
+                        new Element("Volume_Number").setText(volumeNumber));
 
                 // volume.addContent(new Element("Publication_ID").setText(volumeId));
 
@@ -175,6 +178,7 @@ public class NewspaperExporter {
                 issue.addContent(new Element("issueTitleARA").setText(date + "-" + anchorTitleAra));
 
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
+                issue.addContent(new Element("No_of_Pages").setText(String.valueOf(ds.getAllToReferences("logical_physical").size())));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
                 issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));
                 issue.addContent(
@@ -278,15 +282,18 @@ public class NewspaperExporter {
             }
         }
 
+        boolean success = true;
+
         // write the newspaper METS files
         try {
             NewspaperMetsCreator nmc = new NewspaperMetsCreator(config, process, prefs, dd, fileMap);
             nmc.exportMetsFile();
         } catch (WriteException | PreferencesException | MetadataTypeNotAllowedException
                 | TypeNotAllowedForParentException | IOException | SwapException | DAOException e) {
-            log.error("Error writing the mets file", e);
-            Helper.setFehlerMeldung("Error writing the mets file", e);
-            return false;
+            String message = "Error writing the mets file";
+            log.error(message, e);
+            Helper.setFehlerMeldung(message, e);
+            success = false;
         }
 
         // copy all important files to target folder
@@ -295,8 +302,10 @@ public class NewspaperExporter {
             AdmBsmeExportHelper.copyFolderContent(process.getOcrAltoDirectory(), "xml", fileMap, targetFolder);
             AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
         } catch (IOException | SwapException | DAOException e) {
-            log.error("Error while copying the image files to export folder", e);
-            return false;
+            String message = "Error while copying the image files to export folder";
+            log.error(message, e);
+            Helper.setFehlerMeldung(message, e);
+            success = false;
         }
 
         // generate PDF files per issue
@@ -316,8 +325,10 @@ public class NewspaperExporter {
                 }
 
             } catch (IOException | SwapException e) {
-                log.error("Error while generating PDF files", e);
-                return false;
+                String message = "Error while generating PDF files";
+                log.error(message, e);
+                Helper.setFehlerMeldung(message, e);
+                success = false;
             }
         }
 
@@ -329,12 +340,14 @@ public class NewspaperExporter {
             try (FileOutputStream fileOutputStream = new FileOutputStream(xmlfile)) {
                 xmlOutputter.output(simpleXmlMap.get(key), fileOutputStream);
             } catch (IOException e) {
-                log.error("Error writing the simple xml file", e);
-                return false;
+                String message = "Error writing the simple xml file";
+                log.error(message, e);
+                Helper.setFehlerMeldung(message, e);
+                success = false;
             }
         }
 
-        return true;
+        return success;
     }
 
 }
