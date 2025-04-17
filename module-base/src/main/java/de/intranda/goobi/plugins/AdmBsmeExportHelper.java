@@ -201,7 +201,8 @@ public class AdmBsmeExportHelper {
 
     public static void gluePDF(List<File> inputFiles, File outputFile) throws IOException {
         if (inputFiles.isEmpty()) {
-            log.warn("No input files to glue together");
+            String message = "No input PDF files to glue together";
+            log.warn(message);
             return;
         }
 

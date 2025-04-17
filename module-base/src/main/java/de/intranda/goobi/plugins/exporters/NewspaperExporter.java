@@ -30,9 +30,9 @@ import ugh.exceptions.WriteException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
@@ -102,6 +102,13 @@ public class NewspaperExporter {
             return false;
         }
 
+        List<Path> pdfFiles = Collections.emptyList();
+        try {
+             pdfFiles = StorageProvider.getInstance().listFiles(process.getOcrPdfDirectory());
+        } catch (IOException | SwapException e) {
+            log.warn("Unable to find OCR PDF files", e);
+        }
+
         // run through all NewspaperIssues
         for (DocStruct ds : topStruct.getAllChildrenAsFlatList()) {
             if (ds.getType().getName().equals(config.getString("/docstruct/issue"))) {
@@ -152,24 +159,27 @@ public class NewspaperExporter {
                 volume.addContent(issue);
                 issue.addContent(
                         new Element("issueNumber").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNumber"))));
-                issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate));
+                issue.addContent(new Element("issueID").setText(volumeId + "-" + simpleDate + "-" + "MI"));
                 issue.addContent(new Element("issueFrequency").setText(frequency));
 
                 // get all title information
                 String anchorTitle = AdmBsmeExportHelper.getMetdata(anchor, config.getString("/metadata/titleLabel"));
                 String anchorTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(anchorTitle);
                 String anchorTitleAra = AdmBsmeExportHelper.getArabicPartOfString(anchorTitle);
-                String issueTitle =
-                        AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
+                String issueTitle = AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/titleLabel")));
+                String issueName = AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueName")));
+                String issueTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(issueName);
+                String issueTitleAra = AdmBsmeExportHelper.getArabicPartOfString(issueName);
+
 
                 // convert date from from yyyy-mm-dd to dd-mm-yyyy
                 String date = AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"));
                 date = AdmBsmeExportHelper.convertDateFormatToDayMonthYear(date);
 
                 // add an English title
-                issue.addContent(new Element("issueTitleENG").setText(anchorTitleEng + "-" + date));
+                issue.addContent(new Element("issueTitleENG").setText(issueTitleEng + "-" + date));
                 // add an Arabic title
-                issue.addContent(new Element("issueTitleARA").setText(date + "-" + anchorTitleAra));
+                issue.addContent(new Element("issueTitleARA").setText(date + "-" + issueTitleAra));
 
                 issue.addContent(new Element("issueName").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueName"))));
                 issue.addContent(new Element("issueNotes").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueNotes"))));
@@ -177,7 +187,7 @@ public class NewspaperExporter {
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("No_of_Pages"));
                 issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
-                issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + ".pdf").setAttribute("Format", "application/pdf"));
+                issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + "-MI" + ".pdf").setAttribute("Format", "application/pdf"));
                 issue.addContent(
                         new Element("MetadataMetsFile").setText(volumeId + "-" + simpleDate + "-mets.xml").setAttribute("Format", "application/xml"));
 
@@ -187,7 +197,7 @@ public class NewspaperExporter {
 
                 PdfIssue pdfi = new PdfIssue();
                 pdfi.setFolder(targetFolder);
-                pdfi.setName(targetFolder + volumeId + "-" + simpleDate + ".pdf");
+                pdfi.setName(targetFolder + volumeId + "-" + simpleDate + "-" + "MI" + ".pdf");
 
                 List<Reference> refs = ds.getAllToReferences("logical_physical");
                 if (refs != null) {
@@ -204,10 +214,14 @@ public class NewspaperExporter {
                             fileMap.put(realFileNameWithoutExtension, exportFileName);
                         }
                         pdfi.getFiles().add(exportFileName);
+                        pdfFiles.stream()
+                                .map(Path::toFile)
+                                .filter(f -> f.getName().substring(0, f.getName().lastIndexOf(".")).equals(realFileNameWithoutExtension))
+                                .findFirst()
+                                .ifPresent(pdf -> pdfi.getPdfFiles().add(pdf));
 
                         // add file element
                         Element file = new Element("Page");
-                        file.setAttribute("pg", String.format("%04d", fileCounter));
                         Element master = new Element("master");
 
                         // add image information
@@ -284,9 +298,8 @@ public class NewspaperExporter {
                     if (supplementDs.getType().getName().equals(config.getString("/docstruct/supplement"))) {
                         Document supplementDoc = doc.clone();
 
-                        System.err.println(supplementDoc);
-
                         Set<String> pagesToKeep = new HashSet<>();
+                        List<String> realSupplementPageFileNames = new LinkedList<>();
                         List<Reference> supplementRefs = supplementDs.getAllToReferences("logical_physical");
                         if (refs != null) {
                             for (Reference ref : supplementRefs) {
@@ -294,6 +307,7 @@ public class NewspaperExporter {
                                 String realFileName = page.getImageName();
                                 String realFileNameWithoutExtension = realFileName.substring(0, realFileName.indexOf("."));
                                 pagesToKeep.add(fileMap.get(realFileNameWithoutExtension));
+                                realSupplementPageFileNames.add(realFileNameWithoutExtension);
                             }
                         }
                         supplementPages.addAll(pagesToKeep);
@@ -318,6 +332,11 @@ public class NewspaperExporter {
                             }
                         }
 
+                        // Generate Page element numbering starting from 1
+                        for (int i = 0; i < pages.size(); i++) {
+                            pages.get(i).setAttribute("pg", String.format("%04d", i+1));
+                        }
+
                         // Update No_of_Pages value
                         supplementDoc.getRootElement()
                                 .getChild("volumeInfo")
@@ -339,6 +358,33 @@ public class NewspaperExporter {
                                         .orElse(null)
                         );
 
+                        // Create supplement pdf file
+                        PdfIssue pdfs = new PdfIssue();
+                        pdfs.setFolder(targetFolder);
+                        pdfs.setName(targetFolder + volumeId + "-" + simpleDate + "-" + suffix + ".pdf");
+                        for (String supplementPage : realSupplementPageFileNames) {
+                            pdfFiles.stream()
+                                    .map(Path::toFile)
+                                    .filter(f -> f.getName().substring(0, f.getName().lastIndexOf(".")).equals(supplementPage))
+                                    .findFirst()
+                                    .ifPresent(pdf -> pdfs.getPdfFiles().add(pdf));
+                        }
+                        pdfIssues.add(pdfs);
+
+                        // Update issueID
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueID")
+                                .setText(volumeId + "-" + simpleDate + "-" + suffix);
+
+                        // Update issueFile
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueFile")
+                                .setText(volumeId + "-" + simpleDate + "-" + suffix + ".pdf");
+
                         // Update issueName
                         supplementDoc.getRootElement()
                                 .getChild("volumeInfo")
@@ -352,6 +398,21 @@ public class NewspaperExporter {
                                 .getChild("issueInfo")
                                 .getChild("issueNotes")
                                 .setText(AdmBsmeExportHelper.getMetdata(supplementDs, config.getString("/metadata/issueNotes")));
+
+                        // Update english and arabic titles
+                        String supplementName = AdmBsmeExportHelper.getCleanIssueLabel(AdmBsmeExportHelper.getMetdata(supplementDs, config.getString("/metadata/issueName")));
+                        String supplementTitleEng = AdmBsmeExportHelper.getEnglishPartOfString(supplementName);
+                        String supplementTitleAra = AdmBsmeExportHelper.getArabicPartOfString(supplementName);
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueTitleENG")
+                                .setText(supplementTitleEng + "-" + date);
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("issueTitleARA")
+                                .setText(date + "-" + supplementTitleAra);
 
                         simpleXmlMap.put(targetFolder + volumeId + "-" + simpleDate + "-" + suffix + ".xml", supplementDoc);
                     }
@@ -377,16 +438,18 @@ public class NewspaperExporter {
                     }
                 }
 
+                // Generate Page element numbering starting from 1
+                for (int i = 0; i < pages.size(); i++) {
+                    pages.get(i).setAttribute("pg", String.format("%04d", i+1));
+                }
+
                 // Update No_of_Pages value
                 doc.getRootElement()
                         .getChild("volumeInfo")
                         .getChild("issueInfo")
                         .getChild("No_of_Pages")
                         .setText(
-                                String.valueOf(doc.getRootElement()
-                                        .getChild("Pages")
-                                        .getChildren("Page")
-                                        .size()));
+                                String.valueOf(pages.size()));
             }
         }
 
@@ -419,20 +482,21 @@ public class NewspaperExporter {
         // generate PDF files per issue
         for (PdfIssue pi : pdfIssues) {
             try {
+                // TODO: Create pdf per issue with correct pages
                 gluePDF(
-                        StorageProvider.getInstance().listFiles(process.getOcrPdfDirectory()).stream()
-                                .map(p -> new File(p.toString()))
-                                .collect(Collectors.toList()),
+                        pi.getPdfFiles(),
                         new File(pi.getName())
                 );
 
+                // TODO: Create pdf per supplement with correct pages
+
                 // if a separate PDF copy shall be stored
-                if (StringUtils.isNotBlank(pdfCopyFolder)) {
+                if (StringUtils.isNotBlank(pdfCopyFolder) && StorageProvider.getInstance().isFileExists(Paths.get(pi.getName()))) {
                     StorageProvider.getInstance()
                             .copyFile(Paths.get(pi.getName()), Paths.get(pdfCopyFolder, Paths.get(pi.getName()).getFileName().toString()));
                 }
 
-            } catch (IOException | SwapException e) {
+            } catch (IOException e) {
                 String message = "Error while generating PDF files";
                 log.error(message, e);
                 Helper.setFehlerMeldung(message, e);
