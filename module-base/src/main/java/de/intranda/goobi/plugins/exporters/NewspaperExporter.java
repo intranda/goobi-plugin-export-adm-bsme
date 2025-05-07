@@ -292,6 +292,7 @@ public class NewspaperExporter {
                 pdfIssues.add(pdfi);
 
                 Set<String> supplementPages = new HashSet<>();
+                Set<String> realSupplementPages = new HashSet<>();
 
                 // Export each supplement on its own
                 for (DocStruct supplementDs : ds.getAllChildrenAsFlatList()) {
@@ -311,6 +312,7 @@ public class NewspaperExporter {
                             }
                         }
                         supplementPages.addAll(pagesToKeep);
+                        realSupplementPages.addAll(realSupplementPageFileNames);
 
                         // Remove all Page elements not belonging to this supplement
                         List<Element> pages = supplementDoc.getRootElement().getChild("Pages").getChildren("Page");
@@ -437,6 +439,8 @@ public class NewspaperExporter {
                         }
                     }
                 }
+                pdfi.getFiles().removeIf(supplementPages::contains);
+                pdfi.getPdfFiles().removeIf(pdf -> realSupplementPages.contains(pdf.getName().substring(0, pdf.getName().lastIndexOf("."))));
 
                 // Generate Page element numbering starting from 1
                 for (int i = 0; i < pages.size(); i++) {
