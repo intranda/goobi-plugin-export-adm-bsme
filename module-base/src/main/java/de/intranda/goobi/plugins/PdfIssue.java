@@ -1,5 +1,6 @@
 package de.intranda.goobi.plugins;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ public class PdfIssue {
 	private String folder;
 	@Getter @Setter
 	private List<String> files = new ArrayList<>();
+	@Getter @Setter
+	private List<File> pdfFiles = new ArrayList<>();
 	
 	
 	public Map<String, String> getAsMap() {
