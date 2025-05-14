@@ -33,10 +33,7 @@ import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import ugh.dl.DigitalDocument;
-import ugh.dl.DocStruct;
-import ugh.dl.Prefs;
-import ugh.dl.Reference;
+import ugh.dl.*;
 
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
 import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
@@ -103,6 +100,11 @@ public class MagazineExporter {
             return false;
         }
 
+        final String viewerProcessPath = viewerUrl
+                + "/image/"
+                + AdmBsmeExportHelper.getMetdata(topStruct, "CatalogIDDigital").replace("-", "")
+                + "/";
+
         // prepare xml document
         Document doc = new Document();
         doc.setRootElement(new Element("magazine"));
@@ -162,7 +164,7 @@ public class MagazineExporter {
         // add an Arabic title
         issue.addContent(new Element("issueTitleARA").setText(issueDate + "-" + anchorTitleAra));
 
-        issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId));
+        issue.addContent(new Element("Open_In_Viewer").setText(viewerProcessPath));
         issue.addContent(new Element("issueFile").setText(volumeId + ".pdf").setAttribute("Format", "application/pdf"));
         issue.addContent(
                 new Element("issueMetadataFile").setText(volumeId + "-mets.xml").setAttribute("Format", "application/xml"));
