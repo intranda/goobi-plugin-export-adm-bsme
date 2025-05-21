@@ -164,6 +164,7 @@ public class MagazineExporter {
         // add an Arabic title
         issue.addContent(new Element("issueTitleARA").setText(issueDate + "-" + anchorTitleAra));
 
+        issue.addContent(new Element("No_of_Pages"));
         issue.addContent(new Element("Open_In_Viewer").setText(viewerProcessPath));
         issue.addContent(new Element("issueFile").setText(volumeId + ".pdf").setAttribute("Format", "application/pdf"));
         issue.addContent(
@@ -264,6 +265,14 @@ public class MagazineExporter {
 
             }
         }
+
+        // Update No_of_Pages value
+        doc.getRootElement()
+                .getChild("magazineInfo")
+                .getChild("issueInfo")
+                .getChild("No_of_Pages")
+                .setText(
+                        String.valueOf(files.getChildren().size()));
 
         try {
             // copy all important files to target folder
