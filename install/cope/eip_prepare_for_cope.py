@@ -4,6 +4,7 @@
 
 import os
 import shutil
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -48,7 +49,7 @@ def extract_and_rename_eip(source_dir, target_dir):
 
                 os.rename(file_path, Path.joinpath(raw_directory, filename))
         except Exception as e:
-            print(f'An error occurred while processing file {filename}: {e}')
+            print(f'An error occurred while processing file "{filename}":\n\t{e}', file=sys.stderr)
             exit(1)
 
 def get_parser():
