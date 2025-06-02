@@ -49,7 +49,7 @@ def extract_and_rename_eip(source_dir, target_dir):
 
                 os.rename(file_path, Path.joinpath(raw_directory, filename))
         except Exception as e:
-            print(f'An error occurred while processing file "{filename}":\n\t{e}', file=sys.stderr)
+            print(f'An error occurred while processing file "{filename}":\n\tError type: {type(e).__name__}\n\tError message: {e}', file=sys.stderr)
             exit(1)
 
 def get_parser():
