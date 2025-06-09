@@ -109,6 +109,11 @@ public class NewspaperExporter {
             log.warn("Unable to find OCR PDF files", e);
         }
 
+        final String viewerProcessPath = viewerUrl
+                + "/image/"
+                + AdmBsmeExportHelper.getMetdata(topStruct, "CatalogIDDigital").replace("-", "")
+                + "/";
+
         // run through all NewspaperIssues
         for (DocStruct ds : topStruct.getAllChildrenAsFlatList()) {
             if (ds.getType().getName().equals(config.getString("/docstruct/issue"))) {
@@ -186,7 +191,16 @@ public class NewspaperExporter {
 
                 issue.addContent(new Element("issueDate").setText(AdmBsmeExportHelper.getMetdata(ds, config.getString("/metadata/issueDate"))));
                 issue.addContent(new Element("No_of_Pages"));
-                issue.addContent(new Element("Open_In_Viewer").setText(viewerUrl + volumeId + "-" + simpleDate));
+                issue.addContent(new Element("Open_In_Viewer").setText(viewerProcessPath
+                        + ds.getAllToReferences()
+                        .getFirst()
+                        .getTarget()
+                        .getAllMetadata()
+                        .stream()
+                        .filter(m -> m.getType().getName().equals("physPageNumber"))
+                        .findFirst()
+                        .map(Metadata::getValue)
+                        .orElse("")));
                 issue.addContent(new Element("issueFile").setText(volumeId + "-" + simpleDate + "-MI" + ".pdf").setAttribute("Format", "application/pdf"));
                 issue.addContent(
                         new Element("MetadataMetsFile").setText(volumeId + "-" + simpleDate + "-mets.xml").setAttribute("Format", "application/xml"));
@@ -372,6 +386,22 @@ public class NewspaperExporter {
                                     .ifPresent(pdf -> pdfs.getPdfFiles().add(pdf));
                         }
                         pdfIssues.add(pdfs);
+
+                        // Update viewer URL
+                        supplementDoc.getRootElement()
+                                .getChild("volumeInfo")
+                                .getChild("issueInfo")
+                                .getChild("Open_In_Viewer")
+                                .setText(viewerProcessPath
+                                + supplementDs.getAllToReferences()
+                                .getFirst()
+                                .getTarget()
+                                .getAllMetadata()
+                                .stream()
+                                .filter(m -> m.getType().getName().equals("physPageNumber"))
+                                .findFirst()
+                                .map(Metadata::getValue)
+                                .orElse(""));
 
                         // Update issueID
                         supplementDoc.getRootElement()

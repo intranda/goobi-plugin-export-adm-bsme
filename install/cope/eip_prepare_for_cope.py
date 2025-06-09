@@ -4,6 +4,7 @@
 
 import os
 import shutil
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -23,30 +24,33 @@ def extract_and_rename_eip(source_dir, target_dir):
         os.makedirs(raw_directory, exist_ok=True)
 
     for filename in os.listdir(source_dir):
-        if filename.endswith(".eip"):
-            file_path = os.path.join(source_dir, filename)
-            if os.path.isfile(file_path):
-                # Unzip eip to target directory
-                unzip_dir = os.path.join(
-                    target_dir, os.path.splitext(filename)[0])
-                shutil.unpack_archive(filename=file_path,
-                                      extract_dir=unzip_dir, format="zip")
+        try:
+            if filename.endswith(".eip"):
+                file_path = os.path.join(source_dir, filename)
+                if os.path.isfile(file_path):
+                    # Unzip eip to target directory
+                    unzip_dir = os.path.join(
+                        target_dir, os.path.splitext(filename)[0])
+                    shutil.unpack_archive(filename=file_path,
+                                        extract_dir=unzip_dir, format="zip")
 
-                capture_one_dir = os.path.join(unzip_dir, "CaptureOne")
-                settings_old = os.path.join(capture_one_dir, "Settings153")
-                settings_new = os.path.join(capture_one_dir, "Settings131")
+                    capture_one_dir = os.path.join(unzip_dir, "CaptureOne")
+                    settings_old = os.path.join(capture_one_dir, "Settings153")
+                    settings_new = os.path.join(capture_one_dir, "Settings131")
 
-                # Check if CaptureOne directory exists
-                if not os.path.isdir(capture_one_dir):
-                    print(f"{capture_one_dir} does not exist")
-                    exit(1)
+                    # Check if CaptureOne directory exists
+                    if not os.path.isdir(capture_one_dir):
+                        print(f"{capture_one_dir} does not exist")
+                        exit(1)
 
-                # Rename setting directory to matching version for cope
-                if os.path.isdir(settings_old):
-                    os.rename(settings_old, settings_new)
+                    # Rename setting directory to matching version for cope
+                    if os.path.isdir(settings_old):
+                        os.rename(settings_old, settings_new)
 
-            os.rename(file_path, Path.joinpath(raw_directory, filename))
-
+                os.rename(file_path, Path.joinpath(raw_directory, filename))
+        except Exception as e:
+            print(f'An error occurred while processing file "{filename}":\n\tError type: {type(e).__name__}\n\tError message: {e}', file=sys.stderr)
+            exit(1)
 
 def get_parser():
     """provides argument parser"""
