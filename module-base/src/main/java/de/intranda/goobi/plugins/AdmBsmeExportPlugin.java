@@ -97,17 +97,8 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                     success = ne.startExport();
                 }
                 case "Periodical" -> {
-                    // do a regular export
-                    IExportPlugin export = new ExportDms();
-                    export.setExportFulltext(false);
-                    export.setExportImages(false);
-                    success = export.startExport(process);
-
-                    // do the specific export
-                    if (success) {
-                        MagazineExporter ex = new MagazineExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
-                        success = ex.startExport();
-                    }
+                    MagazineExporter ex = new MagazineExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
+                    success = ex.startExport();
                 }
                 case "AdmNegative" -> {
                     NegativeExporter ex = new NegativeExporter(ConfigPlugins.getPluginConfig(title), process, prefs, dd);
