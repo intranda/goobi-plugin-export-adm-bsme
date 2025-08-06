@@ -279,23 +279,6 @@ public class MagazineExporter {
             AdmBsmeExportHelper.copyFolderContent(process.getImagesOrigDirectory(false), "tif", fileMap, targetFolder);
             AdmBsmeExportHelper.copyFolderContent(process.getOcrAltoDirectory(), "xml", fileMap, targetFolder);
             AdmBsmeExportHelper.copyFolderContent(process.getOcrTxtDirectory(), "txt", fileMap, targetFolder);
-            StorageProviderInterface sp = StorageProvider.getInstance();
-
-            // rename the regular METS file
-            Path pmets = Paths.get(targetFolder, volumeId + "-mets.xml");
-            if (sp.isFileExists(pmets)) {
-                sp.deleteFile(pmets);
-            }
-            sp.renameTo(Paths.get(targetFolder, process.getTitel() + ".xml"), pmets.toString());
-
-            // rename the regular anchor METS file
-            Path panchor = Paths.get(targetFolder, volumeId + "-mets_anchor.xml");
-            if (sp.isFileExists(panchor)) {
-                sp.deleteFile(panchor);
-            }
-            sp.renameTo(Paths.get(targetFolder, process.getTitel() + "_anchor.xml"),
-                    panchor.toString());
-
         } catch (IOException | SwapException | DAOException e) {
             log.error("Error while copying the image files to export folder", e);
             return false;
