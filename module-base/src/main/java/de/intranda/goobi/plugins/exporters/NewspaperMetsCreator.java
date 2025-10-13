@@ -104,7 +104,7 @@ public class NewspaperMetsCreator {
      */
     public boolean exportMetsFile() throws IOException, WriteException, PreferencesException,
             MetadataTypeNotAllowedException, TypeNotAllowedForParentException, SwapException, DAOException {
-
+        problems = new ArrayList<>();
         String goobiId = String.valueOf(process.getId());
         config.setExpressionEngine(new XPathExpressionEngine());
 
@@ -723,7 +723,7 @@ public class NewspaperMetsCreator {
                 try {
                     Metadata clone = new Metadata(md.getType());
                     clone.setValue(md.getValue());
-                    clone.setAutorityFile(md.getAuthorityID(), md.getAuthorityURI(), md.getAuthorityValue());
+                    clone.setAuthorityFile(md.getAuthorityID(), md.getAuthorityURI(), md.getAuthorityValue());
                     newDocstruct.addMetadata(clone);
                 } catch (UGHException e) {
                     log.info(e);
@@ -927,7 +927,7 @@ public class NewspaperMetsCreator {
     /**
      * simple comparator for volumes
      */
-    private static Comparator<Volume> volumeComperator = new Comparator<Volume>() { // NOSONAR
+    private static Comparator<Volume> volumeComperator = new Comparator<>() { // NOSONAR
 
         @Override
         public int compare(Volume o1, Volume o2) {
