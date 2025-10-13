@@ -1,27 +1,6 @@
 package de.intranda.goobi.plugins.exporters;
 
-import de.intranda.goobi.plugins.AdmBsmeExportHelper;
-import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.VariableReplacer;
-import de.sub.goobi.helper.exceptions.DAOException;
-import de.sub.goobi.helper.exceptions.SwapException;
-import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
-import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
-import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
-import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
-import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.goobi.beans.Process;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
-import ugh.dl.DigitalDocument;
-import ugh.dl.DocStruct;
-import ugh.dl.Prefs;
-import ugh.dl.Reference;
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +15,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
+import org.apache.commons.configuration.XMLConfiguration;
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.Process;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+
+import de.intranda.goobi.plugins.AdmBsmeExportHelper;
+import de.sub.goobi.helper.StorageProvider;
+import de.sub.goobi.helper.VariableReplacer;
+import de.sub.goobi.helper.exceptions.DAOException;
+import de.sub.goobi.helper.exceptions.SwapException;
+import de.unigoettingen.sub.commons.contentlib.exceptions.ImageManagerException;
+import de.unigoettingen.sub.commons.contentlib.imagelib.ImageInterpreter;
+import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
+import ugh.dl.DigitalDocument;
+import ugh.dl.DocStruct;
+import ugh.dl.Prefs;
+import ugh.dl.Reference;
 
 @PluginImplementation
 @Log4j2
@@ -82,7 +83,7 @@ public class GenericExporter {
     public boolean startExport() {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
-        fileMap = new HashMap<String, String>();
+        fileMap = new HashMap<>();
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
         DocStruct topStruct = dd.getLogicalDocStruct();
 
@@ -156,9 +157,6 @@ public class GenericExporter {
                     exportFileName = identifier;
                     fileMap.put(realFileNameWithoutExtension, exportFileName);
                 }
-
-                // File for OCR plaintext
-                File txtFile = null;
 
                 // add file element
                 Element master = new Element("master");

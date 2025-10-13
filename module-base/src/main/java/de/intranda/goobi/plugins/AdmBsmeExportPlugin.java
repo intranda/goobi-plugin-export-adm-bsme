@@ -1,5 +1,15 @@
 package de.intranda.goobi.plugins;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
+import org.goobi.production.enums.PluginType;
+import org.goobi.production.plugin.interfaces.IExportPlugin;
+import org.goobi.production.plugin.interfaces.IPlugin;
+
 import de.intranda.goobi.plugins.exporters.GenericExporter;
 import de.intranda.goobi.plugins.exporters.MagazineExporter;
 import de.intranda.goobi.plugins.exporters.NegativeExporter;
@@ -7,7 +17,6 @@ import de.intranda.goobi.plugins.exporters.NewspaperExporter;
 import de.intranda.goobi.plugins.exporters.PositiveExporter;
 import de.intranda.goobi.plugins.exporters.SlideExporter;
 import de.sub.goobi.config.ConfigPlugins;
-import de.sub.goobi.export.dms.ExportDms;
 import de.sub.goobi.helper.Helper;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.ExportFileException;
@@ -17,25 +26,23 @@ import de.sub.goobi.metadaten.MetadatenImagesHelper;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import org.goobi.beans.Process;
-import org.goobi.production.enums.LogType;
-import org.goobi.production.enums.PluginType;
-import org.goobi.production.plugin.interfaces.IExportPlugin;
-import org.goobi.production.plugin.interfaces.IPlugin;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
 import ugh.dl.Prefs;
-import ugh.exceptions.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import ugh.exceptions.DocStructHasNoTypeException;
+import ugh.exceptions.MetadataTypeNotAllowedException;
+import ugh.exceptions.PreferencesException;
+import ugh.exceptions.ReadException;
+import ugh.exceptions.TypeNotAllowedForParentException;
+import ugh.exceptions.UGHException;
+import ugh.exceptions.WriteException;
 
 @PluginImplementation
 @Log4j2
 public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
 
+    private static final long serialVersionUID = -1473258973350623965L;
     @Getter
     private String title = "intranda_export_adm_bsme";
     @Getter
@@ -117,8 +124,7 @@ public class AdmBsmeExportPlugin implements IExportPlugin, IPlugin {
                     success = ex.startExport();
                 }
             }
-        } catch (ReadException | PreferencesException | IOException |
-                 SwapException e) {
+        } catch (ReadException | PreferencesException | IOException | SwapException e) {
             problems.add("Export aborted for process with ID: " + e.getMessage());
             Helper.addMessageToProcessJournal(process.getId(), LogType.ERROR, "Export aborte because of an unexpected exception: " + e.getMessage());
             log.error("Export aborted for process with ID " + process.getId(), e);

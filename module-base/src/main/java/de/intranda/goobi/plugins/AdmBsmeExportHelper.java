@@ -1,24 +1,5 @@
 package de.intranda.goobi.plugins;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.pdf.PRAcroForm;
-import com.lowagie.text.pdf.PdfCopy;
-import com.lowagie.text.pdf.PdfImportedPage;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.SimpleBookmark;
-import de.sub.goobi.helper.StorageProvider;
-import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
-import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
-import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.StringUtils;
-import org.goobi.beans.JournalEntry;
-import org.goobi.beans.Process;
-import org.goobi.production.enums.LogType;
-import org.jdom2.Element;
-import ugh.dl.DocStruct;
-import ugh.dl.Metadata;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +13,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+import org.goobi.beans.JournalEntry;
+import org.goobi.beans.Process;
+import org.goobi.production.enums.LogType;
+import org.jdom2.Element;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.pdf.PRAcroForm;
+import com.lowagie.text.pdf.PdfCopy;
+import com.lowagie.text.pdf.PdfImportedPage;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.SimpleBookmark;
+
+import de.sub.goobi.helper.StorageProvider;
+import de.unigoettingen.sub.commons.contentlib.exceptions.ContentLibException;
+import de.unigoettingen.sub.commons.contentlib.servlet.controller.GetPdfAction;
+import de.unigoettingen.sub.commons.contentlib.servlet.model.ContentServerConfiguration;
+import lombok.extern.log4j.Log4j2;
+import ugh.dl.DocStruct;
+import ugh.dl.Metadata;
 
 @Log4j2
 public class AdmBsmeExportHelper {
@@ -182,11 +184,9 @@ public class AdmBsmeExportHelper {
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
 
-        journal.forEach(e ->
-                result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
-                        .setAttribute("type", e.getType().getTitle())
-                        .setText(e.getFormattedContent()))
-        );
+        journal.forEach(e -> result.addContent(new Element("Entry").setAttribute("date", e.getFormattedCreationDate())
+                .setAttribute("type", e.getType().getTitle())
+                .setText(e.getFormattedContent())));
 
         return result;
     }
