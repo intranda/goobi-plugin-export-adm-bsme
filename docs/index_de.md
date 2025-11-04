@@ -3,6 +3,10 @@ title: Individueller Export für das DMS Imagen Media Archive Management
 identifier: intranda_export_adm_bsme
 description: Export Plugin für Goobi workflow zum Erzeugen spezieller Exportformate in die Software Imagen Media Archive Management
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Export Plugin
 ---
 
 ## Einführung

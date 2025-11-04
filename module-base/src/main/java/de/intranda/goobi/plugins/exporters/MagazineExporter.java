@@ -1,9 +1,11 @@
 package de.intranda.goobi.plugins.exporters;
 
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
+import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +25,6 @@ import org.jdom2.output.XMLOutputter;
 import de.intranda.goobi.plugins.AdmBsmeExportHelper;
 import de.intranda.goobi.plugins.PdfIssue;
 import de.sub.goobi.helper.StorageProvider;
-import de.sub.goobi.helper.StorageProviderInterface;
 import de.sub.goobi.helper.VariableReplacer;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
@@ -33,10 +34,10 @@ import de.unigoettingen.sub.commons.contentlib.imagelib.ImageManager;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
-import ugh.dl.*;
-
-import static de.intranda.goobi.plugins.AdmBsmeExportHelper.createTechnicalNotesElementFromRelevantJournalEntries;
-import static de.intranda.goobi.plugins.AdmBsmeExportHelper.gluePDF;
+import ugh.dl.DigitalDocument;
+import ugh.dl.DocStruct;
+import ugh.dl.Prefs;
+import ugh.dl.Reference;
 
 @PluginImplementation
 @Log4j2
@@ -87,7 +88,7 @@ public class MagazineExporter {
     public boolean startExport() {
         vr = new VariableReplacer(dd, prefs, process, null);
         problems = new ArrayList<>();
-        fileMap = new HashMap<String, String>();
+        fileMap = new HashMap<>();
         fileCounter = 0;
         log.debug("Export directory for AdmBsmeExportPlugin: " + targetFolder);
 
@@ -108,7 +109,6 @@ public class MagazineExporter {
         // prepare xml document
         Document doc = new Document();
         doc.setRootElement(new Element("magazine"));
-        String simpleDate = AdmBsmeExportHelper.getMetdata(topStruct, config.getString("/metadata/issueDate")).replace("-", "");
 
         // add volume information
         Element volume = new Element("magazineInfo");
@@ -287,11 +287,12 @@ public class MagazineExporter {
         // generate PDF files per issue
         try {
             gluePDF(
-                    StorageProvider.getInstance().listFiles(process.getOcrPdfDirectory()).stream()
+                    StorageProvider.getInstance()
+                            .listFiles(process.getOcrPdfDirectory())
+                            .stream()
                             .map(p -> new File(p.toString()))
                             .collect(Collectors.toList()),
-                    new File(pdfi.getName())
-            );
+                    new File(pdfi.getName()));
 
             // if a separate PDF copy shall be stored
             if (StringUtils.isNotBlank(pdfCopyFolder)) {
