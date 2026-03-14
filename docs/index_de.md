@@ -148,4 +148,4 @@ Parameter                   | Erläuterung
 `backprint`                 | Informationen über Inhalte auf der Rückseite
 
 
-Für eine einfachere Inbetriebnahme befindet sich in `install`-Ordner des Plugins einn Verzeichnis mit den zwei passende Regelsätze als Referenz, die zu der hier aufgeführte Konfigurationsdatei passen.
+Für eine einfachere Inbetriebnahme befindet sich in `install`-Ordner des Plugins ein Verzeichnis mit den zwei passende Regelsätze als Referenz, die zu der hier aufgeführte Konfigurationsdatei passen.
